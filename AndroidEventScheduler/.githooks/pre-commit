@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+# pre-commit versionado (gerado por bootstrap-foundation.sh): ktlint (auto-formata) + detekt.
+# Só dispara quando há .kt/.kts em stage. Ative com: ./scripts/setup-git-hooks.sh
+#
+# Pular excepcionalmente (ex.: WIP):  SKIP_QUALITY=1 git commit ...
+# Pular todos os hooks (não recomendado): git commit --no-verify
+
+set -euo pipefail
+
+if [ "${SKIP_QUALITY:-0}" = "1" ]; then
+  echo "[pre-commit] SKIP_QUALITY=1 => pulando ktlint/detekt."
+  exit 0
+fi
+
+# O repositório git pode ter a raiz numa pasta ACIMA do projeto Gradle; localizamos o projeto
+# relativo a este arquivo de hook (…/.githooks/pre-commit => …).
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+PROJECT_ROOT="$(cd "${HOOK_DIR}/.." && pwd)"
+GIT_ROOT="$(git rev-parse --show-toplevel)"
+GRADLEW="${PROJECT_ROOT}/gradlew"
+
+STAGED_KT="$(git diff --cached --name-only --diff-filter=ACMR -- '*.kt' '*.kts' || true)"
+[ -z "${STAGED_KT}" ] && exit 0
+
+if [ ! -x "${GRADLEW}" ]; then
+  echo "[pre-commit] gradlew não encontrado/executável em ${GRADLEW}. Commit BLOQUEADO."
+  echo "  (pule excepcionalmente com: SKIP_QUALITY=1 git commit)"
+  exit 1
+fi
+
+# Arquivos com alterações fora do stage seriam misturados pelo auto-format: peça para separar.
+while IFS= read -r -d '' f; do
+  if ! git diff --quiet -- "${f}"; then
+    echo "[pre-commit] ${f} tem alterações fora do stage. Separe-as antes de commitar."
+    exit 1
+  fi
+done < <(git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' '*.kts')
+
+# 1) ktlintFormat restrito aos arquivos em stage (lista lida pelo convention plugin).
+KTLINT_STAGED_FILES="$(mktemp "${TMPDIR:-/tmp}/ktlint-staged.XXXXXX")"
+trap 'rm -f -- "${KTLINT_STAGED_FILES}"' EXIT
+while IFS= read -r f; do
+  [ -n "${f}" ] && printf '%s\n' "${GIT_ROOT}/${f}" >> "${KTLINT_STAGED_FILES}"
+done <<< "${STAGED_KT}"
+
+echo "[pre-commit] ktlintFormat (auto-correct)..."
+if ! KTLINT_STAGED_FILES="${KTLINT_STAGED_FILES}" "${GRADLEW}" -p "${PROJECT_ROOT}" ktlintFormat --quiet; then
+  echo "[pre-commit] ktlint encontrou violações não auto-corrigíveis. Commit BLOQUEADO."
+  echo "  Veja os detalhes com: ./gradlew ktlintCheck"
+  exit 1
+fi
+
+# Re-adiciona ao index o que o formatter pode ter alterado.
+git diff --cached --name-only --diff-filter=ACMR -z -- '*.kt' '*.kts' |
+  while IFS= read -r -d '' f; do git add -- "${f}" || exit 1; done
+
+# 2) detekt (análise estática; só verifica, não corrige).
+echo "[pre-commit] detekt (análise estática)..."
+if ! "${GRADLEW}" -p "${PROJECT_ROOT}" detekt --quiet; then
+  echo "[pre-commit] detekt encontrou problemas. Commit BLOQUEADO."
+  echo "  Relatórios: <módulo>/build/reports/detekt/ | pular: SKIP_QUALITY=1 git commit"
+  exit 1
+fi
+
+echo "[pre-commit] OK: ktlint + detekt sem bloqueios."
