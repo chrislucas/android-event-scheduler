@@ -19,8 +19,12 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.navigation.Home
 import com.br.androideventscheduler.core.navigation.Splash
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.feature.splash.navigation.splashEntry
+
+// Sem preview: host de navegação que resolve telas e ViewModels pelo Koin; cada tela tem a sua preview.
 
 /**
  * Host de navegação (Navigation 3). Único lugar que conhece todas as features: cada uma contribui com
@@ -42,21 +46,22 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             ),
         entryProvider =
             entryProvider {
-                // Placeholder temporário; substituído pela feature Splash na spec 02.
-                entry<Splash> { SplashPlaceholder() }
+                splashEntry(onNavigateToHome = { backStack.replaceSplashWithHome() })
+                // Placeholder temporário; substituído pela feature Home na spec 05.
+                entry<Home> { HomePlaceholder() }
             },
     )
 }
 
 @Composable
-private fun SplashPlaceholder() {
+private fun HomePlaceholder() {
     Scaffold { innerPadding ->
         Box(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .testTag(SemanticsTags.SPLASH_PLACEHOLDER),
+                    .testTag(SemanticsTags.HOME_PLACEHOLDER),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -67,10 +72,10 @@ private fun SplashPlaceholder() {
     }
 }
 
-@Preview(showBackground = true, name = "Splash placeholder")
+@Preview(showBackground = true, name = "Home placeholder")
 @Composable
-private fun SplashPlaceholderPreview() {
+private fun HomePlaceholderPreview() {
     AndroidEventSchedulerTheme {
-        SplashPlaceholder()
+        HomePlaceholder()
     }
 }
