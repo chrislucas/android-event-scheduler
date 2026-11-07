@@ -22,13 +22,19 @@
 | 14 | `06-home-gaveta-filtros` | 05, 03 | Edita o `HomeViewModel` de 05; usa `UserSettingsRepository` (e-mail da conta) |
 | 15 | `09-seletor-cor-emoji` | 07, **06 (task 1: `HomePreferencesRepository`)** | Junta duas correntes: formulário (07/08) e Home (05/06). Por último nelas para não conflitar |
 | 16 | `13-pesquisa` | 01, 03 (05 só para o atalho da lupa) | Folha do grafo: ninguém depende dela; a lupa da Home usa placeholder até aqui |
+| 17 | `17-importar-exportar-agenda` | 01 (`upsertAll` novo), 03 (item em Configurações), 04 (`ScheduleNextAlarmUseCase`), 10 (`StringProvider`) | Funcionalidade isolada (feature própria); vem antes da 16 para que a autenticação já encontre o seletor/compartilhamento de arquivo e o "arquivo recebido" para integrar |
+| 18 | `16-autenticacao-dispositivo` | 00, 03 (seção Segurança em Configurações); integra 04 (deep link), 12 (share sheet), 14 (ocultar local/notas) e 17 (seletor/arquivo recebido) | **Transversal**: é um gate acima do `AppNavHost` e toca várias telas. Por último, integra tudo de uma vez, sem ramos "se a spec X já existir" |
 
 **Critérios usados, em ordem de peso:** (1) dependência dura de código; (2) risco técnico (alarmes cedo, para descobrir problemas de plataforma antes de empilhar UI); (3) feedback vertical rápido (criar → listar → abrir → editar antes dos "extras"); (4) conflito de arquivos (specs que editam o mesmo ViewModel ficam em sequência).
+
+**Por que 17 e 16 no fim:** são funcionalidades novas, sem ninguém dependendo delas. A 16 altera o `AppNavHost`, a `MainActivity`, Configurações e três outras features; fazê-la por último evita reabrir esses arquivos depois. Se a proteção for prioridade de negócio, ela pode subir para logo após a 03 — nesse caso, as tasks 9 da 16 (integrações) passam a ser feitas pelas specs 12, 14 e 17 quando forem implementadas.
 
 **Marcos de validação manual (aparelho/emulador):**
 - **M1 — após a 7:** criar um lembrete para daqui a 2 min e conferir notificação (spec 04) e permissões de Android 13+/14+.
 - **M2 — após a 10:** tocar a notificação abre o detalhe (deep link, spec 04 R5).
 - **M3 — após a 12:** CRUD completo.
+- **M5 — após a 17:** exportar e enviar por e-mail; salvar no seletor; abrir o anexo com o RememberMe e importar.
+- **M6 — após a 16:** ligar a proteção, sair e voltar após o tempo limite, desbloquear com PIN/padrão em emulador API 30+ e API ≤ 29.
 - **M4 — após a posição 12 da lista (specs 14 e 15):** reiniciar o emulador/`adb shell am broadcast -a android.intent.action.BOOT_COMPLETED` e conferir `adb shell dumpsys alarm | grep <pacote>`; tela cheia sobre o bloqueio (spec 14).
 
 ## 2. Grafo de dependências
@@ -43,6 +49,8 @@
                   ├─────────────► 10 ─┴─► 12       (10 exige 01+03; 11 exige 10+04)
                   └─────────────► 13               (exige 01+03)
 ```
+Novas specs: `17` depende de 01, 03, 04 e 10; `16` depende de 00 e 03 e integra 04, 12, 14 e 17.
+
 Três **correntes de arquivos** (cada uma edita sempre o mesmo ViewModel/tela → sequenciais dentro da corrente, independentes entre si):
 
 | Corrente | Specs | Arquivos compartilhados |
@@ -50,6 +58,7 @@ Três **correntes de arquivos** (cada uma edita sempre o mesmo ViewModel/tela �
 | Home | 05 → 06 → 09 (parte Home) | `HomeViewModel`, `HomeUiState`, `HomeScreen` |
 | Upsert | 07 → 08 → 09 (parte formulário) | `UpsertScheduleViewModel`, `UpsertScheduleUiState`, `TitleRow`, `UpsertScheduleScreen` |
 | Detail | 10 → 11 → 12 | `ScheduleDetailViewModel`, `ScheduleDetailUiState`, `ScheduleActionBar`, `ScheduleDetailScreen` |
+| Configurações / app shell | 03 → 17 → 16 | `SettingsViewModel`, `SettingsScreen`, `AppNavHost`, `MainActivity` (intent-filters, `FLAG_SECURE`) |
 
 A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 prontas; tasks 3–5 (Home) exigem 06 pronta.
 
@@ -94,6 +103,13 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 | 14.t3 | 03.t3 | `defaultSnoozeMinutes` |
 | 15.t1 | 04.t2 | `ScheduleNextAlarmUseCase` |
 | 15.t3–t4 | 15.t1, 04 (manifest) | receiver no manifest |
+| 17.t1 | 01.t4–t6 | `upsertAll` com `@Transaction` no DAO/repositório do núcleo |
+| 17.t4 | 04.t2, 10.t2 | `ScheduleNextAlarmUseCase`; `StringProvider` para o sufixo " (Importado)" |
+| 17.t8 | 03.t5 | item em Configurações |
+| 17.t9 | 04.t8 | mesmo padrão do `DeepLinkState` (`IncomingFileState`) |
+| 16.t3, 16.t8 | 03.t2–t5 | `UserSettings` e tela de Configurações |
+| 16.t7 | 04.t8, 17.t9 | gate só consome deep link e arquivo recebido quando desbloqueado |
+| 16.t9 | 12.t4, 14.t3, 17.t7 | `suppressNextLock()` no share sheet e no SAF; ocultar local/notas no alarme |
 
 ## 4. Artefatos compartilhados: quem cria
 
@@ -106,6 +122,9 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 | `UserSettingsRepository` | 03 | 04, 06, 07, 10, 13, 14 | |
 | `HomePreferencesRepository` | 06 | 09 | |
 | `core.ui.component` (diálogos cor/emoji) | 09 | 07 (via 09), Home | |
+| `ScheduleRepository.upsertAll` | 17 | 17 | transação no núcleo |
+| `AppLockController` (`core.security`) | 16 | app, auth, settings, alarm, backup | gate + `suppressNextLock()` |
+| `IncomingFileState` | 17 | app | arquivo recebido por `VIEW`/`SEND` |
 | `SemanticsTags`, `strings.xml`, `AppModules`, `AppNavHost`, `AndroidManifest` | todas | todas | conflitos **triviais** (linhas adjacentes) |
 
 **Placeholders no `AppNavHost`** (a spec que cria a tela remove o placeholder):
@@ -129,7 +148,8 @@ Com mais de um executor, em **ondas**; dentro de cada onda as specs tocam pacote
 | D | 04 ∥ 10 ∥ 13 | 03 mergeada (10 e 13 não precisam de 04) |
 | E | 05 ∥ 07 ∥ 11 ∥ 14 ∥ 15 | 04 mergeada (11 também exige 10) |
 | F | 06 ∥ 08 ∥ 12 | 05 / 07 / 10(+11) respectivamente |
-| G | 09 | 06 e 08 mergeadas |
+| G | 09 ∥ 17 | 09: 06 e 08 mergeadas · 17: 03, 04 e 10 mergeadas (pode adiantar para a onda E/F) |
+| H | 16 | 17 mergeada (e 12, 14) |
 
 **Nunca em paralelo:** specs da mesma corrente (§2) — conflito **não-trivial** (mesmo ViewModel/barra de ações). Em cada onda, rebase mantendo as linhas de agregação de ambos os lados.
 A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback vertical, as ondas priorizam profundidade do grafo.
@@ -143,6 +163,8 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 14 / 15 | só verificáveis em aparelho | marcos M2/M4; relatar o que não foi verificado |
 | 09 | junção de duas correntes | executar por último nas duas |
 | 10 | concentra `StringProvider` e a fundação do detalhe | não paralelizar 11/12 |
+| 16 | transversal; diálogo do sistema só verificável em aparelho; API < 30 usa caminho diferente | executar por último; marco M6 em duas versões do Android |
+| 17 | arquivo não confiável; integração com apps de e-mail | validação completa antes de gravar; marco M5 |
 
 ## 7. Regras de uso
 
@@ -170,6 +192,8 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 13 | pendente | | | |
 | 14 | pendente | | | |
 | 15 | pendente | | | |
+| 16 | pendente | | | |
+| 17 | pendente | | | |
 
 ### Como manter este documento
 
@@ -183,6 +207,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-07 | Novas specs **16 (autenticação com o bloqueio do dispositivo)** e **17 (importar/exportar a agenda)**, posicionadas no fim (17 → 16); nova corrente Configurações/app shell (03 → 17 → 16) e ondas G/H | Pedido de novas funcionalidades; 16 é transversal e integra 12, 14 e 17 |
 | 2026-11-07 | Spec 02 concluída. A 05 passa a remover também o placeholder de `Home` criado pela 02. Ordem inalterada | Home ainda não existe quando a Splash navega |
 | 2026-11-07 | Spec 00 concluída. Nova dependência implícita de **todas** as specs com testes Robolectric: `TestRememberMeApplication` + `robolectric.properties` (spec 00). Ordem inalterada | Robolectric não executa o `InitializationProvider` |
 | 2026-11-07 | Versão inicial. Corrigidas no `README.md` as dependências que estavam incompletas: 03 → 01; 05 não exige 03; 09 → 06; 10 → 03; 13 → 03 (não exige 05); 14 → 03. Atribuídos dono de `ScheduleNotFoundException` (01) e de `StringProvider` (10) | Análise das tasks entre specs |

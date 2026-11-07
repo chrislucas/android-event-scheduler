@@ -25,10 +25,12 @@ Cada pasta abaixo contém: `requirements.md` (o quê), `design.md` (como), `task
 | 13 | `13-pesquisa` | 01, 03 |
 | 14 | `14-alarme-tela-cheia-adiar` | 04, 03 |
 | 15 | `15-restauracao-pos-boot` | 04 |
+| 16 | `16-autenticacao-dispositivo` | 00, 03 (integra 04, 12, 14 e 17 — ver `ordem-de-execucao.md`) |
+| 17 | `17-importar-exportar-agenda` | 01, 03, 04, 10 (`StringProvider`) |
 
 **Ordem de execução recomendada, dependências por task, ondas de paralelização e status de cada spec: [`ordem-de-execucao.md`](./ordem-de-execucao.md)** (atualizar ao concluir cada spec).
 
-Ordem linear resumida: 00 → 02 → 01 → 03 → 04 → 05 → 07 → 10 → 11 → 12 → 14 → 15 → 08 → 06 → 09 → 13.
+Ordem linear resumida: 00 → 02 → 01 → 03 → 04 → 05 → 07 → 10 → 11 → 12 → 14 → 15 → 08 → 06 → 09 → 13 → 17 → 16.
 
 Paralelização (ver `steering/fluxo-de-trabalho.md` §3 e as ondas em `ordem-de-execucao.md` §5): specs de correntes diferentes tocam pacotes distintos e só colidem de forma trivial (`AppModules`, `AppNavHost`, `strings.xml`, `SemanticsTags.kt`); specs da mesma corrente (05→06, 07→08→09, 10→11→12) são sequenciais.
 
