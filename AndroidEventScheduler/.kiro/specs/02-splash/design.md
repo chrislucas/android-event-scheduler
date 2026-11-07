@@ -52,6 +52,14 @@ Como o `ViewModel` sobrevive à rotação, `hasStarted` + Channel garantem entre
 ## SplashScreen do sistema
 `core-splashscreen` + `installSplashScreen()` na `MainActivity`; `themes.xml` com `windowSplashScreenBackground=#0A0A0A` e ícone do app.
 
+## Desvios na execução
+
+- A troca Splash → Home é a função pura `MutableList<NavKey>.replaceSplashWithHome()` em `app/AppNavigation.kt` (adiciona a Home antes de remover a Splash), testada isoladamente.
+- Como a Home ainda não existe, o `AppNavHost` ganhou um **placeholder de Home** (`SemanticsTags.HOME_PLACEHOLDER`), removido pela spec 05.
+- `KoinModulesVerificationTest` passou a verificar o grafo **agregado** (`module { includes(appModules) }.verify()`): módulos de feature dependem de definições do `core`.
+- O ViewModel roda no dispatcher `default` (injetado); o atraso é a constante `SPLASH_DELAY_MILLIS` (sem parâmetro de construtor, para o grafo Koin não precisar de um `Long`).
+- Ícone: vetor próprio (`ic_bell`, Material Icons "notifications", Apache 2.0) — o Material 3 atual não traz `material-icons-core`.
+
 ## Decisões de UseCase
 Nenhum (sem regra de negócio; o tempo de espera é detalhe de apresentação).
 

@@ -32,10 +32,10 @@ class StartupAndSmokeRobolectricTest {
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun `given app launched when main activity starts then splash placeholder is shown`() {
-        composeRule.onNodeWithTag(SemanticsTags.SPLASH_PLACEHOLDER).assertIsDisplayed()
-        val appName = composeRule.activity.getString(R.string.app_name)
-        composeRule.onNodeWithText(appName).assertIsDisplayed()
+    fun `given app launched when main activity starts then splash is the first screen`() {
+        composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
+        val title = composeRule.activity.getString(R.string.splash_title)
+        composeRule.onNodeWithText(title).assertIsDisplayed()
     }
 
     @Test

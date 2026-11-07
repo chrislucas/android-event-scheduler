@@ -24,6 +24,7 @@ mockk = "1.14.11"
 robolectric = "4.17"
 desugarJdkLibs = "2.1.5"
 androidxTestCore = "1.7.0"
+coreSplashscreen = "1.2.0"
 
 [libraries]
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin" }
@@ -33,6 +34,7 @@ koin-compose = { group = "io.insert-koin", name = "koin-compose" }
 koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel" }
 koin-test = { group = "io.insert-koin", name = "koin-test" }
 koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }

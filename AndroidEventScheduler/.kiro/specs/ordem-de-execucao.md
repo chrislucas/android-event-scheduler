@@ -112,7 +112,8 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 
 | Destino | Placeholder criado em | Removido em |
 |---|---|---|
-| `Splash` | 00 | 02 |
+| `Splash` | 00 | 02 ✅ |
+| `Home` (destino da Splash) | 02 | 05 |
 | `Search`, `Upsert`, `Detail`, `Settings` (saídas da Home) | 05 | 13, 07, 10 e 03 (entry) / 06 (ligação pela gaveta) |
 | `Detail` (deep link da notificação) | 04 | 10 |
 
@@ -155,7 +156,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 |---|---|---|---|---|
 | 00 | **concluída** (aguardando merge) | 2026-11-07 | `feat/00-fundacao-projeto` / PR [#1](https://github.com/chrislucas/android-event-scheduler/pull/1) | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
 | 01 | pendente | | | |
-| 02 | pendente | | | |
+| 02 | **concluída** (aguardando merge) | 2026-11-07 | `feat/02-splash` / PR [#2](https://github.com/chrislucas/android-event-scheduler/pull/2) | placeholder de **Home** no `AppNavHost` (removido na 05); verificação Koin do grafo agregado |
 | 03 | pendente | | | |
 | 04 | pendente | | | |
 | 05 | pendente | | | |
@@ -182,5 +183,6 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-07 | Spec 02 concluída. A 05 passa a remover também o placeholder de `Home` criado pela 02. Ordem inalterada | Home ainda não existe quando a Splash navega |
 | 2026-11-07 | Spec 00 concluída. Nova dependência implícita de **todas** as specs com testes Robolectric: `TestRememberMeApplication` + `robolectric.properties` (spec 00). Ordem inalterada | Robolectric não executa o `InitializationProvider` |
 | 2026-11-07 | Versão inicial. Corrigidas no `README.md` as dependências que estavam incompletas: 03 → 01; 05 não exige 03; 09 → 06; 10 → 03; 13 → 03 (não exige 05); 14 → 03. Atribuídos dono de `ScheduleNotFoundException` (01) e de `StringProvider` (10) | Análise das tasks entre specs |
