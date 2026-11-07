@@ -4,4 +4,22 @@
     <!-- Splash -->
     <string name="splash_title">RememberMe</string>
     <string name="splash_logo_description">Logo do aplicativo RememberMe</string>
+
+    <!-- Formatação compartilhada (core.ui.format) -->
+    <string name="recurrence_none">Não repetir</string>
+    <string name="recurrence_daily">Diariamente</string>
+    <string name="recurrence_weekly_on">Toda semana em %1$s</string>
+    <string name="recurrence_with_limit">%1$s (%2$s)</string>
+    <string name="list_separator">,\u0020</string>
+    <plurals name="recurrence_times">
+        <item quantity="one">%1$d vez</item>
+        <item quantity="other">%1$d vezes</item>
+    </plurals>
+    <string name="reminder_none">Sem alerta</string>
+    <string name="reminder_one_hour_before">1 hora antes</string>
+    <plurals name="reminder_minutes_before">
+        <item quantity="one">%1$d minuto antes</item>
+        <item quantity="other">%1$d minutos antes</item>
+    </plurals>
+    <string name="date_time_short">%1$s, %2$s</string>
 </resources>
