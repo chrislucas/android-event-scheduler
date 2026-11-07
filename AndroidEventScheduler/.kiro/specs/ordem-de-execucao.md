@@ -153,7 +153,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 
 | Spec | Status | Concluída em | Branch / PR | Desvios e descobertas |
 |---|---|---|---|---|
-| 00 | **concluída** (aguardando merge) | 2026-11-07 | `feat/00-fundacao-projeto` / PR #PR00 | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
+| 00 | **concluída** (aguardando merge) | 2026-11-07 | `feat/00-fundacao-projeto` / PR [#1](https://github.com/chrislucas/android-event-scheduler/pull/1) | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
 | 01 | pendente | | | |
 | 02 | pendente | | | |
 | 03 | pendente | | | |
