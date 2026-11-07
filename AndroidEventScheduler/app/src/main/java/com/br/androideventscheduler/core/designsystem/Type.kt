@@ -1,4 +1,4 @@
-package com.br.androideventscheduler.ui.theme
+package com.br.androideventscheduler.core.designsystem
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

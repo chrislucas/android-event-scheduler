@@ -1,64 +1,37 @@
-package com.br.androideventscheduler.ui.theme
+package com.br.androideventscheduler.core.designsystem
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme =
+private val RememberMeColorScheme =
     darkColorScheme(
-        primary = Purple80,
-        secondary = PurpleGrey80,
-        tertiary = Pink80,
+        primary = AccentCyan,
+        onPrimary = OnAccentBlack,
+        secondary = AccentCyan,
+        onSecondary = OnAccentBlack,
+        background = BackgroundBlack,
+        onBackground = TextPrimary,
+        surface = SurfaceDark,
+        onSurface = TextPrimary,
+        surfaceVariant = SurfaceElevatedDark,
+        onSurfaceVariant = TextSecondary,
+        surfaceContainer = SurfaceDark,
+        surfaceContainerHigh = SurfaceElevatedDark,
+        error = ErrorRed,
+        outline = OutlineDark,
     )
 
-private val LightColorScheme =
-    lightColorScheme(
-        primary = Purple40,
-        secondary = PurpleGrey40,
-        tertiary = Pink40,
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-     */
-    )
+// Sem preview: wrapper de tema, sem UI própria.
 
+/**
+ * Tema do app: **escuro fixo** (independe do modo do sistema) e **sem cores dinâmicas** (Material You),
+ * para manter a identidade visual do RememberMe.
+ */
 @Composable
-fun AndroidEventSchedulerTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit,
-) {
-    val colorScheme =
-        when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
-
-            darkTheme -> {
-                DarkColorScheme
-            }
-
-            else -> {
-                LightColorScheme
-            }
-        }
-
+fun AndroidEventSchedulerTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = RememberMeColorScheme,
         typography = Typography,
         content = content,
     )
