@@ -1,0 +1,67 @@
+# Configuração do Detekt para __PROJECT_NAME__.
+# Variante detekt 1.23.x. Usada com buildUponDefaultConfig = true (herda os defaults do Detekt).
+# Para ver todas as regras disponíveis: ./gradlew detektGenerateConfig
+# Findings legados: ./gradlew detektBaseline (gera config/detekt/baseline.xml).
+
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 80
+    # Composables e testes costumam ser longos por natureza declarativa.
+    ignoreAnnotated: ['Composable', 'Preview']
+  LongParameterList:
+    active: true
+    functionThreshold: 8
+    constructorThreshold: 10   # ViewModels/UseCases com várias dependências injetadas
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: false              # ViewModels/telas podem ter vários handlers
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 15
+    ignoreAnnotated: ['Composable']
+
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+  MagicNumber:
+    active: false              # cores, dimensões e constantes de domínio são legítimas
+  ReturnCount:
+    active: true
+    max: 4
+  UnusedPrivateMember:
+    active: true
+    # @Preview privada é usada pelo Android Studio, não pelo código.
+    ignoreAnnotated: ['Preview']
+  UnusedPrivateProperty:
+    active: true
+  # Estilo/formatação é do ktlint; desligadas aqui para não duplicar findings.
+  WildcardImport:
+    active: false
+  NewLineAtEndOfFile:
+    active: false
+
+naming:
+  FunctionNaming:
+    active: true
+    # Permite @Composable em PascalCase e testes com crase (given/when/then).
+    ignoreAnnotated: ['Composable']
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**']
+  TopLevelPropertyNaming:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    # runCatching/receivers precisam capturar Exception genérica em fronteiras do sistema.
+    allowedExceptionNameRegex: '_|(ignore|expected).*'

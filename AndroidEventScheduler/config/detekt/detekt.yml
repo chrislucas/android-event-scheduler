@@ -1,0 +1,63 @@
+# Configuração do Detekt para AndroidEventScheduler.
+# Variante detekt 2.x (nomes de propriedades da 2.0). Usada com buildUponDefaultConfig = true.
+# Para ver todas as regras disponíveis: ./gradlew detektGenerateConfig
+# Findings legados: ./gradlew detektBaseline (gera config/detekt/baseline.xml).
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    active: true
+    allowedLines: 80
+    # Composables e testes costumam ser longos por natureza declarativa.
+    ignoreAnnotated: ['Composable', 'Preview']
+  LongParameterList:
+    active: true
+    allowedFunctionParameters: 8
+    allowedConstructorParameters: 10   # ViewModels/UseCases com várias dependências injetadas
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: false              # ViewModels/telas podem ter vários handlers
+  CyclomaticComplexMethod:
+    active: true
+    allowedComplexity: 15
+    ignoreAnnotated: ['Composable']
+
+style:
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+  MagicNumber:
+    active: false              # cores, dimensões e constantes de domínio são legítimas
+  ReturnCount:
+    active: true
+    max: 4
+  UnusedPrivateFunction:
+    active: true
+    # @Preview privada é usada pelo Android Studio, não pelo código.
+    ignoreAnnotated: ['Preview']
+  UnusedPrivateProperty:
+    active: true
+  # Estilo/formatação é do ktlint; desligadas aqui para não duplicar findings.
+  WildcardImport:
+    active: false
+  NewLineAtEndOfFile:
+    active: false
+
+naming:
+  FunctionNaming:
+    active: true
+    # Permite @Composable em PascalCase e testes com crase (given/when/then).
+    ignoreAnnotated: ['Composable']
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**']
+  TopLevelPropertyNaming:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    # runCatching/receivers precisam capturar Exception genérica em fronteiras do sistema.
+    allowedExceptionNameRegex: '_|(ignore|expected).*'

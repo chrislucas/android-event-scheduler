@@ -1,0 +1,100 @@
+name: CI Validation
+
+# Gerado por docs/project-foundation/bootstrap-foundation.sh (AndroidEventScheduler).
+# Análise estática (ktlint + detekt), testes unitários e compilação. NÃO gera artefato publicável.
+#
+# Uma execução por push/PR:
+# - branches de integração (main): pelo evento push;
+# - branches de trabalho: pelo PR aberto contra uma delas (testa o resultado do merge).
+#   Ter as duas no push faria cada commit de um PR rodar duas vezes.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ci-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Este arquivo PRECISA ficar em .github/workflows/ na raiz do repositório git (o GitHub ignora
+# workflows em subpastas). O projeto Gradle fica em 'AndroidEventScheduler'.
+defaults:
+  run:
+    working-directory: AndroidEventScheduler
+
+jobs:
+  quality:
+    name: Análise estática (ktlint + detekt)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 25 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Validar o checksum do Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Configurar Gradle (cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: ktlint + detekt
+        run: ./gradlew ktlintCheck detekt --stacktrace
+
+      - name: Publicar relatórios de qualidade
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports-${{ github.run_id }}
+          path: |
+            AndroidEventScheduler/**/build/reports/ktlint/**
+            AndroidEventScheduler/**/build/reports/detekt/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+  build:
+    name: Testes e compilação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 25 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Validar o checksum do Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Configurar Gradle (cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Testes unitários
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Compilar (sem publicar artefato)
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Publicar relatórios de teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ github.run_id }}
+          path: |
+            AndroidEventScheduler/**/build/reports/tests/**
+            AndroidEventScheduler/**/build/test-results/**/*.xml
+          if-no-files-found: ignore
+          retention-days: 7
