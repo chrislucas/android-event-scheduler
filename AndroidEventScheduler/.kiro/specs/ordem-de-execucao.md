@@ -61,7 +61,7 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 |---|---|---|
 | **todas as specs**, última task | 00.t6 | `KoinModulesVerificationTest` cresce a cada módulo |
 | **todas as telas** | 00.t2, t3, t7 | tema, `CollectEffects`/`SemanticsTags`, rotas + `AppNavHost` |
-| **todos os testes** | 00.t4 | `MainDispatcherRule`, `FakeClock` |
+| **todos os testes** | 00.t4, 00.t9 | `MainDispatcherRule`, `FakeClock`; testes Robolectric dependem de `TestRememberMeApplication` |
 | 00.t5 | 00.t1 | Koin e App Startup dependem das bibliotecas |
 | 01.t4 (Room) | 00.t1 | KSP/Room validados no build (risco AGP 9) |
 | 01.t5–t6 | 01.t1b, t2, t3, t4 | mapper usa o normalizador; repositório usa engine + DAO + mapper |
@@ -153,7 +153,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 
 | Spec | Status | Concluída em | Branch / PR | Desvios e descobertas |
 |---|---|---|---|---|
-| 00 | **parcial** — task 8 (qualidade: build-logic, detekt, ktlint, CI, script) concluída; tasks 1–7, 9, 10 pendentes | — | — | detekt 2.0 alpha por causa do JDK 25 |
+| 00 | **concluída** (aguardando merge) | 2026-11-07 | `feat/00-fundacao-projeto` / PR #PR00 | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
 | 01 | pendente | | | |
 | 02 | pendente | | | |
 | 03 | pendente | | | |
@@ -182,4 +182,5 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-07 | Spec 00 concluída. Nova dependência implícita de **todas** as specs com testes Robolectric: `TestRememberMeApplication` + `robolectric.properties` (spec 00). Ordem inalterada | Robolectric não executa o `InitializationProvider` |
 | 2026-11-07 | Versão inicial. Corrigidas no `README.md` as dependências que estavam incompletas: 03 → 01; 05 não exige 03; 09 → 06; 10 → 03; 13 → 03 (não exige 05); 14 → 03. Atribuídos dono de `ScheduleNotFoundException` (01) e de `StringProvider` (10) | Análise das tasks entre specs |

@@ -82,6 +82,14 @@ Dark fixo; `Color.kt` com constantes nomeadas (`BackgroundBlack = 0xFF0A0A0A` �
 ## Decisões de UseCase
 Nenhum UseCase nesta spec.
 
+## Desvios na execução
+
+- `kotlinx-serialization-json` fixado em **1.9.0**: a 1.12.0 traz `kotlin-stdlib` 2.4 e o compilador Kotlin 2.2 do projeto não lê essa metadata.
+- Testes Robolectric usam `TestRememberMeApplication` (`app/src/test/resources/robolectric.properties`): o Robolectric não instancia `ContentProvider`s, então o `InitializationProvider` não roda sozinho; a Application de teste chama o mesmo `AppInitializer.initializeComponent(KoinInitializer)`.
+- `KoinModulesVerificationTest` usa `Module.verify()` (o `checkModules` está depreciado no Koin 4.2).
+- `core-splashscreen` fica para a spec 02 (onde é usado).
+- `dispatchersModule` e `DispatcherNames` em arquivos separados (regra `MatchingDeclarationName` do detekt).
+
 ## Riscos
 - Combinação AGP 9.5 + KSP + Room: validar cedo (task 1).
 - Navigation 3 muda rápido: fixar versão estável e conferir a skill.
