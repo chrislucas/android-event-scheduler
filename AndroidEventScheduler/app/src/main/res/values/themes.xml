@@ -8,4 +8,12 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <!-- Tema de partida (SplashScreen API / core-splashscreen): fundo escuro desde o primeiro frame,
+         sem flash branco. Após installSplashScreen() a Activity passa para o tema principal. -->
+    <style name="Theme.AndroidEventScheduler.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/background_dark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.AndroidEventScheduler</item>
+    </style>
 </resources>
