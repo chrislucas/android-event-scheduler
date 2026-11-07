@@ -156,7 +156,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 |---|---|---|---|---|
 | 00 | **concluída** (aguardando merge) | 2026-11-07 | `feat/00-fundacao-projeto` / PR [#1](https://github.com/chrislucas/android-event-scheduler/pull/1) | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
 | 01 | pendente | | | |
-| 02 | **concluída** (aguardando merge) | 2026-11-07 | `feat/02-splash` / PR #PR02 | placeholder de **Home** no `AppNavHost` (removido na 05); verificação Koin do grafo agregado |
+| 02 | **concluída** (aguardando merge) | 2026-11-07 | `feat/02-splash` / PR [#2](https://github.com/chrislucas/android-event-scheduler/pull/2) | placeholder de **Home** no `AppNavHost` (removido na 05); verificação Koin do grafo agregado |
 | 03 | pendente | | | |
 | 04 | pendente | | | |
 | 05 | pendente | | | |
