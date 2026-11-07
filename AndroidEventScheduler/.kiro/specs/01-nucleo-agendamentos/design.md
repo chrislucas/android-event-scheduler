@@ -91,6 +91,16 @@ Métodos suspend lançam em falha de I/O; quem chama (VM/UseCase) usa `runCatchi
 ## Formatação (apresentação, `core.ui.format`)
 Funções `fun RecurrencePattern.toDisplayLabel(resources: Resources): String` (puras sobre `Resources`, testáveis com Robolectric). Strings: `recurrence_none`, `recurrence_daily`, `recurrence_weekly_on` (`Toda semana em %1$s`), `plurals recurrence_times` (`%d vez`/`%d vezes`), abreviações de dia via `DayOfWeek.getDisplayName(TextStyle.SHORT, Locale("pt","BR"))` (garantir saída `ter.`, `qui.`).
 
+## Desvios na execução
+
+- **Rótulos fora do domínio**: `StickerEmoji` e `EventColorOption` não carregam texto (só emoji/hex). Os rótulos de acessibilidade ("Foguete", "Azul claro") vão para `strings.xml` na spec 09, seguindo `arquitetura.md` §5.5 (domínio não conhece `R`). O mesmo vale para `CalendarSource` (rótulo na spec 06).
+- `ScheduleItem` valida `endDate >= startDate` no `init` (invariante de domínio).
+- Utilitários acrescentados: `CalendarSource.fromId`, `ReminderOffset.fromMinutes`/`DEFAULT` (usados pelo mapper e pelas specs 03/17).
+- Ordenação: no mesmo dia, itens de **dia inteiro primeiro**, depois por horário (DAO e `observeOccurrences`), já atendendo a spec 05 R4.2.
+- `core.ui.format` usa `AppLocale` fixo (`pt-BR`), porque os textos do app só existem em pt-BR; os testes rodam com `@Config(qualifiers = "pt-rBR")`.
+- Formatos conferidos na JVM (CLDR): `qui., 5 de nov., 22:00`, `ter.`, `qui.`. **Não verificado no ICU do Android em aparelho** — revalidar no marco M1.
+- Testes de `Flow` do Room: a invalidação roda em thread própria; coletar em `backgroundScope.launch(Dispatchers.Default)` e receber por `Channel` (tempo virtual não controla o Room). Registrado no steering §5.2.
+
 ## Decisões de UseCase
 Nenhum. `ScheduleRepository` é consumido direto pelos ViewModels (passa-direto). A expansão de recorrência é responsabilidade do repositório + engine (regra de domínio reutilizada por alarmes e home — o engine é injetado, não um UseCase).
 

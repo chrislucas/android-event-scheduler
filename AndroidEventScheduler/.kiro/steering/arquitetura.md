@@ -242,7 +242,7 @@ class HomeViewModelTest {
 
 Equivalentes ao Turbine: `flow.first()`, `flow.take(n).toList()`, `launch { flow.toList(dest) }` + `cancel()`. Para `StateFlow`, ler `.value` após `advanceUntilIdle()`/`runCurrent()`. Tempo (debounce, delay) com tempo virtual (`advanceTimeBy`); relógio com `FakeClock`.
 
-Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources = true`), asserções por `testTag` e semântica. Todo teste Robolectric roda com `TestRememberMeApplication` (via `robolectric.properties`), que inicia o Koin pelo mesmo `AppInitializer` de produção — o Robolectric não executa `ContentProvider`s. Testes que precisem de grafo próprio usam `koinApplication { }` isolado. Room: banco em memória sob Robolectric. Receivers/AlarmManager/notificações: shadows do Robolectric.
+Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources = true`), asserções por `testTag` e semântica. Todo teste Robolectric roda com `TestRememberMeApplication` (via `robolectric.properties`), que inicia o Koin pelo mesmo `AppInitializer` de produção — o Robolectric não executa `ContentProvider`s. Testes que precisem de grafo próprio usam `koinApplication { }` isolado. **`Flow` do Room**: a invalidação acontece numa thread do Room, fora do agendador de teste — colete em `backgroundScope.launch(Dispatchers.Default)` enviando para um `Channel` e use `receive()` (não dependa de tempo virtual nem de `first()` após escrever). Room: banco em memória sob Robolectric. Receivers/AlarmManager/notificações: shadows do Robolectric.
 
 ### 5.3 Preview para todo componente visual (obrigatório)
 

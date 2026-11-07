@@ -1,6 +1,6 @@
 # 09 — Seletor de cor e emoji/adesivo — Tarefas
 
-- [ ] 1. `core.ui.component`: `StickerPickerDialog`, `ColorPickerDialog`, `StickerButton`, `ColorDotButton` + strings/tags/previews + testes Robolectric (R1, R2).
+- [ ] 1. `core.ui.format`: rótulos de acessibilidade em `strings.xml` para `StickerEmoji` ("Rosto sorridente", "Livros de estudo", "Computador e programação", "Foguete", "Estrela", "Comemoração", "Treino", "Pausa para café") e `EventColorOption` ("Azul claro", "Índigo", "Verde-azulado", "Verde oliva", "Roxo", "Coral") com `StickerEmoji.labelRes()`/`EventColorOption.labelRes()` + teste (o domínio da spec 01 não carrega texto). Depois, `core.ui.component`: `StickerPickerDialog`, `ColorPickerDialog`, `StickerButton`, `ColorDotButton` + strings/tags/previews + testes Robolectric (R1, R2).
 - [ ] 2. Upsert: eventos/estado dos pickers e `TitleRow` com os dois botões (R3) + testes de ViewModel (TDD).
 - [ ] 3. (exige a spec 06 concluída — `HomePreferencesRepository`) Home dados: `observeDaySticker`/`setDaySticker` no repositório e implementação + testes (R4.2).
 - [ ] 4. Home apresentação: estado/eventos/ViewModel do adesivo do dia, `DayHeader`, diálogo (R4.1) + testes.
