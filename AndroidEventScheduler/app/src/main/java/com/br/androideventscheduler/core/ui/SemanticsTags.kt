@@ -5,6 +5,10 @@ package com.br.androideventscheduler.core.ui
  * Cada spec acrescenta as suas constantes, agrupadas por tela.
  */
 object SemanticsTags {
-    // Fundação (placeholder temporário da Splash; removido pela spec 02)
-    const val SPLASH_PLACEHOLDER = "splash_placeholder"
+    // Placeholders temporários do AppNavHost (cada spec remove o seu)
+    const val HOME_PLACEHOLDER = "home_placeholder" // removido pela spec 05
+
+    // Splash
+    const val SPLASH_LOGO = "splash_logo"
+    const val SPLASH_TITLE = "splash_title"
 }
