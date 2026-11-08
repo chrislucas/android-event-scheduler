@@ -31,13 +31,10 @@ class RescheduleAllAlarmsUseCase(
         var skippedCount = 0
         var failedCount = 0
         for (item in scheduleRepository.getAll()) {
-            try {
-                if (scheduleNextAlarm(item) != null) scheduledCount++ else skippedCount++
-            } catch (
-                @Suppress("TooGenericExceptionCaught") failure: Exception,
-            ) {
-                failedCount++
-            }
+            // scheduleNextAlarm não é suspend: runCatching aqui não engole cancelamento de corrotina.
+            runCatching { scheduleNextAlarm(item) }
+                .onSuccess { triggerMillis -> if (triggerMillis != null) scheduledCount++ else skippedCount++ }
+                .onFailure { failedCount++ }
         }
         return RescheduleSummary(scheduled = scheduledCount, skipped = skippedCount, failed = failedCount)
     }
