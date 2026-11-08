@@ -2,12 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Alarmes (spec 04) -->
+    <!-- Permissões: cada uma está justificada em docs/permissoes.md (exigido pelo steering).
+         RequestedPermissionsGuardRobolectricTest falha se esta lista mudar sem atualizar o documento. -->
+
+    <!-- Alarmes (spec 04): notificações de lembrete/evento (Android 13+, pedida em tempo de execução). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Alarmes exatos no Android 13+: indicada pela documentação para apps de calendário/lembretes;
+         exige declaração na Play Console (ver docs/permissoes.md). -->
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- Alarmes exatos no Android 12/12L (USE_EXACT_ALARM só existe a partir do Android 13). -->
     <uses-permission
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32" />
+    <!-- Alerta de evento em tela cheia (spec 14); no Android 14+ pode ser negada e o app cai para notificação. -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
