@@ -50,6 +50,7 @@ import com.br.androideventscheduler.feature.upsert.presentation.component.DateTi
 import com.br.androideventscheduler.feature.upsert.presentation.component.LocationField
 import com.br.androideventscheduler.feature.upsert.presentation.component.ModeSegmentedPill
 import com.br.androideventscheduler.feature.upsert.presentation.component.NotesField
+import com.br.androideventscheduler.feature.upsert.presentation.component.RecurrencePickerDialog
 import com.br.androideventscheduler.feature.upsert.presentation.component.ReminderOffsetRow
 import com.br.androideventscheduler.feature.upsert.presentation.component.SettingRow
 import com.br.androideventscheduler.feature.upsert.presentation.component.TitleRow
@@ -232,15 +233,25 @@ private fun UpsertForm(
             item { LocationField(value = content.location, onValueChange = { onEvent(UpsertScheduleUiEvent.OnLocationChanged(it)) }) }
         }
         item {
-            // Somente exibe o rótulo; o diálogo de repetição é a spec 08.
             SettingRow(
                 iconRes = R.drawable.ic_repeat,
                 label = stringResource(R.string.upsert_recurrence_label),
                 value = content.recurrencePattern.toDisplayLabel(resources),
                 tag = SemanticsTags.UPSERT_RECURRENCE_ROW,
+                onClick = { onEvent(UpsertScheduleUiEvent.OnRecurrenceRowClicked) },
             )
         }
         item { NotesField(value = content.notes, onValueChange = { onEvent(UpsertScheduleUiEvent.OnNotesChanged(it)) }) }
+    }
+
+    // Fora da LazyColumn: o diálogo é uma janela própria e não deve sumir se a linha sair da área visível.
+    if (content.isRecurrenceDialogVisible) {
+        RecurrencePickerDialog(
+            initialPattern = content.recurrencePattern,
+            startDate = content.startDate,
+            onConfirm = { onEvent(UpsertScheduleUiEvent.OnRecurrencePatternConfirmed(it)) },
+            onDismiss = { onEvent(UpsertScheduleUiEvent.OnRecurrenceDialogDismissed) },
+        )
     }
 }
 
@@ -328,6 +339,12 @@ private fun UpsertScheduleContentEditPreview() {
             )
         },
     )
+}
+
+@Preview(name = "Diálogo de repetição aberto", showBackground = true)
+@Composable
+private fun UpsertScheduleContentRecurrenceDialogPreview() {
+    PreviewHost(previewContent { copy(isRecurrenceDialogVisible = true) })
 }
 
 @Preview(name = "Carregando", showBackground = true)

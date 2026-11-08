@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
@@ -57,6 +58,8 @@ internal class UpsertScheduleViewModel(
         loadInitialState()
     }
 
+    // `when` exaustivo sobre o sealed interface de eventos: cada ramo é uma linha que delega.
+    @Suppress("CyclomaticComplexMethod")
     fun onEvent(event: UpsertScheduleUiEvent) {
         when (event) {
             is UpsertScheduleUiEvent.OnModeSelected -> selectMode(event.mode)
@@ -73,11 +76,14 @@ internal class UpsertScheduleViewModel(
             is UpsertScheduleUiEvent.OnNotesChanged -> updateContent { it.copy(notes = event.notes) }
             UpsertScheduleUiEvent.OnRecurrenceRowClicked -> updateContent { it.copy(isRecurrenceDialogVisible = true) }
             UpsertScheduleUiEvent.OnRecurrenceDialogDismissed -> updateContent { it.copy(isRecurrenceDialogVisible = false) }
-            is UpsertScheduleUiEvent.OnRecurrencePatternConfirmed ->
-                updateContent { it.copy(recurrencePattern = event.pattern, isRecurrenceDialogVisible = false) }
+            is UpsertScheduleUiEvent.OnRecurrencePatternConfirmed -> confirmRecurrence(event.pattern)
             UpsertScheduleUiEvent.OnSaveClicked -> save()
             UpsertScheduleUiEvent.OnCancelClicked -> sendEffect(UpsertScheduleUiEffect.NavigateBack)
         }
+    }
+
+    private fun confirmRecurrence(pattern: RecurrencePattern) {
+        updateContent { it.copy(recurrencePattern = pattern, isRecurrenceDialogVisible = false) }
     }
 
     private fun loadInitialState() {
