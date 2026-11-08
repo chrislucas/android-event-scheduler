@@ -8,6 +8,7 @@ import com.br.androideventscheduler.core.di.dispatchersModule
 import com.br.androideventscheduler.core.preferences.di.preferencesModule
 import com.br.androideventscheduler.core.schedule.di.scheduleCoreModule
 import com.br.androideventscheduler.feature.detail.di.detailModule
+import com.br.androideventscheduler.feature.home.di.homeModule
 import com.br.androideventscheduler.feature.search.di.searchModule
 import com.br.androideventscheduler.feature.settings.di.settingsModule
 import com.br.androideventscheduler.feature.splash.di.splashModule
@@ -31,4 +32,6 @@ val appModules: List<Module> =
         deepLinkModule,
         // Pesquisa (spec 13)
         searchModule,
+        // Home (spec 05)
+        homeModule,
     )

@@ -24,9 +24,9 @@ class SplashNavigationRobolectricTest {
         composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
 
         composeRule.waitUntil(timeoutMillis = NAVIGATION_TIMEOUT_MILLIS) {
-            composeRule.onAllNodesWithTag(SemanticsTags.HOME_PLACEHOLDER).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(SemanticsTags.HOME_CALENDAR_GRID).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag(SemanticsTags.HOME_PLACEHOLDER).assertIsDisplayed()
+        composeRule.onNodeWithTag(SemanticsTags.HOME_CALENDAR_GRID).assertIsDisplayed()
         assertEquals(0, composeRule.onAllNodesWithTag(SemanticsTags.SPLASH_LOGO).fetchSemanticsNodes().size)
 
         composeRule.activityRule.scenario.onActivity { activity -> activity.onBackPressedDispatcher.onBackPressed() }
