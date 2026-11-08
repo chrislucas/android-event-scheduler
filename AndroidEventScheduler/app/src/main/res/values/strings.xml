@@ -72,4 +72,28 @@
     <string name="notification_text_time">%1$s</string>
     <string name="notification_text_time_location">%1$s • %2$s</string>
     <string name="notification_all_day">Dia inteiro</string>
+    <!-- Pesquisa (spec 13) -->
+    <string name="search_field_description">Campo de pesquisa de tarefas e lembretes</string>
+    <string name="search_field_placeholder">Pesquisar tarefas e lembretes</string>
+    <string name="search_clear_description">Limpar pesquisa</string>
+    <string name="search_filter_all">Todos</string>
+    <string name="search_filter_events">Eventos</string>
+    <string name="search_filter_reminders">Lembretes</string>
+    <string name="search_filter_all_description">Filtro Todos</string>
+    <string name="search_filter_events_description">Filtro Eventos</string>
+    <string name="search_filter_reminders_description">Filtro Lembretes</string>
+    <string name="search_hint">Digite para pesquisar</string>
+    <string name="search_empty">Nenhum resultado para “%1$s”</string>
+    <string name="search_error">Não foi possível pesquisar. Tente novamente.</string>
+    <string name="search_retry">Tentar novamente</string>
+    <plurals name="search_results_count">
+        <item quantity="one">%1$d resultado</item>
+        <item quantity="other">%1$d resultados</item>
+    </plurals>
+    <string name="search_type_event">Evento</string>
+    <string name="search_type_reminder">Lembrete</string>
+    <string name="search_calendar_family">Family</string>
+    <string name="search_calendar_my_reminders">Meus lembretes</string>
+    <string name="search_result_all_day">%1$s, dia inteiro</string>
+    <string name="search_result_type_and_calendar">%1$s · %2$s</string>
 </resources>

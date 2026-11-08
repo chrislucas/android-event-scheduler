@@ -35,4 +35,16 @@ object SemanticsTags {
     const val DETAIL_LOADING = "detail_loading"
     const val DETAIL_NOT_FOUND = "detail_not_found"
     const val DETAIL_ACTION_BAR = "detail_action_bar"
+    // Pesquisa (spec 13)
+    const val SEARCH_QUERY_INPUT = "search_query_input"
+    const val SEARCH_CLEAR_BUTTON = "search_clear_button"
+    const val SEARCH_BACK_BUTTON = "search_back_button"
+    const val SEARCH_FILTER_CHIP_PREFIX = "search_filter_chip_"
+    const val SEARCH_RESULT_ITEM_PREFIX = "search_result_item_"
+    const val SEARCH_RESULTS_COUNT = "search_results_count"
+    const val SEARCH_EMPTY_STATE = "search_empty_state"
+    const val SEARCH_HINT = "search_hint"
+    const val SEARCH_ERROR_STATE = "search_error_state"
+    const val SEARCH_RETRY_BUTTON = "search_retry_button"
+    const val SEARCH_LOADING = "search_loading"
 }
