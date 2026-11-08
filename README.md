@@ -16,6 +16,8 @@ Aplicativo Android **100% offline** para organizar a rotina pessoal com **Evento
 - **Detalhes** com Duplicar, Editar, Compartilhar (share sheet nativo) e Excluir (com confirmação).
 - **Pesquisa** reativa por título, notas e local (sem diferenciar acentos/maiúsculas), com filtro Todos / Eventos / Lembretes.
 - **Configurações**: conta ativa, antecedência padrão, adiamento padrão e alerta em tela cheia.
+- **Proteção com o bloqueio do celular** (PIN, padrão ou senha), opcional, com tempo para pedir de novo.
+- **Importar e exportar a agenda** em arquivo JSON, compartilhando por e-mail ou qualquer app compatível, ou salvando no seletor de arquivos.
 
 ## Stack
 
@@ -127,7 +129,7 @@ Salvar agendamento ─► SaveScheduleUseCase ─► Room
 
 ## Specs de desenvolvimento
 
-O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.kiro/specs/README.md): 16 specs (`00-fundacao-projeto` … `15-restauracao-pos-boot`), cada uma com `requirements.md`, `design.md`, `tasks.md` e `prompt.md` para execução. Ordem e dependências estão no README das specs.
+O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.kiro/specs/README.md): 18 specs (`00-fundacao-projeto` … `17-importar-exportar-agenda`), cada uma com `requirements.md`, `design.md`, `tasks.md` e `prompt.md` para execução. Ordem e dependências estão no README das specs.
 
 | # | Spec | # | Spec |
 |---|---|---|---|
@@ -139,6 +141,8 @@ O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.k
 | 05 | Home: calendário e agenda | 13 | Pesquisa |
 | 06 | Home: gaveta e filtros | 14 | Alarme em tela cheia e Adiar |
 | 07 | Criar e editar | 15 | Restauração pós-boot |
+| | | 16 | Autenticação com o bloqueio do dispositivo |
+| | | 17 | Importar e exportar a agenda |
 
 ## Como executar
 
@@ -151,6 +155,10 @@ Requisitos: Android Studio recente, JDK compatível com o Gradle do projeto e um
 ```
 
 > Comportamentos dependentes do sistema — alarme exato, tela cheia sobre o bloqueio, broadcast de boot e permissões em runtime — só são totalmente verificáveis em aparelho ou emulador.
+
+## Documentos de decisão
+
+- [`docs/decisoes/mvi-viewmodel-abstrata.md`](AndroidEventScheduler/docs/decisoes/mvi-viewmodel-abstrata.md) — proposta (em avaliação) de uma `MviViewModel` abstrata: migração, vantagens, desvantagens, alternativas e matriz de decisão.
 
 ## Qualidade de código e CI
 
