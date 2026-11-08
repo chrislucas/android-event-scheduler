@@ -19,12 +19,13 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
-import com.br.androideventscheduler.core.navigation.Home
 import com.br.androideventscheduler.core.navigation.ScheduleDetail
+import com.br.androideventscheduler.core.navigation.Search
 import com.br.androideventscheduler.core.navigation.Splash
 import com.br.androideventscheduler.core.navigation.UpsertSchedule
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.detail.navigation.detailEntry
+import com.br.androideventscheduler.feature.home.navigation.homeEntry
 import com.br.androideventscheduler.feature.search.navigation.searchEntry
 import com.br.androideventscheduler.feature.settings.navigation.settingsEntry
 import com.br.androideventscheduler.feature.splash.navigation.splashEntry
@@ -61,8 +62,12 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                     onBack = { backStack.removeLastOrNull() },
                     onOpenDetail = { scheduleId -> backStack.add(ScheduleDetail(scheduleId)) },
                 )
-                // Placeholder temporário; substituído pela feature Home na spec 05.
-                entry<Home> { HomePlaceholder() }
+                // Home (spec 05)
+                homeEntry(
+                    onNavigateToSearch = { backStack.add(Search) },
+                    onNavigateToUpsert = { dayEpoch -> backStack.add(UpsertSchedule(initialDateEpochDay = dayEpoch)) },
+                    onNavigateToDetail = { scheduleId -> backStack.add(ScheduleDetail(scheduleId)) },
+                )
                 // Detalhes (spec 10)
                 detailEntry(
                     onBack = { backStack.removeLastOrNull() },
@@ -72,33 +77,6 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 entry<UpsertSchedule> { UpsertPlaceholder() }
             },
     )
-}
-
-@Composable
-private fun HomePlaceholder() {
-    Scaffold { innerPadding ->
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .testTag(SemanticsTags.HOME_PLACEHOLDER),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Home placeholder")
-@Composable
-private fun HomePlaceholderPreview() {
-    AndroidEventSchedulerTheme {
-        HomePlaceholder()
-    }
 }
 
 @Composable

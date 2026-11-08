@@ -6,7 +6,6 @@ package com.br.androideventscheduler.core.ui
  */
 object SemanticsTags {
     // Placeholders temporários do AppNavHost (cada spec remove o seu)
-    const val HOME_PLACEHOLDER = "home_placeholder" // removido pela spec 05
     const val UPSERT_PLACEHOLDER = "upsert_placeholder" // removido pela spec 07
 
     // Splash
@@ -48,4 +47,25 @@ object SemanticsTags {
     const val SEARCH_ERROR_STATE = "search_error_state"
     const val SEARCH_RETRY_BUTTON = "search_retry_button"
     const val SEARCH_LOADING = "search_loading"
+
+    // Home (spec 05)
+    const val HOME_MONTH_HEADER = "home_month_header"
+    const val HOME_SEARCH_BUTTON = "home_search_button"
+    const val HOME_PREVIOUS_MONTH_BUTTON = "home_previous_month_button"
+    const val HOME_NEXT_MONTH_BUTTON = "home_next_month_button"
+    const val HOME_CALENDAR_GRID = "home_calendar_grid"
+    const val HOME_DAY_CELL_PREFIX = "home_day_cell_"
+    const val HOME_DAY_HEADER = "home_day_header"
+    const val HOME_SCHEDULE_LIST = "home_schedule_list"
+    const val HOME_SCHEDULE_ITEM_PREFIX = "home_schedule_item_"
+    const val HOME_EMPTY_DAY = "home_empty_day"
+    const val HOME_QUICK_ADD_BAR = "home_quick_add_bar"
+    const val HOME_MONTH_PICKER_SHEET = "home_month_picker_sheet"
+    const val HOME_MONTH_OPTION_PREFIX = "home_month_option_"
+    const val HOME_PICKER_PREVIOUS_YEAR_BUTTON = "home_picker_previous_year_button"
+    const val HOME_PICKER_NEXT_YEAR_BUTTON = "home_picker_next_year_button"
+    const val HOME_PICKER_YEAR = "home_picker_year"
+    const val HOME_LOADING = "home_loading"
+    const val HOME_ERROR_STATE = "home_error_state"
+    const val HOME_RETRY_BUTTON = "home_retry_button"
 }

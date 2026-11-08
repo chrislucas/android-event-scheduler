@@ -94,4 +94,37 @@
     <string name="search_type_reminder">Lembrete</string>
     <string name="search_result_all_day">%1$s, dia inteiro</string>
     <string name="search_result_type_and_calendar">%1$s · %2$s</string>
+    <!-- Home (spec 05) -->
+    <string name="home_previous_month">Mês anterior</string>
+    <string name="home_next_month">Próximo mês</string>
+    <string name="home_search_description">Pesquisar tarefas e lembretes</string>
+    <string name="home_month_header_description">%1$s, escolher mês e ano</string>
+    <string name="home_calendar_description">Calendário de %1$s</string>
+    <string-array name="home_weekday_initials">
+        <item>D</item>
+        <item>S</item>
+        <item>T</item>
+        <item>Q</item>
+        <item>Q</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+    <string name="home_day_description_empty">%1$s, sem compromissos</string>
+    <plurals name="home_day_description_schedules">
+        <item quantity="one">%1$s, %2$d compromisso</item>
+        <item quantity="other">%1$s, %2$d compromissos</item>
+    </plurals>
+    <string name="home_empty_day">Nenhum compromisso neste dia</string>
+    <string name="home_all_day">Todo o dia</string>
+    <string name="home_interval_range">%1$s – %2$s</string>
+    <string name="home_interval_multi_day">%1$s → %2$s</string>
+    <string name="home_item_interval_and_calendar">%1$s · %2$s</string>
+    <string name="home_quick_add">Adicionar agendamento</string>
+    <string name="home_month_picker_title">Escolher mês e ano</string>
+    <string name="home_picker_previous_year">Ano anterior</string>
+    <string name="home_picker_next_year">Próximo ano</string>
+    <string name="home_picker_year">%1$d</string>
+    <string name="home_month_option_description">%1$s de %2$d</string>
+    <string name="home_error_generic">Não foi possível carregar a agenda. Tente novamente.</string>
+    <string name="home_retry">Tentar novamente</string>
 </resources>
