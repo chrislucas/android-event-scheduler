@@ -95,6 +95,19 @@
                 android:name="com.br.androideventscheduler.core.alarm.data.notification.NotificationChannelsInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <!-- Importar/exportar (spec 17): FileProvider para entregar o arquivo exportado ao share sheet (e-mail, Drive...).
+             exported=false: só recebe acesso quem ganhar permissão de leitura por URI (grantUriPermissions); expõe apenas
+             cacheDir/exports/ (res/xml/file_paths.xml). Dispensa qualquer permissão de armazenamento. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

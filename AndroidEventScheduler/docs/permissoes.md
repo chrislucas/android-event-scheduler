@@ -82,6 +82,17 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
 - **`exported`:** o receiver usa `android:exported="false"`. A [documentação do `<receiver>`](https://developer.android.com/guide/topics/manifest/receiver-element) define `exported` como a capacidade de receber mensagens de fontes **não pertencentes ao sistema**; com `false`, o receiver continua recebendo as mensagens enviadas pelo sistema. Assim, outros apps não conseguem acioná-lo. Não verificado em aparelho (ver PR da spec 15).
 - **Google Play:** sem restrição de política (permissão normal).
 
+### 2.7 Importar e exportar a agenda (spec 17): nenhuma permissão nova
+
+- **Permissões:** a spec 17 **não adiciona permissão**. `READ/WRITE_EXTERNAL_STORAGE` e `READ_MEDIA_*` não são declaradas nem entram por biblioteca; o `RequestedPermissionsGuardRobolectricTest` continua com a mesma lista.
+- **Como o arquivo sai e entra sem armazenamento:** *Salvar em arquivo* usa o seletor do sistema (SAF, `ACTION_CREATE_DOCUMENT`) e *Escolher arquivo* usa `ACTION_OPEN_DOCUMENT`: o usuário escolhe o local e o sistema entrega ao app uma URI com acesso apenas àquele documento.
+- **`FileProvider` (`androidx.core.content.FileProvider`, authority `<applicationId>.fileprovider`):** entrega o arquivo temporário ao share sheet (e-mail, Drive, WhatsApp...). Configuração mínima, de propósito:
+  - `android:exported="false"`: nenhum app consegue abrir a URI por conta própria;
+  - `android:grantUriPermissions="true"`: o app concede **leitura por URI** (`FLAG_GRANT_READ_URI_PERMISSION`) apenas ao destinatário escolhido, e a concessão vale só para aquele arquivo;
+  - `res/xml/file_paths.xml` expõe **somente** `cacheDir/exports/` (`<cache-path path="exports/">`); o banco, o DataStore e o resto do `filesDir`/`cacheDir` ficam inalcançáveis. Os arquivos anteriores são apagados a cada nova exportação.
+- **O que o usuário vê:** nada além do seletor e do share sheet do sistema; não há diálogo de permissão.
+- **Google Play:** sem restrição de política (nenhuma permissão sensível; o `FileProvider` é o mecanismo recomendado para compartilhar arquivos).
+
 ## 3. Permissões planejadas pelas próximas specs
 
 | Permissão | Spec | Justificativa | Observação |
@@ -89,7 +100,7 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
 | `USE_BIOMETRIC` | 16 | O `BiometricPrompt` do Android 11+ exige essa permissão mesmo quando só a credencial do aparelho (PIN, padrão ou senha) é aceita | Injetada pela `androidx.biometric`; não aparece para o usuário |
 | `USE_FINGERPRINT` | 16 | **Nenhuma**: o app não usa digital, e no Android ≤ 10 usa o `KeyguardManager` | Injetada pela `androidx.biometric`. **Remover** com `tools:node="remove"` e cobrir na trava |
 | — | 14 | **Implementada, sem permissão nova:** a tela cheia usa `setShowWhenLocked`/`setTurnScreenOn` e `FLAG_KEEP_SCREEN_ON`, que **não** exigem permissão (ver §2.4) | `WAKE_LOCK` e `DISABLE_KEYGUARD` **não** foram adicionadas |
-| — | 17 | Exportar e importar usam o seletor do sistema (SAF) e o `FileProvider` | **Não** adicionar `READ/WRITE_EXTERNAL_STORAGE` |
+| — | 17 | **Implementada, sem permissão nova:** exportar e importar usam o seletor do sistema (SAF) e o `FileProvider` (ver §2.7) | `READ/WRITE_EXTERNAL_STORAGE` **não** foram adicionadas |
 
 Cada uma dessas specs deve atualizar este documento e a lista do `RequestedPermissionsGuardRobolectricTest` no mesmo PR.
 

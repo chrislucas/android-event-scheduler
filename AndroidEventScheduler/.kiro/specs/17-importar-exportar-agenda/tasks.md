@@ -4,7 +4,7 @@
 - [x] 2. Domain: modelos (`ImportPreview`, `ImportStrategy`, `ImportResult`, `ExportTarget`, `ExportResult`, `BackupError`) e interface `AgendaBackupRepository`.
 - [x] 3. Data (TDD): DTOs `@Serializable`, `AgendaJsonCodec`, `AgendaDtoMapper` (validação por item, truncamento) + testes; `docs/formato-agenda-json.md` com exemplo (R2, R5.1–R5.3, R7.3).
 - [x] 4. Domain (TDD): `ImportAgendaUseCase` + `ImportAgendaUseCaseTest` (R5.5, R6).
-- [ ] 5. Data (sem nenhuma permissão nova — confirmar no `RequestedPermissionsGuardRobolectricTest` e registrar em `docs/permissoes.md` que o backup não usa armazenamento): `ExportFileStore`, leitura com limite de 5 MB, `AgendaBackupRepositoryImpl` + testes; `FileProvider` e `file_paths.xml` no manifest (R3.5, R4.3, R7.1, R7.2).
+- [x] 5. Data (sem nenhuma permissão nova — confirmar no `RequestedPermissionsGuardRobolectricTest` e registrar em `docs/permissoes.md` que o backup não usa armazenamento): `ExportFileStore`, leitura com limite de 5 MB, `AgendaBackupRepositoryImpl` + testes; `FileProvider` e `file_paths.xml` no manifest (R3.5, R4.3, R7.1, R7.2).
 - [ ] 6. Presentation: contrato sealed, `BackupViewModel` + testes (R3, R5, R6.3).
 - [ ] 7. Presentation: `BackupScreen` e componentes com previews, launchers SAF, `ShareFile` com `ClipData` e tratamento de `ActivityNotFoundException`, strings/`plurals`/tags + testes de tela e de intent (R1.2, R3.1–R3.6, R4.1, R8).
 - [ ] 8. Entrada: item "Importar e exportar agenda" em Configurações (spec 03) e `backupEntry` no `AppNavHost` (R1.1).

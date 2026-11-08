@@ -1,0 +1,69 @@
+package com.br.androideventscheduler.feature.backup
+
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.FileProvider
+import androidx.test.core.app.ApplicationProvider
+import com.br.androideventscheduler.R
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.xmlpull.v1.XmlPullParser
+
+@RunWith(RobolectricTestRunner::class)
+class BackupManifestRobolectricTest {
+    private val context: Context = ApplicationProvider.getApplicationContext()
+
+    private val storagePermissions =
+        setOf(
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.MANAGE_EXTERNAL_STORAGE",
+            "android.permission.READ_MEDIA_IMAGES",
+            "android.permission.READ_MEDIA_VIDEO",
+            "android.permission.READ_MEDIA_AUDIO",
+        )
+
+    @Test
+    fun `given merged manifest when reading providers then the file provider is private and grants uri permissions`() {
+        val providers =
+            context.packageManager
+                .getPackageInfo(context.packageName, PackageManager.GET_PROVIDERS)
+                .providers
+                .orEmpty()
+
+        val fileProvider = providers.single { it.name == FileProvider::class.java.name }
+        assertEquals("${context.packageName}.fileprovider", fileProvider.authority)
+        assertFalse(fileProvider.exported)
+        assertTrue(fileProvider.grantUriPermissions)
+    }
+
+    @Test
+    fun `given file paths resource when reading it then only the exports cache folder is exposed`() {
+        val exposed = mutableListOf<Triple<String, String?, String?>>()
+        context.resources.getXml(R.xml.file_paths).use { parser ->
+            while (parser.next() != XmlPullParser.END_DOCUMENT) {
+                if (parser.eventType == XmlPullParser.START_TAG && parser.name != "paths") {
+                    exposed += Triple(parser.name, parser.getAttributeValue(null, "name"), parser.getAttributeValue(null, "path"))
+                }
+            }
+        }
+
+        assertEquals(listOf(Triple("cache-path", "exports", "exports/")), exposed)
+    }
+
+    @Test
+    fun `given merged manifest when reading requested permissions then no storage permission is declared`() {
+        val requested =
+            context.packageManager
+                .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+                .requestedPermissions
+                .orEmpty()
+                .toSet()
+
+        assertEquals(emptySet<String>(), requested intersect storagePermissions)
+    }
+}
