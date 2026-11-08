@@ -96,4 +96,17 @@ object SemanticsTags {
     const val UPSERT_SAVE_BUTTON = "upsert_save_button"
     const val UPSERT_CANCEL_BUTTON = "upsert_cancel_button"
     const val UPSERT_LOADING = "upsert_loading"
+
+    // Tela cheia (spec 14)
+    const val ALARM_FULLSCREEN_LOADING = "alarm_fullscreen_loading"
+    const val ALARM_FULLSCREEN_BADGE = "alarm_fullscreen_badge"
+    const val ALARM_FULLSCREEN_TITLE = "alarm_fullscreen_title"
+    const val ALARM_FULLSCREEN_TIME = "alarm_fullscreen_time"
+    const val ALARM_FULLSCREEN_LOCATION = "alarm_fullscreen_location"
+    const val ALARM_FULLSCREEN_NOTES = "alarm_fullscreen_notes"
+    const val ALARM_FULLSCREEN_ERROR = "alarm_fullscreen_error"
+    const val ALARM_SNOOZE_CHIPS = "alarm_snooze_chips"
+    const val ALARM_SNOOZE_CHIP_PREFIX = "alarm_snooze_chip_"
+    const val ALARM_FULLSCREEN_SNOOZE_BUTTON = "alarm_fullscreen_snooze_button"
+    const val ALARM_FULLSCREEN_DISMISS_BUTTON = "alarm_fullscreen_dismiss_button"
 }
