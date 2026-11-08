@@ -12,6 +12,7 @@ import com.br.androideventscheduler.feature.home.di.homeModule
 import com.br.androideventscheduler.feature.search.di.searchModule
 import com.br.androideventscheduler.feature.settings.di.settingsModule
 import com.br.androideventscheduler.feature.splash.di.splashModule
+import com.br.androideventscheduler.feature.upsert.di.upsertModule
 import org.koin.core.module.Module
 
 /** Lista única de módulos Koin: `core` primeiro, depois um módulo por feature (cada spec acrescenta o seu). */
@@ -34,4 +35,6 @@ val appModules: List<Module> =
         searchModule,
         // Home (spec 05)
         homeModule,
+        // Criar/editar (spec 07)
+        upsertModule,
     )
