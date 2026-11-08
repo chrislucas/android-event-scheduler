@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,6 +28,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
+import com.br.androideventscheduler.core.ui.format.toDisplayLabel
+import com.br.androideventscheduler.core.ui.format.toShortDateLabel
+import com.br.androideventscheduler.core.ui.format.toTimeLabel
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
 
 private val ROW_MIN_HEIGHT = 48.dp
 private val ROW_ICON_SIZE = 24.dp
@@ -84,8 +92,8 @@ private fun SettingRowCollapsedPreview() {
     AndroidEventSchedulerTheme {
         SettingRow(
             iconRes = R.drawable.ic_calendar_today,
-            label = "Início",
-            value = "qui., 5 de nov.",
+            label = stringResource(R.string.upsert_label_start_date),
+            value = LocalDate.of(2026, 11, 5).toShortDateLabel(),
             tag = "preview",
             onClick = {},
             isExpanded = false,
@@ -99,8 +107,8 @@ private fun SettingRowExpandedPreview() {
     AndroidEventSchedulerTheme {
         SettingRow(
             iconRes = R.drawable.ic_schedule,
-            label = "Hora de início",
-            value = "22:00",
+            label = stringResource(R.string.upsert_label_start_time),
+            value = LocalTime.of(22, 0).toTimeLabel(),
             tag = "preview",
             onClick = {},
             isExpanded = true,
@@ -112,7 +120,12 @@ private fun SettingRowExpandedPreview() {
 @Composable
 private fun SettingRowReadOnlyPreview() {
     AndroidEventSchedulerTheme {
-        SettingRow(iconRes = R.drawable.ic_repeat, label = "Repetição", value = "Não repetir", tag = "preview")
+        SettingRow(
+            iconRes = R.drawable.ic_repeat,
+            label = stringResource(R.string.upsert_recurrence_label),
+            value = RecurrencePattern.None.toDisplayLabel(LocalContext.current.resources),
+            tag = "preview",
+        )
     }
 }
 
@@ -120,10 +133,11 @@ private fun SettingRowReadOnlyPreview() {
 @Composable
 private fun SettingRowLongValuePreview() {
     AndroidEventSchedulerTheme {
+        val weeklyEveryDay = RecurrencePattern.Weekly(daysOfWeek = DayOfWeek.entries.toSet(), occurrenceLimit = 5000)
         SettingRow(
             iconRes = R.drawable.ic_repeat,
-            label = "Repetição",
-            value = "Toda semana em dom., seg., ter., qua., qui., sex., sáb. (5000 vezes)",
+            label = stringResource(R.string.upsert_recurrence_label),
+            value = weeklyEveryDay.toDisplayLabel(LocalContext.current.resources),
             tag = "preview",
         )
     }

@@ -9,10 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.core.ui.format.toTimeLabel
+import java.time.LocalTime
 
 /** Linha de atalhos rápidos (quebra de linha automática). Cada chip tem a tag `UPSERT_QUICK_CHIP_PREFIX + id`. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -42,10 +46,10 @@ private fun QuickChipsRowDatePreview() {
         QuickChipsRow(
             chips =
                 listOf(
-                    QuickChip("today", "Hoje", {}),
-                    QuickChip("tomorrow", "Amanhã", {}),
-                    QuickChip("in_3_days", "Daqui a 3 dias", {}),
-                    QuickChip("in_1_week", "Daqui a 1 semana", {}),
+                    QuickChip("today", stringResource(R.string.upsert_chip_today), {}),
+                    QuickChip("tomorrow", stringResource(R.string.upsert_chip_tomorrow), {}),
+                    QuickChip("in_3_days", stringResource(R.string.upsert_chip_in_3_days), {}),
+                    QuickChip("in_1_week", stringResource(R.string.upsert_chip_in_1_week), {}),
                 ),
         )
     }
@@ -58,9 +62,9 @@ private fun QuickChipsRowTimePreview() {
         QuickChipsRow(
             chips =
                 listOf(
-                    QuickChip("in_1_hour", "Daqui a 1 hora", {}),
-                    QuickChip("at_07_00", "07:00", {}),
-                    QuickChip("at_15_00", "15:00", {}),
+                    QuickChip("in_1_hour", stringResource(R.string.upsert_chip_in_1_hour), {}),
+                    QuickChip("at_07_00", LocalTime.of(7, 0).toTimeLabel(), {}),
+                    QuickChip("at_15_00", LocalTime.of(15, 0).toTimeLabel(), {}),
                 ),
         )
     }
