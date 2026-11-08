@@ -179,7 +179,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 00 | **concluída e mergeada** | 2026-11-07 | `feat/00-fundacao-projeto` / PR [#1](https://github.com/chrislucas/android-event-scheduler/pull/1) | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
 | 01 | **concluída e mergeada** | 2026-11-07 | `feat/01-nucleo-agendamentos` / PR [#4](https://github.com/chrislucas/android-event-scheduler/pull/4) | rótulos de emoji/cor/calendário saem do domínio (vão para resources nas specs 09 e 06); ordenação "dia inteiro primeiro" já no núcleo; formatos pt-BR conferidos só na JVM |
 | 02 | **concluída e mergeada** | 2026-11-07 | `feat/02-splash` / PR [#2](https://github.com/chrislucas/android-event-scheduler/pull/2) | placeholder de **Home** no `AppNavHost` (removido na 05); verificação Koin do grafo agregado |
-| 03 | **concluída** (aguardando merge) | 2026-11-07 | `feat/03-configuracoes` / PR #PR03 | ViewModels passam a usar o dispatcher `main` (Splash ajustada); `TestRememberMeApplication` recarrega módulos a cada teste; efeitos Toast × Snackbar |
+| 03 | **concluída** (aguardando merge) | 2026-11-07 | `feat/03-configuracoes` / PR [#5](https://github.com/chrislucas/android-event-scheduler/pull/5) | ViewModels passam a usar o dispatcher `main` (Splash ajustada); `TestRememberMeApplication` recarrega módulos a cada teste; efeitos Toast × Snackbar |
 | 04 | pendente | | | |
 | 05 | pendente | | | |
 | 06 | pendente | | | |
