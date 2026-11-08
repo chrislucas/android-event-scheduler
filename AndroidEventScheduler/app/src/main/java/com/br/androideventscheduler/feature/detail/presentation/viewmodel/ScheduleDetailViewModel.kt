@@ -13,6 +13,7 @@ import com.br.androideventscheduler.feature.detail.domain.usecase.DuplicateSched
 import com.br.androideventscheduler.feature.detail.presentation.effect.ScheduleDetailUiEffect
 import com.br.androideventscheduler.feature.detail.presentation.event.ScheduleDetailUiEvent
 import com.br.androideventscheduler.feature.detail.presentation.mapper.ScheduleDetailMapper
+import com.br.androideventscheduler.feature.detail.presentation.mapper.ScheduleShareTextBuilder
 import com.br.androideventscheduler.feature.detail.presentation.state.ScheduleDetailUiState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
@@ -37,6 +38,7 @@ internal class ScheduleDetailViewModel(
     private val strings: StringProvider,
     private val savedStateHandle: SavedStateHandle,
     private val mapper: ScheduleDetailMapper,
+    private val shareTextBuilder: ScheduleShareTextBuilder,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<ScheduleDetailUiState>(ScheduleDetailUiState.Loading)
@@ -57,6 +59,7 @@ internal class ScheduleDetailViewModel(
             ScheduleDetailUiEvent.OnDeleteClicked -> setDeleteDialogVisible(true)
             ScheduleDetailUiEvent.OnDismissDeleteDialog -> setDeleteDialogVisible(false)
             ScheduleDetailUiEvent.OnConfirmDeleteClicked -> executeDelete()
+            ScheduleDetailUiEvent.OnShareClicked -> share()
             is ScheduleDetailUiEvent.OnOpenCopyClicked -> sendEffect(ScheduleDetailUiEffect.NavigateToCopy(event.copyId))
         }
     }
@@ -106,6 +109,13 @@ internal class ScheduleDetailViewModel(
                 finishAction()
             }
         }
+    }
+
+    /** Só monta o texto e emite o efeito (sem I/O); lançar o Intent e tratar a falha é da tela. */
+    private fun share() {
+        val content = _uiState.value as? ScheduleDetailUiState.Content ?: return
+        val shareContent = shareTextBuilder.build(content.schedule)
+        sendEffect(ScheduleDetailUiEffect.ShareText(subject = shareContent.subject, body = shareContent.body))
     }
 
     private fun setDeleteDialogVisible(isVisible: Boolean) {

@@ -4,6 +4,7 @@ import com.br.androideventscheduler.core.di.DispatcherNames
 import com.br.androideventscheduler.feature.detail.domain.usecase.DeleteScheduleUseCase
 import com.br.androideventscheduler.feature.detail.domain.usecase.DuplicateScheduleUseCase
 import com.br.androideventscheduler.feature.detail.presentation.mapper.ScheduleDetailMapper
+import com.br.androideventscheduler.feature.detail.presentation.mapper.ScheduleShareTextBuilder
 import com.br.androideventscheduler.feature.detail.presentation.viewmodel.ScheduleDetailViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
@@ -16,6 +17,9 @@ val detailModule =
         // Duplicar/excluir (spec 11)
         factory { DuplicateScheduleUseCase(scheduleRepository = get(), scheduleNextAlarm = get()) }
         factory { DeleteScheduleUseCase(scheduleRepository = get(), alarmScheduler = get()) }
+        // Compartilhar (spec 12)
+        factory { ScheduleShareTextBuilder(strings = get()) }
+
         // O id do agendamento chega da rota via `parametersOf(scheduleId)`.
         viewModel { parameters ->
             ScheduleDetailViewModel(
@@ -27,6 +31,7 @@ val detailModule =
                 strings = get(),
                 savedStateHandle = get(),
                 mapper = get(),
+                shareTextBuilder = get(),
                 dispatcher = get(named(DispatcherNames.MAIN)),
             )
         }

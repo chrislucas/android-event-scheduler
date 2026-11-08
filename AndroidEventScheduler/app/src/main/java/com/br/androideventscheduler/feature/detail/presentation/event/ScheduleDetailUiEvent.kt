@@ -13,6 +13,8 @@ internal sealed interface ScheduleDetailUiEvent {
 
     data object OnDismissDeleteDialog : ScheduleDetailUiEvent
 
+    data object OnShareClicked : ScheduleDetailUiEvent
+
     /** Toque na ação "Abrir" do Snackbar de cópia criada. */
     data class OnOpenCopyClicked(
         val copyId: String,
