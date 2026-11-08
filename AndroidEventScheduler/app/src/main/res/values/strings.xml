@@ -285,4 +285,7 @@
     <string name="sticker_clear_button">Remover adesivo</string>
     <string name="color_picker_title">Escolher cor</string>
     <string name="color_picker_description">Diálogo para escolher a cor do agendamento</string>
+    <string name="upsert_sticker_button_empty">Selecionar emoji ou adesivo</string>
+    <string name="upsert_sticker_button_selected">Adesivo selecionado: %1$s. Toque para alterar</string>
+    <string name="upsert_color_button">Cor selecionada: %1$s. Toque para alterar</string>
 </resources>
