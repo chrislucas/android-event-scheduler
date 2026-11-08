@@ -35,6 +35,7 @@ object SemanticsTags {
     const val DETAIL_LOADING = "detail_loading"
     const val DETAIL_NOT_FOUND = "detail_not_found"
     const val DETAIL_ACTION_BAR = "detail_action_bar"
+
     // Pesquisa (spec 13)
     const val SEARCH_QUERY_INPUT = "search_query_input"
     const val SEARCH_CLEAR_BUTTON = "search_clear_button"

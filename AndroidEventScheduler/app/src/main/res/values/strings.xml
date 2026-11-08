@@ -92,8 +92,6 @@
     </plurals>
     <string name="search_type_event">Evento</string>
     <string name="search_type_reminder">Lembrete</string>
-    <string name="search_calendar_family">Family</string>
-    <string name="search_calendar_my_reminders">Meus lembretes</string>
     <string name="search_result_all_day">%1$s, dia inteiro</string>
     <string name="search_result_type_and_calendar">%1$s · %2$s</string>
 </resources>
