@@ -2,6 +2,7 @@ package com.br.androideventscheduler.core.ui.format
 
 import android.content.res.Resources
 import com.br.androideventscheduler.R
+import com.br.androideventscheduler.core.common.StringProvider
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -20,4 +21,10 @@ fun shortDateTimeLabel(
     date: LocalDate,
     time: LocalTime,
     resources: Resources,
-): String = resources.getString(R.string.date_time_short, date.toShortDateLabel(), time.toTimeLabel())
+): String = shortDateTimeLabel(date, time, ResourcesStringProvider(resources))
+
+fun shortDateTimeLabel(
+    date: LocalDate,
+    time: LocalTime,
+    strings: StringProvider,
+): String = strings.getString(R.string.date_time_short, date.toShortDateLabel(), time.toTimeLabel())
