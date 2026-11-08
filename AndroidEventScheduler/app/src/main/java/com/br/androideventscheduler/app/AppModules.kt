@@ -1,10 +1,12 @@
 package com.br.androideventscheduler.app
 
+import com.br.androideventscheduler.core.common.commonModule
 import com.br.androideventscheduler.core.database.databaseModule
 import com.br.androideventscheduler.core.datastore.dataStoreModule
 import com.br.androideventscheduler.core.di.dispatchersModule
 import com.br.androideventscheduler.core.preferences.di.preferencesModule
 import com.br.androideventscheduler.core.schedule.di.scheduleCoreModule
+import com.br.androideventscheduler.feature.detail.di.detailModule
 import com.br.androideventscheduler.feature.settings.di.settingsModule
 import com.br.androideventscheduler.feature.splash.di.splashModule
 import org.koin.core.module.Module
@@ -19,4 +21,7 @@ val appModules: List<Module> =
         preferencesModule,
         splashModule,
         settingsModule,
+        // Detalhes (spec 10)
+        commonModule,
+        detailModule,
     )

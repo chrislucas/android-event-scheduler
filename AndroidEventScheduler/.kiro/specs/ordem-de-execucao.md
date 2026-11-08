@@ -186,7 +186,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 07 | pendente | | | |
 | 08 | pendente | | | |
 | 09 | pendente | | | |
-| 10 | pendente | | | |
+| 10 | **concluída** (aguardando merge) | 2026-11-07 | `feat/10-detalhes-agendamento` / PR [#7](https://github.com/chrislucas/android-event-scheduler/pull/7) | `StringProvider` nasceu em `core.common` e os formatadores de `core.ui.format` ganharam overloads com ele (mapper testável na JVM); placeholder de **Upsert** no `AppNavHost` (removido na 07); `CalendarSource.label` em `core.ui.format`; saídas Home/pesquisa/notificação → Detail ficam para 04/05/13 |
 | 11 | pendente | | | |
 | 12 | pendente | | | |
 | 13 | pendente | | | |

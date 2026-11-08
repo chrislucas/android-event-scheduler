@@ -21,7 +21,9 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.navigation.Home
 import com.br.androideventscheduler.core.navigation.Splash
+import com.br.androideventscheduler.core.navigation.UpsertSchedule
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.feature.detail.navigation.detailEntry
 import com.br.androideventscheduler.feature.settings.navigation.settingsEntry
 import com.br.androideventscheduler.feature.splash.navigation.splashEntry
 
@@ -51,6 +53,13 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 settingsEntry(onBack = { backStack.removeLastOrNull() })
                 // Placeholder temporário; substituído pela feature Home na spec 05.
                 entry<Home> { HomePlaceholder() }
+                // Detalhes (spec 10)
+                detailEntry(
+                    onBack = { backStack.removeLastOrNull() },
+                    onEdit = { scheduleId -> backStack.add(UpsertSchedule(scheduleId = scheduleId)) },
+                )
+                // Placeholder temporário; substituído pela feature Upsert na spec 07.
+                entry<UpsertSchedule> { UpsertPlaceholder() }
             },
     )
 }
@@ -79,5 +88,32 @@ private fun HomePlaceholder() {
 private fun HomePlaceholderPreview() {
     AndroidEventSchedulerTheme {
         HomePlaceholder()
+    }
+}
+
+@Composable
+private fun UpsertPlaceholder() {
+    Scaffold { innerPadding ->
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .testTag(SemanticsTags.UPSERT_PLACEHOLDER),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = stringResource(R.string.upsert_placeholder_title),
+                style = MaterialTheme.typography.headlineMedium,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Upsert placeholder")
+@Composable
+private fun UpsertPlaceholderPreview() {
+    AndroidEventSchedulerTheme {
+        UpsertPlaceholder()
     }
 }

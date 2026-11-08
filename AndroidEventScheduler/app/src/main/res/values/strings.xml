@@ -22,6 +22,8 @@
         <item quantity="other">%1$d minutos antes</item>
     </plurals>
     <string name="date_time_short">%1$s, %2$s</string>
+    <string name="calendar_label_family">Family</string>
+    <string name="calendar_label_my_reminders">Meus lembretes</string>
 
     <!-- Configurações -->
     <string name="settings_title">Configurações</string>
@@ -44,4 +46,22 @@
     <string name="settings_save_error">Não foi possível salvar as configurações. Tente novamente.</string>
     <string name="settings_invalid_snooze">Escolha um tempo de adiamento válido</string>
     <string name="state_loading">Carregando</string>
+
+    <!-- Detalhes (spec 10) -->
+    <string name="detail_screen_title">Detalhes do agendamento</string>
+    <string name="detail_not_found">Agendamento não encontrado</string>
+    <string name="detail_range_arrow">%1$s → %2$s</string>
+    <string name="detail_range_same_day">%1$s – %2$s</string>
+    <string name="detail_range_all_day">%1$s · Todo o dia</string>
+    <string name="detail_row_description">%1$s: %2$s</string>
+    <string name="detail_label_date">Data</string>
+    <string name="detail_label_calendar">Calendário</string>
+    <string name="detail_label_reminder">Alerta</string>
+    <string name="detail_label_recurrence">Repetição</string>
+    <string name="detail_label_location">Local</string>
+    <string name="detail_label_notes">Notas</string>
+    <string name="detail_action_bar_description">Ações do agendamento</string>
+    <string name="detail_edit_label">Editar</string>
+    <string name="detail_edit_description">Editar agendamento</string>
+    <string name="upsert_placeholder_title">Edição de agendamento (em breve)</string>
 </resources>
