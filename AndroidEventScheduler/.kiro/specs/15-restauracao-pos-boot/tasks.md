@@ -1,6 +1,6 @@
 # 15 — Restauração de alarmes após reinício — Tarefas
 
-- [ ] 1. Domain (TDD): `RescheduleSummary` + `RescheduleAllAlarmsUseCase` + `RescheduleAllAlarmsUseCaseTest` (R2).
+- [x] 1. Domain (TDD): `RescheduleSummary` + `RescheduleAllAlarmsUseCase` + `RescheduleAllAlarmsUseCaseTest` (R2).
 - [ ] 2. Registrar o use case no `AlarmModule`.
 - [ ] 3. Data: `BootCompletedReceiver` (goAsync, ações suportadas) + `BootCompletedReceiverRobolectricTest` (R1, R3).
 - [ ] 4. Manifest: permissão `RECEIVE_BOOT_COMPLETED` (comentada e documentada em `docs/permissoes.md`, removendo-a de "planejadas"; atualizar `RequestedPermissionsGuardRobolectricTest`) + receiver sem `directBootAware` e sem `LOCKED_BOOT_COMPLETED` (R1.2, R4); conferir `exported` na documentação atual e testar o manifest.
