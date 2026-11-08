@@ -139,6 +139,10 @@ object SemanticsTags {
     const val UPSERT_STICKER_BUTTON = "upsert_sticker_button"
     const val UPSERT_COLOR_BUTTON = "upsert_color_button"
     const val HOME_DAY_STICKER_BUTTON = "home_day_sticker_button"
+
+    /** `home_day_indicator_<epochDay>_<colorHex>`: a cor desenhada vai na tag (pixels ilegíveis no Robolectric). */
     const val HOME_DAY_INDICATOR_PREFIX = "home_day_indicator_"
+
+    /** `home_schedule_color_bar_<id>_<colorHex>`. */
     const val HOME_SCHEDULE_COLOR_BAR_PREFIX = "home_schedule_color_bar_"
 }

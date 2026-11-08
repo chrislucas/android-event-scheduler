@@ -168,13 +168,13 @@ private fun DayCell(
             modifier = Modifier.padding(top = 2.dp).height(INDICATOR_SIZE),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            cell.indicatorColors.forEachIndexed { index, colorHex ->
+            cell.indicatorColors.forEach { colorHex ->
                 Box(
                     modifier =
                         Modifier
                             .size(INDICATOR_SIZE)
                             .background(Color(colorHex), CircleShape)
-                            .testTag("${SemanticsTags.HOME_DAY_INDICATOR_PREFIX}${cell.date.toEpochDay()}_$index"),
+                            .testTag("${SemanticsTags.HOME_DAY_INDICATOR_PREFIX}${cell.date.toEpochDay()}_$colorHex"),
                 )
             }
         }

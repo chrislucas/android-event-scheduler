@@ -72,7 +72,7 @@ internal fun ScheduleListItem(
                     .width(COLOR_BAR_WIDTH)
                     .fillMaxHeight()
                     .background(Color(item.colorHex), RoundedCornerShape(COLOR_BAR_WIDTH))
-                    .testTag(SemanticsTags.HOME_SCHEDULE_COLOR_BAR_PREFIX + item.id),
+                    .testTag("${SemanticsTags.HOME_SCHEDULE_COLOR_BAR_PREFIX}${item.id}_${item.colorHex}"),
         )
         item.stickerEmoji?.let { emoji -> Text(text = emoji, style = MaterialTheme.typography.titleLarge) }
         Column(modifier = Modifier.weight(1f)) {
