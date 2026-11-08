@@ -226,4 +226,33 @@
     <string name="share_line_location">📍 Local: %1$s</string>
     <string name="share_line_notes">📝 Notas: %1$s</string>
     <string name="share_error">Não foi possível compartilhar</string>
+
+    <!-- Recorrência (spec 08) -->
+    <string name="recurrence_dialog_title">Repetição</string>
+    <string name="recurrence_dialog_description">Diálogo de configuração de repetição</string>
+    <string name="recurrence_option_weekly">Toda semana</string>
+    <string name="recurrence_days_group_description">Dias da semana</string>
+    <!-- Ordem: domingo → sábado (índice = DayOfWeek.value % 7) -->
+    <string-array name="recurrence_day_initials">
+        <item>D</item>
+        <item>S</item>
+        <item>T</item>
+        <item>Q</item>
+        <item>Q</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+    <string-array name="recurrence_day_names">
+        <item>Domingo</item>
+        <item>Segunda-feira</item>
+        <item>Terça-feira</item>
+        <item>Quarta-feira</item>
+        <item>Quinta-feira</item>
+        <item>Sexta-feira</item>
+        <item>Sábado</item>
+    </string-array>
+    <string name="recurrence_count_label">Número de vezes (opcional)</string>
+    <string name="recurrence_count_description">Limite de repetições em número de vezes</string>
+    <string name="recurrence_confirm_button">Concluir</string>
+    <string name="recurrence_dismiss_button">Cancelar</string>
 </resources>

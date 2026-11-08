@@ -1,6 +1,7 @@
 package com.br.androideventscheduler.feature.upsert.presentation.event
 
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.feature.upsert.presentation.state.ActiveInlinePicker
@@ -18,57 +19,77 @@ internal sealed interface QuickTime {
 }
 
 internal sealed interface UpsertScheduleUiEvent {
+    // Famílias: o ViewModel despacha por família e cada uma tem o seu `when` exaustivo. Assim o `onEvent` fica
+    // pequeno (detekt `CyclomaticComplexMethod`) e uma spec nova acrescenta uma família em vez de crescer um `when` único.
+
+    /** Conteúdo do formulário: modo, título, alerta, calendário, local e notas. */
+    sealed interface FieldEvent : UpsertScheduleUiEvent
+
+    /** Datas, horas, dia inteiro, atalhos e seletores inline. */
+    sealed interface ScheduleTimeEvent : UpsertScheduleUiEvent
+
+    /** Diálogo de repetição (spec 08). */
+    sealed interface RecurrenceEvent : UpsertScheduleUiEvent
+
     data class OnModeSelected(
         val mode: ScheduleType,
-    ) : UpsertScheduleUiEvent
+    ) : FieldEvent
 
     data class OnTitleChanged(
         val title: String,
-    ) : UpsertScheduleUiEvent
+    ) : FieldEvent
 
     data class OnAllDayToggled(
         val isAllDay: Boolean,
-    ) : UpsertScheduleUiEvent
+    ) : ScheduleTimeEvent
 
     data class OnPickerToggled(
         val picker: ActiveInlinePicker,
-    ) : UpsertScheduleUiEvent
+    ) : ScheduleTimeEvent
 
     /** [target] é [ActiveInlinePicker.START_DATE] ou [ActiveInlinePicker.END_DATE]. */
     data class OnDateSelected(
         val target: ActiveInlinePicker,
         val date: LocalDate,
-    ) : UpsertScheduleUiEvent
+    ) : ScheduleTimeEvent
 
     /** [target] é [ActiveInlinePicker.START_TIME] ou [ActiveInlinePicker.END_TIME]. */
     data class OnTimeChanged(
         val target: ActiveInlinePicker,
         val time: LocalTime,
-    ) : UpsertScheduleUiEvent
+    ) : ScheduleTimeEvent
 
     data class OnQuickDateChipClicked(
         val daysOffset: Int,
-    ) : UpsertScheduleUiEvent
+    ) : ScheduleTimeEvent
 
     data class OnQuickTimeChipClicked(
         val quickTime: QuickTime,
-    ) : UpsertScheduleUiEvent
+    ) : ScheduleTimeEvent
 
     data class OnReminderOffsetSelected(
         val offset: ReminderOffset,
-    ) : UpsertScheduleUiEvent
+    ) : FieldEvent
 
     data class OnCalendarSourceSelected(
         val source: CalendarSource,
-    ) : UpsertScheduleUiEvent
+    ) : FieldEvent
 
     data class OnLocationChanged(
         val location: String,
-    ) : UpsertScheduleUiEvent
+    ) : FieldEvent
 
     data class OnNotesChanged(
         val notes: String,
-    ) : UpsertScheduleUiEvent
+    ) : FieldEvent
+
+    data object OnRecurrenceRowClicked : RecurrenceEvent
+
+    data object OnRecurrenceDialogDismissed : RecurrenceEvent
+
+    data class OnRecurrencePatternConfirmed(
+        val pattern: RecurrencePattern,
+    ) : RecurrenceEvent
 
     data object OnSaveClicked : UpsertScheduleUiEvent
 

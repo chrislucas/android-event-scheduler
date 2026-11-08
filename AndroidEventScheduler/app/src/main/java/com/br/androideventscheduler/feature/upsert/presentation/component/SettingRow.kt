@@ -116,7 +116,7 @@ private fun SettingRowExpandedPreview() {
     }
 }
 
-@Preview(name = "Somente leitura", showBackground = true)
+@Preview(name = "Sem clique", showBackground = true)
 @Composable
 private fun SettingRowReadOnlyPreview() {
     AndroidEventSchedulerTheme {

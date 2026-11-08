@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
@@ -57,23 +58,50 @@ internal class UpsertScheduleViewModel(
         loadInitialState()
     }
 
+    // Despacho por família (ver UpsertScheduleUiEvent): cada `when` é exaustivo sobre a sua família, então um
+    // evento novo sem tratamento continua sendo erro de compilação, sem um `when` único que estoure o detekt.
     fun onEvent(event: UpsertScheduleUiEvent) {
+        when (event) {
+            is UpsertScheduleUiEvent.FieldEvent -> onFieldEvent(event)
+            is UpsertScheduleUiEvent.ScheduleTimeEvent -> onScheduleTimeEvent(event)
+            is UpsertScheduleUiEvent.RecurrenceEvent -> onRecurrenceEvent(event)
+            UpsertScheduleUiEvent.OnSaveClicked -> save()
+            UpsertScheduleUiEvent.OnCancelClicked -> sendEffect(UpsertScheduleUiEffect.NavigateBack)
+        }
+    }
+
+    private fun onFieldEvent(event: UpsertScheduleUiEvent.FieldEvent) {
         when (event) {
             is UpsertScheduleUiEvent.OnModeSelected -> selectMode(event.mode)
             is UpsertScheduleUiEvent.OnTitleChanged -> updateContent { it.copy(title = event.title, titleError = false) }
+            is UpsertScheduleUiEvent.OnReminderOffsetSelected -> updateContent { it.copy(reminderOffset = event.offset) }
+            is UpsertScheduleUiEvent.OnCalendarSourceSelected -> updateContent { it.copy(calendarSource = event.source) }
+            is UpsertScheduleUiEvent.OnLocationChanged -> updateContent { it.copy(location = event.location) }
+            is UpsertScheduleUiEvent.OnNotesChanged -> updateContent { it.copy(notes = event.notes) }
+        }
+    }
+
+    private fun onScheduleTimeEvent(event: UpsertScheduleUiEvent.ScheduleTimeEvent) {
+        when (event) {
             is UpsertScheduleUiEvent.OnAllDayToggled -> toggleAllDay(event.isAllDay)
             is UpsertScheduleUiEvent.OnPickerToggled -> togglePicker(event.picker)
             is UpsertScheduleUiEvent.OnDateSelected -> selectDate(event.target, event.date)
             is UpsertScheduleUiEvent.OnTimeChanged -> changeTime(event.target, event.time)
             is UpsertScheduleUiEvent.OnQuickDateChipClicked -> selectQuickDate(event.daysOffset)
             is UpsertScheduleUiEvent.OnQuickTimeChipClicked -> selectQuickTime(event.quickTime)
-            is UpsertScheduleUiEvent.OnReminderOffsetSelected -> updateContent { it.copy(reminderOffset = event.offset) }
-            is UpsertScheduleUiEvent.OnCalendarSourceSelected -> updateContent { it.copy(calendarSource = event.source) }
-            is UpsertScheduleUiEvent.OnLocationChanged -> updateContent { it.copy(location = event.location) }
-            is UpsertScheduleUiEvent.OnNotesChanged -> updateContent { it.copy(notes = event.notes) }
-            UpsertScheduleUiEvent.OnSaveClicked -> save()
-            UpsertScheduleUiEvent.OnCancelClicked -> sendEffect(UpsertScheduleUiEffect.NavigateBack)
         }
+    }
+
+    private fun onRecurrenceEvent(event: UpsertScheduleUiEvent.RecurrenceEvent) {
+        when (event) {
+            UpsertScheduleUiEvent.OnRecurrenceRowClicked -> updateContent { it.copy(isRecurrenceDialogVisible = true) }
+            UpsertScheduleUiEvent.OnRecurrenceDialogDismissed -> updateContent { it.copy(isRecurrenceDialogVisible = false) }
+            is UpsertScheduleUiEvent.OnRecurrencePatternConfirmed -> confirmRecurrence(event.pattern)
+        }
+    }
+
+    private fun confirmRecurrence(pattern: RecurrencePattern) {
+        updateContent { it.copy(recurrencePattern = pattern, isRecurrenceDialogVisible = false) }
     }
 
     private fun loadInitialState() {

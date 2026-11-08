@@ -135,7 +135,7 @@ O steering segue a arquitetura de referência "Scalable Android App Architecture
 Toda tela segue o trio **State + Event + Effect**. **Não há ViewModel base** nem helpers `setState`/`sendEffect`: cada ViewModel estende `androidx.lifecycle.ViewModel` e gerencia o próprio estado e efeitos de forma explícita.
 
 - **UiState** — `sealed class` imutável com as variantes da tela (tipicamente `Loading`, `Content(...)` e, quando fizer sentido, `Error`/`NotFound`/`Empty`). Exposto como `StateFlow<XxxUiState>`. A UI só lê e faz `when` exaustivo.
-- **UiEvent** — `sealed interface` com as ações do usuário. A UI envia ao ViewModel por `onEvent(event)`.
+- **UiEvent** — `sealed interface` com as ações do usuário. A UI envia ao ViewModel por `onEvent(event)`. Telas com muitos eventos (formulários) agrupam-nos em **famílias**: `sealed interface` aninhadas (ex.: `UpsertScheduleUiEvent.FieldEvent`, `ScheduleTimeEvent`, `RecurrenceEvent`). O `onEvent` despacha por família, e cada handler faz `when` exaustivo sobre a sua. Assim nenhum `when` passa do limite do detekt (`CyclomaticComplexMethod` 15) e evento novo sem tratamento continua sendo erro de compilação. Não use `@Suppress` nem `else ->` para contornar. Spec nova acrescenta uma família (ou entra numa existente) em vez de crescer um `when` único.
 - **UiEffect** — `sealed interface` de efeitos **one-shot** (navegar, Snackbar/Toast, abrir share sheet, fechar tela). **Nunca** vão no `UiState`.
 
 ### 5.1 Exemplo
