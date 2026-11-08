@@ -1,20 +1,14 @@
 package com.br.androideventscheduler.core.alarm.testing
 
+import android.content.ComponentName
 import android.content.Context
-import android.content.pm.ActivityInfo
-import android.content.pm.ResolveInfo
-import com.br.androideventscheduler.core.alarm.data.AlarmIntents
+import com.br.androideventscheduler.feature.alarm.presentation.screen.FullScreenAlarmActivity
 import org.robolectric.Shadows.shadowOf
 
-/** Simula a atividade de tela cheia (spec 14) instalada: o `resolveActivity` da ação passa a encontrá-la. */
-fun installFullScreenActivity(context: Context) {
-    val resolveInfo =
-        ResolveInfo().apply {
-            activityInfo =
-                ActivityInfo().apply {
-                    packageName = context.packageName
-                    name = "com.br.androideventscheduler.FakeFullScreenActivity"
-                }
-        }
-    shadowOf(context.packageManager).addResolveInfoForIntent(AlarmIntents.fullScreenIntent(context, "any"), resolveInfo)
+/**
+ * A `FullScreenAlarmActivity` (spec 14) já está no manifest mesclado, então o `resolveActivity` da ação a encontra.
+ * Este helper a remove do `PackageManager` simulado para testar a degradação "atividade não instalada".
+ */
+fun uninstallFullScreenActivity(context: Context) {
+    shadowOf(context.packageManager).removeActivity(ComponentName(context, FullScreenAlarmActivity::class.java))
 }

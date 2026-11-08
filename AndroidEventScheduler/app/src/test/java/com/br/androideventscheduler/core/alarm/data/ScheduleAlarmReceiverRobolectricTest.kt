@@ -14,7 +14,7 @@ import com.br.androideventscheduler.core.alarm.domain.model.AlarmRequest
 import com.br.androideventscheduler.core.alarm.domain.model.AlertPresentationMode
 import com.br.androideventscheduler.core.alarm.domain.scheduler.AlarmScheduler
 import com.br.androideventscheduler.core.alarm.domain.usecase.ScheduleNextAlarmUseCase
-import com.br.androideventscheduler.core.alarm.testing.installFullScreenActivity
+import com.br.androideventscheduler.core.alarm.testing.uninstallFullScreenActivity
 import com.br.androideventscheduler.core.di.DispatcherNames
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
@@ -136,7 +136,6 @@ class ScheduleAlarmReceiverRobolectricTest {
 
     @Test
     fun `given event with full screen enabled and activity when the alarm fires then the notification has a full screen intent`() {
-        installFullScreenActivity(context)
         givenStoredItem(scheduleItem(type = ScheduleType.EVENT))
 
         fireAlarm(mode = AlertPresentationMode.FULL_SCREEN_EVENT)
@@ -148,7 +147,6 @@ class ScheduleAlarmReceiverRobolectricTest {
 
     @Test
     fun `given an event with full screen disabled when the alarm fires then it degrades to a plain notification`() {
-        installFullScreenActivity(context)
         settingsRepository.settings.value = UserSettings(fullScreenEventAlertEnabled = false)
         givenStoredItem(scheduleItem(type = ScheduleType.EVENT))
 
@@ -161,6 +159,7 @@ class ScheduleAlarmReceiverRobolectricTest {
 
     @Test
     fun `given an event when the full screen activity is not installed then it degrades to a plain notification`() {
+        uninstallFullScreenActivity(context)
         givenStoredItem(scheduleItem(type = ScheduleType.EVENT))
 
         fireAlarm(mode = AlertPresentationMode.FULL_SCREEN_EVENT)
@@ -172,7 +171,6 @@ class ScheduleAlarmReceiverRobolectricTest {
 
     @Test
     fun `given an alarm without mode extra when it fires then the item type decides the mode`() {
-        installFullScreenActivity(context)
         givenStoredItem(scheduleItem(type = ScheduleType.EVENT))
 
         fireAlarm(mode = null)

@@ -11,7 +11,7 @@ import com.br.androideventscheduler.MainActivity
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.alarm.data.AlarmIntents
 import com.br.androideventscheduler.core.alarm.domain.model.AlertPresentationMode
-import com.br.androideventscheduler.core.alarm.testing.installFullScreenActivity
+import com.br.androideventscheduler.core.alarm.testing.uninstallFullScreenActivity
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import io.mockk.every
@@ -49,8 +49,6 @@ class ScheduleNotifierRobolectricTest {
 
     private fun postedNotification(scheduleId: String = "item-1"): Notification? =
         shadowOf(notificationManager).getNotification(AlarmIntents.notificationId(scheduleId))
-
-    private fun installFullScreenActivity() = installFullScreenActivity(context)
 
     private fun Notification.titleText() = extras.getString(Notification.EXTRA_TITLE)
 
@@ -105,7 +103,6 @@ class ScheduleNotifierRobolectricTest {
 
     @Test
     fun `given event with full screen enabled and activity when showing then posts on events channel with full screen intent`() {
-        installFullScreenActivity()
         allowFullScreenAccess()
 
         val shown = notifier.show(scheduleItem(), UserSettings(fullScreenEventAlertEnabled = true), AlertPresentationMode.FULL_SCREEN_EVENT)
@@ -123,8 +120,6 @@ class ScheduleNotifierRobolectricTest {
 
     @Test
     fun `given an event with full screen disabled in settings when showing then it degrades to a plain notification`() {
-        installFullScreenActivity()
-
         val shown =
             notifier.show(
                 scheduleItem(),
@@ -140,6 +135,7 @@ class ScheduleNotifierRobolectricTest {
 
     @Test
     fun `given an event when the full screen activity is not installed then it degrades to a plain notification`() {
+        uninstallFullScreenActivity(context)
         allowFullScreenAccess()
         val shown = notifier.show(scheduleItem(), UserSettings(fullScreenEventAlertEnabled = true), AlertPresentationMode.FULL_SCREEN_EVENT)
 
@@ -151,7 +147,6 @@ class ScheduleNotifierRobolectricTest {
     @Test
     @Config(sdk = [34])
     fun `given api 34 user revoked full screen access when showing an event then it degrades to a plain notification`() {
-        installFullScreenActivity()
         val restrictedManager = mockk<NotificationManager> { every { canUseFullScreenIntent() } returns false }
 
         val restrictedNotifier = ScheduleNotifier(context, restrictedManager)
@@ -165,7 +160,6 @@ class ScheduleNotifierRobolectricTest {
     @Test
     @Config(sdk = [34])
     fun `given api 34 full screen access granted when showing an event then the full screen intent is present`() {
-        installFullScreenActivity()
         allowFullScreenAccess()
 
         notifier.show(scheduleItem(), UserSettings(), AlertPresentationMode.FULL_SCREEN_EVENT)
