@@ -1,6 +1,7 @@
 package com.br.androideventscheduler.feature.upsert.presentation.event
 
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.feature.upsert.presentation.state.ActiveInlinePicker
@@ -68,6 +69,14 @@ internal sealed interface UpsertScheduleUiEvent {
 
     data class OnNotesChanged(
         val notes: String,
+    ) : UpsertScheduleUiEvent
+
+    data object OnRecurrenceRowClicked : UpsertScheduleUiEvent
+
+    data object OnRecurrenceDialogDismissed : UpsertScheduleUiEvent
+
+    data class OnRecurrencePatternConfirmed(
+        val pattern: RecurrencePattern,
     ) : UpsertScheduleUiEvent
 
     data object OnSaveClicked : UpsertScheduleUiEvent

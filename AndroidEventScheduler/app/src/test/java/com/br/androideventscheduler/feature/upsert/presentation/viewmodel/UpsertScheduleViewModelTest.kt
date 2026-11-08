@@ -36,6 +36,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -570,4 +571,62 @@ class UpsertScheduleViewModelTest {
             assertEquals(ReminderOffset.NONE, viewModel.content().reminderOffset)
             assertEquals("linha 1\nlinha 2", viewModel.content().notes)
         }
+
+    // region recorrência (spec 08)
+
+    @Test
+    fun `given the recurrence row when clicked then the dialog becomes visible without changing the pattern`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrenceRowClicked)
+
+            assertTrue(viewModel.content().isRecurrenceDialogVisible)
+            assertEquals(RecurrencePattern.None, viewModel.content().recurrencePattern)
+        }
+
+    @Test
+    fun `given the dialog is open when confirming a pattern then it is stored and the dialog closes`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+            val pattern = RecurrencePattern.Weekly(setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY), occurrenceLimit = 5000)
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrenceRowClicked)
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrencePatternConfirmed(pattern))
+
+            assertEquals(pattern, viewModel.content().recurrencePattern)
+            assertFalse(viewModel.content().isRecurrenceDialogVisible)
+        }
+
+    @Test
+    fun `given a stored pattern and the dialog open when dismissing then the pattern is kept and the dialog closes`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+            val pattern = RecurrencePattern.Daily(occurrenceLimit = 3)
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrencePatternConfirmed(pattern))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrenceRowClicked)
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrenceDialogDismissed)
+
+            assertEquals(pattern, viewModel.content().recurrencePattern)
+            assertFalse(viewModel.content().isRecurrenceDialogVisible)
+        }
+
+    @Test
+    fun `given a confirmed pattern when saving then the saved item carries the pattern`() =
+        runTest(mainRule.dispatcher) {
+            val savedItem = slot<ScheduleItem>()
+            coEvery { saveScheduleUseCase(capture(savedItem)) } answers { Result.success(firstArg()) }
+            val viewModel = loadedCreation()
+            val pattern = RecurrencePattern.Daily(occurrenceLimit = 4)
+            viewModel.onEvent(UpsertScheduleUiEvent.OnTitleChanged("Remédio"))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnRecurrencePatternConfirmed(pattern))
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnSaveClicked)
+            advanceUntilIdle()
+
+            assertEquals(pattern, savedItem.captured.recurrencePattern)
+        }
+
+    // endregion
 }

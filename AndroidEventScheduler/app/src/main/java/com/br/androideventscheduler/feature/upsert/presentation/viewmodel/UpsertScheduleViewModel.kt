@@ -71,6 +71,10 @@ internal class UpsertScheduleViewModel(
             is UpsertScheduleUiEvent.OnCalendarSourceSelected -> updateContent { it.copy(calendarSource = event.source) }
             is UpsertScheduleUiEvent.OnLocationChanged -> updateContent { it.copy(location = event.location) }
             is UpsertScheduleUiEvent.OnNotesChanged -> updateContent { it.copy(notes = event.notes) }
+            UpsertScheduleUiEvent.OnRecurrenceRowClicked -> updateContent { it.copy(isRecurrenceDialogVisible = true) }
+            UpsertScheduleUiEvent.OnRecurrenceDialogDismissed -> updateContent { it.copy(isRecurrenceDialogVisible = false) }
+            is UpsertScheduleUiEvent.OnRecurrencePatternConfirmed ->
+                updateContent { it.copy(recurrencePattern = event.pattern, isRecurrenceDialogVisible = false) }
             UpsertScheduleUiEvent.OnSaveClicked -> save()
             UpsertScheduleUiEvent.OnCancelClicked -> sendEffect(UpsertScheduleUiEffect.NavigateBack)
         }

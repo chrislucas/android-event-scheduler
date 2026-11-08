@@ -12,8 +12,8 @@ internal sealed class UpsertScheduleUiState {
     data object Loading : UpsertScheduleUiState()
 
     /**
-     * Rascunho do formulário. [recurrencePattern], [colorHex] e [stickerEmoji] ainda não têm edição na tela:
-     * são carregados/gravados como estão e ganham interface nas specs 08 e 09.
+     * Rascunho do formulário. [colorHex] e [stickerEmoji] ainda não têm edição na tela: são carregados/gravados
+     * como estão e ganham interface na spec 09. [isRecurrenceDialogVisible] controla o diálogo de repetição.
      */
     data class Content(
         val scheduleId: String? = null,
@@ -30,6 +30,7 @@ internal sealed class UpsertScheduleUiState {
         /** E-mail da conta ativa: rótulo do calendário [CalendarSource.PERSONAL_ACCOUNT]. */
         val accountEmail: String = "",
         val recurrencePattern: RecurrencePattern = RecurrencePattern.None,
+        val isRecurrenceDialogVisible: Boolean = false,
         val colorHex: Long = EventColorOption.LIGHT_BLUE.hex,
         val stickerEmoji: String? = null,
         val location: String = "",
