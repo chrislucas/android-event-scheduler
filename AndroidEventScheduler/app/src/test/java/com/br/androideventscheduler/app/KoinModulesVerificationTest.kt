@@ -31,6 +31,9 @@ class KoinModulesVerificationTest {
     private val runtimeParameterTypes =
         listOf(
             String::class,
+            // Long: data inicial da rota (UpsertScheduleViewModel); () -> String: idProvider com valor padrão.
+            Long::class,
+            Function0::class,
             // SavedStateHandle: injetado pelo Koin ao criar ViewModels.
             SavedStateHandle::class,
         )

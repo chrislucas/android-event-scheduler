@@ -5,9 +5,6 @@ package com.br.androideventscheduler.core.ui
  * Cada spec acrescenta as suas constantes, agrupadas por tela.
  */
 object SemanticsTags {
-    // Placeholders temporários do AppNavHost (cada spec remove o seu)
-    const val UPSERT_PLACEHOLDER = "upsert_placeholder" // removido pela spec 07
-
     // Splash
     const val SPLASH_LOGO = "splash_logo"
     const val SPLASH_TITLE = "splash_title"
@@ -68,4 +65,27 @@ object SemanticsTags {
     const val HOME_LOADING = "home_loading"
     const val HOME_ERROR_STATE = "home_error_state"
     const val HOME_RETRY_BUTTON = "home_retry_button"
+
+    // Criar/editar (spec 07)
+    const val UPSERT_MODE_EVENT_TAB = "upsert_mode_event_tab"
+    const val UPSERT_MODE_REMINDER_TAB = "upsert_mode_reminder_tab"
+    const val UPSERT_TITLE_INPUT = "upsert_title_input"
+    const val UPSERT_ALL_DAY_SWITCH = "upsert_all_day_switch"
+    const val UPSERT_DATE_SELECTOR_ROW = "upsert_date_selector_row"
+    const val UPSERT_END_DATE_SELECTOR_ROW = "upsert_end_date_selector_row"
+    const val UPSERT_INLINE_CALENDAR = "upsert_inline_calendar"
+    const val UPSERT_TIME_SELECTOR_ROW = "upsert_time_selector_row"
+    const val UPSERT_END_TIME_SELECTOR_ROW = "upsert_end_time_selector_row"
+    const val UPSERT_INLINE_TIME_PICKER = "upsert_inline_time_picker"
+    const val UPSERT_QUICK_CHIP_PREFIX = "upsert_quick_chip_"
+    const val UPSERT_REMINDER_ROW = "upsert_reminder_row"
+    const val UPSERT_REMINDER_OPTION_PREFIX = "upsert_reminder_option_"
+    const val UPSERT_CALENDAR_SOURCE_ROW = "upsert_calendar_source_row"
+    const val UPSERT_CALENDAR_SOURCE_OPTION_PREFIX = "upsert_calendar_source_option_"
+    const val UPSERT_LOCATION_INPUT = "upsert_location_input"
+    const val UPSERT_NOTES_INPUT = "upsert_notes_input"
+    const val UPSERT_RECURRENCE_ROW = "upsert_recurrence_row"
+    const val UPSERT_SAVE_BUTTON = "upsert_save_button"
+    const val UPSERT_CANCEL_BUTTON = "upsert_cancel_button"
+    const val UPSERT_LOADING = "upsert_loading"
 }
