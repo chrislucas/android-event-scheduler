@@ -14,13 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.ui.SemanticsTags
 
-/** Atalho rápido: [id] estável (compõe a tag), [label] já formatado e [onClick]. */
-internal data class QuickChip(
-    val id: String,
-    val label: String,
-    val onClick: () -> Unit,
-)
-
 /** Linha de atalhos rápidos (quebra de linha automática). Cada chip tem a tag `UPSERT_QUICK_CHIP_PREFIX + id`. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

@@ -16,7 +16,10 @@ class SaveScheduleUseCase(
     private val scheduleRepository: ScheduleRepository,
     private val scheduleNextAlarm: ScheduleNextAlarmUseCase,
 ) {
-    /** Sucesso devolve o item normalizado (título com `trim`); falha traz [SaveScheduleError] ou o erro de I/O. */
+    /**
+     * Sucesso devolve o item normalizado (título com `trim`);
+     * falha traz [SaveScheduleError] ou o erro de I/O.
+     */
     suspend operator fun invoke(item: ScheduleItem): Result<ScheduleItem> =
         runCatching {
             val normalizedItem = item.copy(title = item.title.trim())
@@ -29,7 +32,10 @@ class SaveScheduleUseCase(
             normalizedItem
         }
 
-    /** `ScheduleItem` já impede data final anterior à inicial. Dia inteiro compara só datas; lembretes (sem `endTime`) nunca terminam antes de começar. */
+    /**
+     * `ScheduleItem` já impede data final anterior à inicial, então só resta comparar as horas no mesmo dia.
+     * Dia inteiro compara só datas; lembretes (sem `endTime`) nunca terminam antes de começar.
+     */
     private fun endsBeforeStart(item: ScheduleItem): Boolean {
         if (item.isAllDay) return false
         val endTime = item.endTime ?: return false
