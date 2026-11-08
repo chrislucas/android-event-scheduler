@@ -163,4 +163,13 @@ class ScheduleDetailMapperTest {
         assertEquals("🚀", ui.stickerEmoji)
         assertEquals(0xFFEF5350, ui.colorHex)
     }
+
+    @Test
+    fun `given recurring and non recurring items when mapping then only the recurring one is flagged`() {
+        val recurring = mapper.map(scheduleItem(recurrencePattern = RecurrencePattern.Daily(occurrenceLimit = 3)), accountEmail)
+        val single = mapper.map(scheduleItem(recurrencePattern = RecurrencePattern.None), accountEmail)
+
+        assertEquals(true, recurring.isRecurring)
+        assertEquals(false, single.isRecurring)
+    }
 }

@@ -2,6 +2,7 @@ package com.br.androideventscheduler.feature.detail.presentation.mapper
 
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.common.StringProvider
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.ui.format.label
@@ -32,6 +33,7 @@ internal class ScheduleDetailMapper(
             recurrenceText = item.recurrencePattern.toDisplayLabel(strings),
             location = item.location.takeIf { it.isNotBlank() },
             notes = item.notes.takeIf { it.isNotBlank() },
+            isRecurring = item.recurrencePattern != RecurrencePattern.None,
         )
 
     /** Para itens recorrentes mostra a data inicial da série (R2.4): [ScheduleItem.startDate]. */

@@ -12,4 +12,14 @@ internal sealed interface ScheduleDetailUiEffect {
     data class ShowMessage(
         @StringRes val messageRes: Int,
     ) : ScheduleDetailUiEffect
+
+    /** Snackbar "Cópia criada" com a ação "Abrir", que dispara `OnOpenCopyClicked(copyId)`. */
+    data class ShowCopyCreated(
+        val copyId: String,
+    ) : ScheduleDetailUiEffect
+
+    /** Substitui o detalhe atual pelo da cópia. */
+    data class NavigateToCopy(
+        val copyId: String,
+    ) : ScheduleDetailUiEffect
 }

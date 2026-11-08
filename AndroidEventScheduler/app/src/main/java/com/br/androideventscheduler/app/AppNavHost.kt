@@ -60,6 +60,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 detailEntry(
                     onBack = { backStack.removeLastOrNull() },
                     onEdit = { scheduleId -> backStack.add(UpsertSchedule(scheduleId = scheduleId)) },
+                    // Duplicar (spec 11): a cópia substitui o detalhe atual no back stack.
+                    onOpenCopy = { copyId ->
+                        backStack.removeLastOrNull()
+                        backStack.add(ScheduleDetail(copyId))
+                    },
                 )
                 // Criar/editar (spec 07)
                 upsertEntry(onBack = { backStack.removeLastOrNull() })

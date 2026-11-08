@@ -22,11 +22,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,6 +52,7 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.feature.detail.presentation.component.DeleteConfirmationDialog
 import com.br.androideventscheduler.feature.detail.presentation.component.DetailColorDot
 import com.br.androideventscheduler.feature.detail.presentation.component.DetailInfoRow
 import com.br.androideventscheduler.feature.detail.presentation.component.DetailRowIcon
@@ -56,6 +63,7 @@ import com.br.androideventscheduler.feature.detail.presentation.event.ScheduleDe
 import com.br.androideventscheduler.feature.detail.presentation.state.ScheduleDetailUi
 import com.br.androideventscheduler.feature.detail.presentation.state.ScheduleDetailUiState
 import com.br.androideventscheduler.feature.detail.presentation.viewmodel.ScheduleDetailViewModel
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -68,10 +76,13 @@ internal fun ScheduleDetailScreen(
     scheduleId: String,
     onBack: () -> Unit,
     onEdit: (String) -> Unit,
+    onOpenCopy: (String) -> Unit,
     viewModel: ScheduleDetailViewModel = koinViewModel { parametersOf(scheduleId) },
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     CollectEffects(viewModel.uiEffect) { effect ->
         when (effect) {
@@ -83,6 +94,27 @@ internal fun ScheduleDetailScreen(
                 onEdit(effect.scheduleId)
             }
 
+            is ScheduleDetailUiEffect.NavigateToCopy -> {
+                onOpenCopy(effect.copyId)
+            }
+
+            // O Snackbar espera ser dispensado: roda em outra corrotina para não bloquear os próximos efeitos.
+            is ScheduleDetailUiEffect.ShowCopyCreated -> {
+                val message = context.getString(R.string.detail_copy_created)
+                val actionLabel = context.getString(R.string.detail_copy_open_action)
+                coroutineScope.launch {
+                    val result =
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            actionLabel = actionLabel,
+                            duration = SnackbarDuration.Long,
+                        )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.onEvent(ScheduleDetailUiEvent.OnOpenCopyClicked(effect.copyId))
+                    }
+                }
+            }
+
             // Toast (e não Snackbar): a tela fecha logo em seguida e um Snackbar sumiria junto com ela.
             is ScheduleDetailUiEffect.ShowMessage -> {
                 Toast.makeText(context, context.getString(effect.messageRes), Toast.LENGTH_SHORT).show()
@@ -90,7 +122,7 @@ internal fun ScheduleDetailScreen(
         }
     }
 
-    ScheduleDetailContent(uiState = uiState, onEvent = viewModel::onEvent)
+    ScheduleDetailContent(uiState = uiState, onEvent = viewModel::onEvent, snackbarHostState = snackbarHostState)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,9 +131,11 @@ internal fun ScheduleDetailContent(
     uiState: ScheduleDetailUiState,
     onEvent: (ScheduleDetailUiEvent) -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState, modifier = Modifier.testTag(SemanticsTags.DETAIL_SNACKBAR_HOST)) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.detail_screen_title)) },
@@ -120,18 +154,8 @@ internal fun ScheduleDetailContent(
         },
         bottomBar = {
             if (uiState is ScheduleDetailUiState.Content) {
-                // Specs 11 e 12 acrescentam Duplicar, Compartilhar e Excluir a esta lista.
-                val actions =
-                    listOf(
-                        ScheduleAction(
-                            label = R.string.detail_edit_label,
-                            icon = R.drawable.ic_edit,
-                            tag = SemanticsTags.DETAIL_EDIT_BUTTON,
-                            onClick = { onEvent(ScheduleDetailUiEvent.OnEditClicked) },
-                            description = R.string.detail_edit_description,
-                        ),
-                    )
-                ScheduleActionBar(actions = actions)
+                // A spec 12 acrescenta Compartilhar a esta lista (entre Editar e Excluir).
+                ScheduleActionBar(actions = detailActions(isEnabled = !uiState.isProcessingAction, onEvent = onEvent))
             }
         },
     ) { innerPadding ->
@@ -142,7 +166,49 @@ internal fun ScheduleDetailContent(
             is ScheduleDetailUiState.Content -> DetailBody(schedule = uiState.schedule, modifier = contentModifier)
         }
     }
+
+    if (uiState is ScheduleDetailUiState.Content && uiState.isDeleteDialogVisible) {
+        DeleteConfirmationDialog(
+            title = uiState.schedule.title,
+            isRecurring = uiState.schedule.isRecurring,
+            onConfirm = { onEvent(ScheduleDetailUiEvent.OnConfirmDeleteClicked) },
+            onDismiss = { onEvent(ScheduleDetailUiEvent.OnDismissDeleteDialog) },
+        )
+    }
 }
+
+/** Duplicar (primeira), Editar e Excluir (última, destrutiva). Todas desabilitadas enquanto uma ação roda. */
+private fun detailActions(
+    isEnabled: Boolean,
+    onEvent: (ScheduleDetailUiEvent) -> Unit,
+): List<ScheduleAction> =
+    listOf(
+        ScheduleAction(
+            label = R.string.detail_duplicate_label,
+            icon = R.drawable.ic_content_copy,
+            tag = SemanticsTags.DETAIL_DUPLICATE_BUTTON,
+            onClick = { onEvent(ScheduleDetailUiEvent.OnDuplicateClicked) },
+            enabled = isEnabled,
+            description = R.string.detail_duplicate_description,
+        ),
+        ScheduleAction(
+            label = R.string.detail_edit_label,
+            icon = R.drawable.ic_edit,
+            tag = SemanticsTags.DETAIL_EDIT_BUTTON,
+            onClick = { onEvent(ScheduleDetailUiEvent.OnEditClicked) },
+            enabled = isEnabled,
+            description = R.string.detail_edit_description,
+        ),
+        ScheduleAction(
+            label = R.string.detail_delete_label,
+            icon = R.drawable.ic_delete,
+            tag = SemanticsTags.DETAIL_DELETE_BUTTON,
+            onClick = { onEvent(ScheduleDetailUiEvent.OnDeleteClicked) },
+            enabled = isEnabled,
+            description = R.string.detail_delete_description,
+            isDestructive = true,
+        ),
+    )
 
 @Composable
 private fun DetailLoading(modifier: Modifier = Modifier) {
@@ -350,4 +416,26 @@ private fun ScheduleDetailContentLoadingPreview() {
 @Composable
 private fun ScheduleDetailContentNotFoundPreview() {
     AndroidEventSchedulerTheme { ScheduleDetailContent(uiState = ScheduleDetailUiState.NotFound, onEvent = {}) }
+}
+
+@Preview(name = "Processando ação", showBackground = true)
+@Composable
+private fun ScheduleDetailContentProcessingPreview() {
+    AndroidEventSchedulerTheme {
+        ScheduleDetailContent(
+            uiState = ScheduleDetailUiState.Content(previewSchedule, isProcessingAction = true),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(name = "Diálogo de exclusão", showBackground = true)
+@Composable
+private fun ScheduleDetailContentDeleteDialogPreview() {
+    AndroidEventSchedulerTheme {
+        ScheduleDetailContent(
+            uiState = ScheduleDetailUiState.Content(previewSchedule.copy(isRecurring = true), isDeleteDialogVisible = true),
+            onEvent = {},
+        )
+    }
 }

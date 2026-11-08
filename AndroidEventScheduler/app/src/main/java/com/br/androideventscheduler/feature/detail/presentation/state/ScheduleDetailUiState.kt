@@ -13,6 +13,8 @@ internal data class ScheduleDetailUi(
     val recurrenceText: String,
     val location: String?,
     val notes: String?,
+    /** Itens recorrentes mostram, no diálogo de exclusão, o aviso de que todas as ocorrências serão removidas. */
+    val isRecurring: Boolean = false,
 )
 
 internal sealed class ScheduleDetailUiState {
@@ -20,6 +22,10 @@ internal sealed class ScheduleDetailUiState {
 
     data class Content(
         val schedule: ScheduleDetailUi,
+        /** Restaurado após rotação/morte do processo (`SavedStateHandle`). */
+        val isDeleteDialogVisible: Boolean = false,
+        /** Duplicar/excluir em andamento: os botões da barra ficam desabilitados e toques repetidos são ignorados. */
+        val isProcessingAction: Boolean = false,
     ) : ScheduleDetailUiState()
 
     data object NotFound : ScheduleDetailUiState()
