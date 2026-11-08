@@ -14,6 +14,7 @@
 | `USE_EXACT_ALARM` | normal, **restrita pelo Google Play** | 13+ | spec 04 | Disparar o lembrete no minuto configurado, mesmo com o aparelho em repouso (Doze) | Ver §2.2. Sem ela, no Android 14+ os alarmes seriam inexatos e poderiam atrasar |
 | `SCHEDULE_EXACT_ALARM` (`maxSdkVersion=32`) | acesso especial | 12 e 12L | spec 04 | Igual à anterior, nas versões em que `USE_EXACT_ALARM` não existe | O app cai para alarme inexato (`setAndAllowWhileIdle`) |
 | `USE_FULL_SCREEN_INTENT` | normal no 13−; acesso especial no 14+, **restrita pelo Google Play** | 10+ | spec 04 (usada na spec 14) | Mostrar o alerta de **evento** em tela cheia, como um despertador | O app mostra uma notificação de alta prioridade em vez da tela cheia |
+| `RECEIVE_BOOT_COMPLETED` | normal (concedida na instalação) | todas | spec 15 | Reagendar os alarmes após reiniciar o aparelho: o `AlarmManager` perde todos ao desligar | Ver §2.6. Sem ela, os alarmes só voltam quando o usuário abrir o app e salvar cada item de novo |
 | `<pacote>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | signature (só o próprio app) | — | `androidx.core` (automática) | Usada pela `ContextCompat.registerReceiver` para proteger receivers dinâmicos não exportados em Android < 13 | Não se aplica: não aparece para o usuário e não dá acesso a nada fora do app |
 
 O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a injeta. Também não declara permissões de armazenamento, localização, contatos, câmera ou microfone.
@@ -73,11 +74,18 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
 - **Para quê:** a `ContextCompat.registerReceiver(..., RECEIVER_NOT_EXPORTED)` usa essa permissão própria do app para proteger receivers registrados em tempo de execução nas versões do Android anteriores ao 13.
 - **Por que mantemos:** tem nível *signature*, então só o próprio app a detém. Não aparece para o usuário e não dá acesso a dados. Removê-la com `tools:node="remove"` poderia quebrar bibliotecas que dependem do registro seguro.
 
+### 2.6 `RECEIVE_BOOT_COMPLETED`
+- **Para quê:** o `AlarmManager` perde todos os alarmes quando o aparelho reinicia. O `BootCompletedReceiver` (`core.alarm.data`) recebe `BOOT_COMPLETED` e chama o `RescheduleAllAlarmsUseCase`, que reagenda o próximo alarme de cada item. O mesmo receiver trata `MY_PACKAGE_REPLACED`, `TIMEZONE_CHANGED`, `TIME_SET` e `SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED`; só o `BOOT_COMPLETED` depende da permissão.
+- **Como é pedida:** é uma permissão normal, concedida na instalação; não há diálogo nem tela.
+- **Se ausente:** o receiver não é acionado no boot e os lembretes ficam sem disparar até o usuário abrir o app e salvar cada item de novo. Isso compromete a função principal, por isso ela fica.
+- **Limites deliberados:** o receiver **não** trata `LOCKED_BOOT_COMPLETED` e **não** é `directBootAware`, porque o Room fica em armazenamento protegido por credencial e só abre depois do primeiro desbloqueio. Alertas que venceram com o aparelho desligado não são disparados depois: só as próximas ocorrências são reagendadas. Um alerta adiado na tela cheia (spec 14) também se perde no reboot: o adiamento não é salvo no item, então volta a valer a próxima ocorrência normal. O receiver não abre tela nem notificação.
+- **`exported`:** o receiver usa `android:exported="false"`. A [documentação do `<receiver>`](https://developer.android.com/guide/topics/manifest/receiver-element) define `exported` como a capacidade de receber mensagens de fontes **não pertencentes ao sistema**; com `false`, o receiver continua recebendo as mensagens enviadas pelo sistema. Assim, outros apps não conseguem acioná-lo. Não verificado em aparelho (ver PR da spec 15).
+- **Google Play:** sem restrição de política (permissão normal).
+
 ## 3. Permissões planejadas pelas próximas specs
 
 | Permissão | Spec | Justificativa | Observação |
 |---|---|---|---|
-| `RECEIVE_BOOT_COMPLETED` | 15 | Reagendar os alarmes após reiniciar o aparelho (o `AlarmManager` perde todos) | Normal, sem restrição de política |
 | `USE_BIOMETRIC` | 16 | O `BiometricPrompt` do Android 11+ exige essa permissão mesmo quando só a credencial do aparelho (PIN, padrão ou senha) é aceita | Injetada pela `androidx.biometric`; não aparece para o usuário |
 | `USE_FINGERPRINT` | 16 | **Nenhuma**: o app não usa digital, e no Android ≤ 10 usa o `KeyguardManager` | Injetada pela `androidx.biometric`. **Remover** com `tools:node="remove"` e cobrir na trava |
 | — | 14 | **Implementada, sem permissão nova:** a tela cheia usa `setShowWhenLocked`/`setTurnScreenOn` e `FLAG_KEEP_SCREEN_ON`, que **não** exigem permissão (ver §2.4) | `WAKE_LOCK` e `DISABLE_KEYGUARD` **não** foram adicionadas |
@@ -107,6 +115,7 @@ Cada uma dessas specs deve atualizar este documento e a lista do `RequestedPermi
 
 ## 6. Fontes
 
+- [Elemento `<receiver>` do manifest (`android:exported`, `android:directBootAware`)](https://developer.android.com/guide/topics/manifest/receiver-element)
 - [Android 14: alarmes exatos negados por padrão (`SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM`)](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms)
 - [Mudanças de comportamento do Android 14 para todos os apps](https://developer.android.com/about/versions/14/behavior-changes-all)
 - [Limites de intents em tela cheia (AOSP)](https://source.android.com/docs/core/permissions/fsi-limits)

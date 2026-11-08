@@ -155,6 +155,7 @@ Requisitos: Android Studio recente, JDK compatível com o Gradle do projeto e um
 ```
 
 > Comportamentos dependentes do sistema — alarme exato, tela cheia sobre o bloqueio, broadcast de boot e permissões em runtime — só são totalmente verificáveis em aparelho ou emulador.
+> Roteiro com os comandos `adb` para validar a restauração de alarmes após reinício (e variações: atualização do app, fuso, hora, Doze): [`docs/testes-pos-boot-adb.md`](AndroidEventScheduler/docs/testes-pos-boot-adb.md).
 
 ## Permissões
 

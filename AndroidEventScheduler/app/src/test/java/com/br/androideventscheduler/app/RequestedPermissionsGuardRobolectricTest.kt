@@ -30,6 +30,8 @@ class RequestedPermissionsGuardRobolectricTest {
         setOf(
             "android.permission.POST_NOTIFICATIONS",
             "android.permission.USE_FULL_SCREEN_INTENT",
+            // Pós-boot (spec 15)
+            "android.permission.RECEIVE_BOOT_COMPLETED",
             // Injetada pela androidx.core (nível signature; não aparece para o usuário).
             "${context.packageName}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
         )

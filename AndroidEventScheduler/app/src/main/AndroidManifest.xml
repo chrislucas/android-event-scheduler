@@ -16,6 +16,8 @@
         android:maxSdkVersion="32" />
     <!-- Alerta de evento em tela cheia (spec 14); no Android 14+ pode ser negada e o app cai para notificação. -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Pós-boot (spec 15): reagendar os alarmes após reiniciar o aparelho (o AlarmManager os perde). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".app.RememberMeApplication"
@@ -62,6 +64,22 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- Pós-boot (spec 15): reagenda os alarmes após boot, atualização do app, mudança de fuso/hora e da permissão
+             de alarme exato. Só ações do sistema, então exported=false basta; sem LOCKED_BOOT_COMPLETED nem
+             directBootAware (o Room fica em armazenamento protegido por credencial). -->
+        <receiver
+            android:name=".core.alarm.data.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Koin é iniciado pelo App Startup, antes de Application.onCreate, Activities e Receivers. -->
         <provider
