@@ -9,5 +9,5 @@ import org.koin.dsl.module
 /** API pública da feature: módulo Koin agregado em `app.AppModules`. */
 val splashModule =
     module {
-        viewModel { SplashViewModel(dispatcher = get(named(DispatcherNames.DEFAULT))) }
+        viewModel { SplashViewModel(dispatcher = get(named(DispatcherNames.MAIN))) }
     }

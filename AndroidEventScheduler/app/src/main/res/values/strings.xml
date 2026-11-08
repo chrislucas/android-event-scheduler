@@ -22,4 +22,26 @@
         <item quantity="other">%1$d minutos antes</item>
     </plurals>
     <string name="date_time_short">%1$s, %2$s</string>
+
+    <!-- Configurações -->
+    <string name="settings_title">Configurações</string>
+    <string name="navigate_back">Voltar</string>
+    <string name="settings_account_section">Conta</string>
+    <string name="settings_account_email_label">E-mail da conta ativa</string>
+    <string name="settings_account_email_description">Campo de e-mail da conta ativa</string>
+    <string name="settings_account_email_error">Informe um e-mail válido, como nome@exemplo.com</string>
+    <string name="settings_reminder_section">Alerta padrão dos novos agendamentos</string>
+    <string name="settings_snooze_section">Tempo para adiar o alarme</string>
+    <plurals name="settings_snooze_minutes">
+        <item quantity="one">%1$d minuto</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
+    <string name="settings_fullscreen_label">Alerta em tela cheia para eventos</string>
+    <string name="settings_fullscreen_supporting">Mostra o evento por cima da tela, como um alarme</string>
+    <string name="settings_save_button">Salvar</string>
+    <string name="settings_save_description">Salvar configurações</string>
+    <string name="settings_saved">Configurações salvas</string>
+    <string name="settings_save_error">Não foi possível salvar as configurações. Tente novamente.</string>
+    <string name="settings_invalid_snooze">Escolha um tempo de adiamento válido</string>
+    <string name="state_loading">Carregando</string>
 </resources>

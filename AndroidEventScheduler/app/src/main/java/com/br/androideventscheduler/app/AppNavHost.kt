@@ -22,6 +22,7 @@ import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.navigation.Home
 import com.br.androideventscheduler.core.navigation.Splash
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.feature.settings.navigation.settingsEntry
 import com.br.androideventscheduler.feature.splash.navigation.splashEntry
 
 // Sem preview: host de navegação que resolve telas e ViewModels pelo Koin; cada tela tem a sua preview.
@@ -47,6 +48,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         entryProvider =
             entryProvider {
                 splashEntry(onNavigateToHome = { backStack.replaceSplashWithHome() })
+                settingsEntry(onBack = { backStack.removeLastOrNull() })
                 // Placeholder temporário; substituído pela feature Home na spec 05.
                 entry<Home> { HomePlaceholder() }
             },

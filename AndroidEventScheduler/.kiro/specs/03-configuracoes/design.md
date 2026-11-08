@@ -55,6 +55,14 @@ sealed interface SettingsUiEffect { NavigateBack; ShowMessage(@StringRes Int) }
 - Tela: `Scaffold` com `TopAppBar` (voltar), `Column` rolável; componentes `ReminderOptionRow`/`SnoozeOptionRow` reaproveitam o mesmo `RadioOptionRow` privado; previews: padrão, e-mail inválido, salvando.
 - Tags novas: `SETTINGS_ACCOUNT_EMAIL_INPUT`, `SETTINGS_REMINDER_OPTION_PREFIX`, `SETTINGS_SNOOZE_OPTION_PREFIX`, `SETTINGS_FULLSCREEN_SWITCH`, `SETTINGS_SAVE_BUTTON`.
 
+## Desvios na execução
+
+- Efeitos separados por destino: `ShowSavedConfirmation` (Toast, sobrevive à saída da tela) e `ShowError(@StringRes)` (Snackbar na própria tela), em vez de um único `ShowMessage` — a confirmação de "salvo" seria perdida num Snackbar porque a tela fecha em seguida.
+- `isSaving` também protege contra toque duplo (o botão fica desabilitado e o evento é ignorado).
+- Preferências com valor fora do permitido (ex.: snooze 7 gravado por versão antiga) caem no padrão na leitura.
+- **Regra nova de dispatcher (steering §5.1):** ViewModels recebem `main` (`Main.immediate`). Descoberto aqui: com `default`, o efeito era tratado fora da main e o `Toast` quebrava. A Splash foi ajustada junto.
+- **Infra de teste (steering §5.2):** a `TestRememberMeApplication` recarrega os módulos Koin a cada teste (os `single` de DataStore/Room apontavam para arquivos de testes anteriores) e testes de integração drenam o looper principal dentro do `waitUntil`.
+
 ## Decisões de UseCase
 Nenhum. `validate()` é regra de um único modelo, testável como método de domínio; `observe/current/save` são passa-direto. (O PDF tinha `ObserveUserSettingsUseCase`/`UpdateUserSettingsUseCase` — descartados por serem delegação pura.)
 

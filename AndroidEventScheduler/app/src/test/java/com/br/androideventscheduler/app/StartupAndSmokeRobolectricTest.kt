@@ -8,7 +8,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.startup.AppInitializer
 import androidx.startup.InitializationProvider
 import androidx.test.core.app.ApplicationProvider
 import com.br.androideventscheduler.MainActivity
@@ -56,11 +55,10 @@ class StartupAndSmokeRobolectricTest {
     }
 
     @Test
-    fun `given koin initializer when initialized again then the same koin application is reused`() {
+    fun `given koin already started when the initializer runs again then the same koin application is reused`() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val firstKoin = GlobalContext.get()
 
-        AppInitializer.getInstance(context).initializeComponent(KoinInitializer::class.java)
         val secondKoin = KoinInitializer().create(context).koin
 
         assertSame(firstKoin, secondKoin)

@@ -9,5 +9,5 @@ val dispatchersModule =
     module {
         single<CoroutineDispatcher>(named(DispatcherNames.IO)) { Dispatchers.IO }
         single<CoroutineDispatcher>(named(DispatcherNames.DEFAULT)) { Dispatchers.Default }
-        single<CoroutineDispatcher>(named(DispatcherNames.MAIN)) { Dispatchers.Main }
+        single<CoroutineDispatcher>(named(DispatcherNames.MAIN)) { Dispatchers.Main.immediate }
     }

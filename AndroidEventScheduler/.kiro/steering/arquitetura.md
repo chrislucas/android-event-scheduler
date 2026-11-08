@@ -210,7 +210,7 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel(), onNavigateToDetail: (
 - Um `Channel` de efeitos por ViewModel; coletado **uma vez** na tela.
 - Estado contínuo → `UiState`/`StateFlow`. Ação pontual → `UiEffect`/`Channel`. Nunca o contrário.
 - O `@Composable` de conteúdo é **stateless**: recebe `uiState` + `onEvent`.
-- Dispatcher **injetado** no ViewModel (nunca fixo), para o teste trocar por `StandardTestDispatcher`.
+- Dispatcher **injetado** no ViewModel (nunca fixo), para o teste trocar por `StandardTestDispatcher`. Em produção os ViewModels recebem o dispatcher **`main`** (`Main.immediate`): estado e efeitos nascem na thread principal (Toast, navegação e Snackbar exigem a main). I/O e CPU pesada ficam nos repositórios/use cases, que trocam para `io`/`default` internamente.
 - Mensagens para o usuário trafegam como `@StringRes`/tipos de erro, não como texto cru de exceção.
 - Textos de UI seguem a regra da seção 5.5 (nada de string literal em componente).
 
@@ -242,7 +242,7 @@ class HomeViewModelTest {
 
 Equivalentes ao Turbine: `flow.first()`, `flow.take(n).toList()`, `launch { flow.toList(dest) }` + `cancel()`. Para `StateFlow`, ler `.value` após `advanceUntilIdle()`/`runCurrent()`. Tempo (debounce, delay) com tempo virtual (`advanceTimeBy`); relógio com `FakeClock`.
 
-Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources = true`), asserções por `testTag` e semântica. Todo teste Robolectric roda com `TestRememberMeApplication` (via `robolectric.properties`), que inicia o Koin pelo mesmo `AppInitializer` de produção — o Robolectric não executa `ContentProvider`s. Testes que precisem de grafo próprio usam `koinApplication { }` isolado. **`Flow` do Room**: a invalidação acontece numa thread do Room, fora do agendador de teste — colete em `backgroundScope.launch(Dispatchers.Default)` enviando para um `Channel` e use `receive()` (não dependa de tempo virtual nem de `first()` após escrever). Room: banco em memória sob Robolectric. Receivers/AlarmManager/notificações: shadows do Robolectric.
+Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources = true`), asserções por `testTag` e semântica. Todo teste Robolectric roda com `TestRememberMeApplication` (via `robolectric.properties`), que inicia o Koin pelo mesmo `KoinInitializer` de produção (o Robolectric não executa `ContentProvider`s) e, a partir do segundo teste, **troca o `Context` e recarrega os módulos** (`unloadKoinModules`/`loadKoinModules`), para que `single`s como DataStore e Room apontem para os arquivos do teste atual. Não use `stopKoin()` entre testes com Activity: não é confiável no Robolectric. Testes que precisem de grafo próprio usam `koinApplication { }` isolado. **`Flow` do Room**: a invalidação acontece numa thread do Room, fora do agendador de teste — colete em `backgroundScope.launch(Dispatchers.Default)` enviando para um `Channel` e use `receive()` (não dependa de tempo virtual nem de `first()` após escrever). **Testes de integração de tela com ViewModel real** (dispatcher `main`): trabalho que termina numa thread de I/O retoma na main via `Handler.post`, que o Robolectric (modo PAUSED) só executa quando o looper é drenado — dentro do `waitUntil`, chame `shadowOf(Looper.getMainLooper()).idle()`. Room: banco em memória sob Robolectric. Receivers/AlarmManager/notificações: shadows do Robolectric.
 
 ### 5.3 Preview para todo componente visual (obrigatório)
 
