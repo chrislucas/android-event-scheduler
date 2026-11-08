@@ -112,4 +112,16 @@ class ScheduleRepositoryImplTest {
 
             assertEquals(null, repository.observeById("x").first())
         }
+
+    @Test
+    fun `given several items when upserting all then repository returns them and replaces the existing ones`() =
+        runTest {
+            repository.upsert(scheduleItem(id = "a", title = "Antigo"))
+            val replaced = scheduleItem(id = "a", title = "Novo")
+            val added = scheduleItem(id = "b", title = "B", startDate = LocalDate.of(2026, 11, 6))
+
+            repository.upsertAll(listOf(replaced, added))
+
+            assertEquals(listOf(replaced, added), repository.getAll())
+        }
 }

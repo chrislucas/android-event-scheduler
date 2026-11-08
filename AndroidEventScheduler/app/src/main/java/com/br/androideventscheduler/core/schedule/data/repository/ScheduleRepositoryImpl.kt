@@ -55,6 +55,9 @@ internal class ScheduleRepositoryImpl(
 
     override suspend fun upsert(item: ScheduleItem) = withContext(ioDispatcher) { scheduleDao.upsert(item.toEntity()) }
 
+    override suspend fun upsertAll(items: List<ScheduleItem>) =
+        withContext(ioDispatcher) { scheduleDao.upsertAll(items.map { it.toEntity() }) }
+
     override suspend fun delete(id: String) = withContext(ioDispatcher) { scheduleDao.deleteById(id) }
 
     private companion object {
