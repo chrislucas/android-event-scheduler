@@ -290,4 +290,34 @@
     <string name="upsert_color_button">Cor selecionada: %1$s. Toque para alterar</string>
     <string name="home_day_sticker_empty">Adesivo do dia</string>
     <string name="home_day_sticker_selected">Adesivo do dia: %1$s. Toque para alterar</string>
+
+    <!-- Importar/exportar agenda (spec 17) -->
+    <string name="backup_load_error">Não foi possível ler a agenda</string>
+    <string name="backup_share_subject">Agenda RememberMe — %1$s</string>
+    <plurals name="backup_share_body">
+        <item quantity="one">Backup da agenda com %1$d agendamento.</item>
+        <item quantity="other">Backup da agenda com %1$d agendamentos.</item>
+    </plurals>
+    <plurals name="backup_saved_message">
+        <item quantity="one">Agenda exportada (%1$d agendamento)</item>
+        <item quantity="other">Agenda exportada (%1$d agendamentos)</item>
+    </plurals>
+    <plurals name="backup_imported_message">
+        <item quantity="one">%1$d agendamento importado</item>
+        <item quantity="other">%1$d agendamentos importados</item>
+    </plurals>
+    <plurals name="backup_alarm_failures_message">
+        <item quantity="one">Não foi possível programar o alerta de %1$d agendamento</item>
+        <item quantity="other">Não foi possível programar o alerta de %1$d agendamentos</item>
+    </plurals>
+    <string name="backup_copy_title_suffix">" (Importado)"</string>
+    <string name="backup_import_error">Não foi possível importar. Nada foi alterado.</string>
+    <string name="backup_export_empty">Não há agendamentos para exportar</string>
+    <string name="backup_export_error">Não foi possível exportar a agenda</string>
+    <string name="backup_error_not_backup">Este arquivo não é um backup do RememberMe</string>
+    <string name="backup_error_newer_version">Versão do arquivo mais nova que o app — atualize o RememberMe</string>
+    <string name="backup_error_corrupted">Arquivo corrompido</string>
+    <string name="backup_error_too_large">Arquivo grande demais para uma agenda do RememberMe</string>
+    <string name="backup_error_empty_file">O arquivo não tem nenhum agendamento</string>
+    <string name="backup_error_io">Não foi possível ler o arquivo</string>
 </resources>

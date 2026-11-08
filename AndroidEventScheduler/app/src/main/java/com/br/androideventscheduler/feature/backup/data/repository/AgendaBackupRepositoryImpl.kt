@@ -7,6 +7,7 @@ import com.br.androideventscheduler.feature.backup.data.file.DocumentStreams
 import com.br.androideventscheduler.feature.backup.data.file.ExportFileStore
 import com.br.androideventscheduler.feature.backup.data.file.mapStorageErrors
 import com.br.androideventscheduler.feature.backup.domain.model.BackupError
+import com.br.androideventscheduler.feature.backup.domain.model.BackupFileName
 import com.br.androideventscheduler.feature.backup.domain.model.ExportResult
 import com.br.androideventscheduler.feature.backup.domain.model.ExportTarget
 import com.br.androideventscheduler.feature.backup.domain.model.ImportPreview
@@ -32,7 +33,7 @@ internal class AgendaBackupRepositoryImpl(
             val items = scheduleRepository.getAll()
             if (items.isEmpty()) throw BackupError.EmptyAgenda
             val content = codec.encode(items, exportedAt = clock.instant(), appVersion = appVersion)
-            val fileName = "$FILE_NAME_PREFIX${LocalDate.now(clock)}$FILE_NAME_SUFFIX"
+            val fileName = BackupFileName.forDate(LocalDate.now(clock))
             val uri =
                 mapStorageErrors {
                     when (target) {
@@ -65,9 +66,4 @@ internal class AgendaBackupRepositoryImpl(
                 existingIds = existingIds,
             )
         }
-
-    private companion object {
-        const val FILE_NAME_PREFIX = "rememberme-agenda-"
-        const val FILE_NAME_SUFFIX = ".json"
-    }
 }
