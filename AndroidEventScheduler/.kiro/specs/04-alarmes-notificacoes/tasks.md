@@ -1,7 +1,7 @@
 # 04 — Alarmes e notificações — Tarefas
 
-- [ ] 1. Domain: `AlarmRequest`, `AlertPresentationMode`, `AlarmScheduler` (R2.1).
-- [ ] 2. Domain (TDD): `ScheduleNextAlarmUseCase` + `ScheduleNextAlarmUseCaseTest` com todos os cenários do design (R1).
+- [x] 1. Domain: `AlarmRequest`, `AlertPresentationMode`, `AlarmScheduler` (R2.1).
+- [x] 2. Domain (TDD): `ScheduleNextAlarmUseCase` + `ScheduleNextAlarmUseCaseTest` com todos os cenários do design (R1).
 - [ ] 3. Data: `AlarmIntents` + `AndroidAlarmScheduler` + `AndroidAlarmSchedulerRobolectricTest` (R2).
 - [ ] 4. Data: `NotificationChannels` (criados na inicialização) e `ScheduleNotifier` + testes (R3.2–R3.4, R4.1).
 - [ ] 5. Data: `ScheduleAlarmReceiver` + manifest (receiver `exported=false`, permissões do R4.2) + `ScheduleAlarmReceiverRobolectricTest` (R3).
