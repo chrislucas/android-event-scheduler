@@ -60,9 +60,12 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
 - **Google Play:** sem restrição específica, mas a política pede que alarmes exatos sejam usados só para ações intencionais do usuário, que é o nosso caso.
 
 ### 2.4 `USE_FULL_SCREEN_INTENT`
-- **Para quê:** o alerta de **evento** pode abrir uma tela cheia por cima do bloqueio, com "Adiar" e "Dispensar" (spec 14). O usuário pode desligar isso em Configurações (`fullScreenEventAlertEnabled`, spec 03).
+- **Para quê:** o alerta de **evento** abre uma tela cheia por cima do bloqueio, com "Adiar" e "Dispensar" (spec 14, `FullScreenAlarmActivity`). O usuário pode desligar isso em Configurações (`fullScreenEventAlertEnabled`, spec 03).
+- **Como a tela cheia é aberta (uso real, spec 14):** o `ScheduleNotifier` publica a notificação com `setFullScreenIntent(...)`, e o sistema inicia a `FullScreenAlarmActivity` (`exported="false"`, sem `<data>`) com a ação `SHOW_FULL_SCREEN_ALARM` e o extra `scheduleId`. Só esta permissão autoriza o *full-screen intent*; a atividade em si não precisa de mais nada.
+- **Sobre o bloqueio e a tela apagada: sem permissão.** A atividade usa `setShowWhenLocked(true)` e `setTurnScreenOn(true)` (API 27+; atributos `showWhenLocked`/`turnScreenOn` no manifest) e, no Android 7.0 a 8.0 (API 24–26), os flags de janela equivalentes `FLAG_SHOW_WHEN_LOCKED` e `FLAG_TURN_SCREEN_ON`. Manter a tela acesa enquanto o alerta está visível usa `FLAG_KEEP_SCREEN_ON`. Nenhum deles exige permissão, por isso **não** foram adicionadas `WAKE_LOCK` nem `DISABLE_KEYGUARD` (e `SYSTEM_ALERT_WINDOW` continua descartada, ver §4). A atividade não pede para dispensar o bloqueio: um aparelho com PIN, padrão ou senha continua protegido.
 - **Android 14+:** a permissão passou a ser um acesso especial. A Play Store revoga a permissão de apps que não têm funções de chamada ou de alarme ([limites de intents em tela cheia — AOSP](https://source.android.com/docs/core/permissions/fsi-limits)).
-- **Se negada:** o `ScheduleNotifier` consulta `NotificationManager.canUseFullScreenIntent()` e usa uma notificação de alta prioridade. O evento continua sendo avisado.
+- **Se negada:** o `ScheduleNotifier` consulta `NotificationManager.canUseFullScreenIntent()` (API 34+) e usa uma notificação de alta prioridade, sem o `fullScreenIntent`. O evento continua sendo avisado, com toque para abrir o detalhe. O mesmo acontece se a atividade não estiver instalada (testado) ou se o usuário desligar a opção nas Configurações. Em todos esses casos a tela cheia simplesmente não aparece e nada quebra.
+- **Notificação ao fechar:** a tela cancela a notificação do item com `NotificationManagerCompat.cancel` ao dispensar ou adiar (nenhuma permissão envolvida); o botão voltar fecha a tela e mantém a notificação.
 - **Google Play:** exige declaração de uso de intent em tela cheia. A justificativa é o alerta de evento no estilo despertador. Se a declaração for recusada, o app continua correto: só perde a tela cheia no Android 14+.
 
 ### 2.5 `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` (automática)
@@ -77,7 +80,7 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
 | `RECEIVE_BOOT_COMPLETED` | 15 | Reagendar os alarmes após reiniciar o aparelho (o `AlarmManager` perde todos) | Normal, sem restrição de política |
 | `USE_BIOMETRIC` | 16 | O `BiometricPrompt` do Android 11+ exige essa permissão mesmo quando só a credencial do aparelho (PIN, padrão ou senha) é aceita | Injetada pela `androidx.biometric`; não aparece para o usuário |
 | `USE_FINGERPRINT` | 16 | **Nenhuma**: o app não usa digital, e no Android ≤ 10 usa o `KeyguardManager` | Injetada pela `androidx.biometric`. **Remover** com `tools:node="remove"` e cobrir na trava |
-| — | 14 | A tela cheia usa `setShowWhenLocked`/`setTurnScreenOn` e `FLAG_KEEP_SCREEN_ON`, que **não** exigem permissão | Não adicionar `WAKE_LOCK` nem `DISABLE_KEYGUARD` |
+| — | 14 | **Implementada, sem permissão nova:** a tela cheia usa `setShowWhenLocked`/`setTurnScreenOn` e `FLAG_KEEP_SCREEN_ON`, que **não** exigem permissão (ver §2.4) | `WAKE_LOCK` e `DISABLE_KEYGUARD` **não** foram adicionadas |
 | — | 17 | Exportar e importar usam o seletor do sistema (SAF) e o `FileProvider` | **Não** adicionar `READ/WRITE_EXTERNAL_STORAGE` |
 
 Cada uma dessas specs deve atualizar este documento e a lista do `RequestedPermissionsGuardRobolectricTest` no mesmo PR.
