@@ -1,6 +1,8 @@
 package com.br.androideventscheduler.app
 
+import com.br.androideventscheduler.core.database.databaseModule
 import com.br.androideventscheduler.core.di.dispatchersModule
+import com.br.androideventscheduler.core.schedule.di.scheduleCoreModule
 import com.br.androideventscheduler.feature.splash.di.splashModule
 import org.koin.core.module.Module
 
@@ -8,5 +10,7 @@ import org.koin.core.module.Module
 val appModules: List<Module> =
     listOf(
         dispatchersModule,
+        databaseModule,
+        scheduleCoreModule,
         splashModule,
     )

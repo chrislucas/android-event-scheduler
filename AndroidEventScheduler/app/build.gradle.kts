@@ -47,6 +47,11 @@ android {
     }
 }
 
+// Room: schema versionado em app/schemas (base para migrações; nada de migração destrutiva).
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     coreLibraryDesugaring(libs.android.desugarJdkLibs)
 
