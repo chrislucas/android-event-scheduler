@@ -280,4 +280,9 @@
     <string name="color_label_olive_green">Verde oliva</string>
     <string name="color_label_purple">Roxo</string>
     <string name="color_label_coral">Coral</string>
+    <string name="sticker_picker_title">Escolher adesivo</string>
+    <string name="sticker_picker_description">Diálogo para escolher um emoji ou adesivo</string>
+    <string name="sticker_clear_button">Remover adesivo</string>
+    <string name="color_picker_title">Escolher cor</string>
+    <string name="color_picker_description">Diálogo para escolher a cor do agendamento</string>
 </resources>
