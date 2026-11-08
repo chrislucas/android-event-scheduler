@@ -320,6 +320,9 @@
     <string name="backup_error_too_large">Arquivo grande demais para uma agenda do RememberMe</string>
     <string name="backup_error_empty_file">O arquivo não tem nenhum agendamento</string>
     <string name="backup_error_io">Não foi possível ler o arquivo</string>
+    <string name="settings_backup_section">Agenda</string>
+    <string name="settings_backup_item">Importar e exportar agenda</string>
+    <string name="settings_backup_item_supporting">Backup e transferência para outro aparelho</string>
     <string name="backup_title">Importar e exportar agenda</string>
     <string name="backup_export_section">Exportar</string>
     <string name="backup_export_description">Gera um arquivo com todos os seus agendamentos para guardar um backup ou levar para outro aparelho.</string>

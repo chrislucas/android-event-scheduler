@@ -147,6 +147,7 @@ object SemanticsTags {
     const val HOME_SCHEDULE_COLOR_BAR_PREFIX = "home_schedule_color_bar_"
 
     // Importar/exportar agenda (spec 17)
+    const val SETTINGS_BACKUP_ITEM = "settings_backup_item"
     const val BACKUP_BACK_BUTTON = "backup_back_button"
     const val BACKUP_LOADING = "backup_loading"
     const val BACKUP_EXPORT_SHARE_BUTTON = "backup_export_share_button"

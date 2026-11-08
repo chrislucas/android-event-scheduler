@@ -131,4 +131,19 @@ class SettingsScreenRobolectricTest {
 
         composeRule.onNodeWithTag(SemanticsTags.SETTINGS_SAVE_BUTTON).performScrollTo().assertIsNotEnabled()
     }
+
+    @Test
+    fun `given content when rendered then the backup item is a button that emits the backup event`() {
+        setContent(SettingsUiState.Content(draft = UserSettings()))
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.SETTINGS_BACKUP_ITEM)
+            .performScrollTo()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertIsDisplayed()
+            .performClick()
+
+        assertEquals(SettingsUiEvent.OnBackupClicked, events.last())
+        composeRule.onNodeWithText(context.getString(R.string.settings_backup_item)).assertIsDisplayed()
+    }
 }

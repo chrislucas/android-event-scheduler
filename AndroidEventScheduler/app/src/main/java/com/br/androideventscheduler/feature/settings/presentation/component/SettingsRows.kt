@@ -1,5 +1,6 @@
 package com.br.androideventscheduler.feature.settings.presentation.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -17,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -117,6 +120,35 @@ internal fun SettingsSwitchRow(
     }
 }
 
+/** Linha que abre outra tela (`Role.Button`), com texto de apoio e seta; a linha inteira é o alvo de toque. */
+@Composable
+internal fun SettingsNavigationRow(
+    label: String,
+    supportingText: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .heightIn(min = MIN_TOUCH_HEIGHT)
+                .clickable(role = Role.Button, onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(ROW_SPACING),
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = supportingText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Icon(painter = painterResource(R.drawable.ic_chevron_right), contentDescription = null)
+    }
+}
+
 @Preview(name = "Título de seção", showBackground = true, backgroundColor = 0xFF0A0A0A)
 @Composable
 private fun SettingsSectionTitlePreview() {
@@ -156,5 +188,17 @@ private fun SettingsSwitchRowPreview() {
             SettingsSwitchRow(label = "Alerta em tela cheia", supportingText = "Como um alarme", checked = true, onCheckedChange = {})
             SettingsSwitchRow(label = "Alerta em tela cheia", supportingText = "Como um alarme", checked = false, onCheckedChange = {})
         }
+    }
+}
+
+@Preview(name = "Linha de navegação", showBackground = true, backgroundColor = 0xFF0A0A0A)
+@Composable
+private fun SettingsNavigationRowPreview() {
+    AndroidEventSchedulerTheme {
+        SettingsNavigationRow(
+            label = stringResource(R.string.settings_backup_item),
+            supportingText = stringResource(R.string.settings_backup_item_supporting),
+            onClick = {},
+        )
     }
 }
