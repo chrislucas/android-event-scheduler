@@ -173,6 +173,4 @@ class SearchScreenRobolectricTest {
 
         assertEquals(SearchUiEvent.OnBackClicked, events.last())
     }
-
-    private fun androidx.compose.ui.test.SemanticsNodeInteraction.assertDoesNotExist() = assertDoesNotExist()
 }
