@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Alarmes (spec 04) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+
     <application
         android:name=".app.RememberMeApplication"
         android:allowBackup="true"
@@ -25,6 +33,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Alarmes (spec 04): disparo do alarme agendado; só o sistema (AlarmManager) o aciona. -->
+        <receiver
+            android:name=".core.alarm.data.ScheduleAlarmReceiver"
+            android:exported="false" />
+
         <!-- Koin é iniciado pelo App Startup, antes de Application.onCreate, Activities e Receivers. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -33,6 +46,10 @@
             tools:node="merge">
             <meta-data
                 android:name="com.br.androideventscheduler.app.KoinInitializer"
+                android:value="androidx.startup" />
+            <!-- Alarmes (spec 04): canais de notificação criados na inicialização. -->
+            <meta-data
+                android:name="com.br.androideventscheduler.core.alarm.data.notification.NotificationChannelsInitializer"
                 android:value="androidx.startup" />
         </provider>
     </application>
