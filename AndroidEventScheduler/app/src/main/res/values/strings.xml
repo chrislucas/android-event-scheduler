@@ -288,4 +288,6 @@
     <string name="upsert_sticker_button_empty">Selecionar emoji ou adesivo</string>
     <string name="upsert_sticker_button_selected">Adesivo selecionado: %1$s. Toque para alterar</string>
     <string name="upsert_color_button">Cor selecionada: %1$s. Toque para alterar</string>
+    <string name="home_day_sticker_empty">Adesivo do dia</string>
+    <string name="home_day_sticker_selected">Adesivo do dia: %1$s. Toque para alterar</string>
 </resources>

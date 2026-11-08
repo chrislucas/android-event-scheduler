@@ -13,15 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleOccurrence
 import com.br.androideventscheduler.core.ui.SemanticsTags
-import com.br.androideventscheduler.feature.home.presentation.mapper.toDayHeader
 import java.time.LocalDate
 
 /**
@@ -31,21 +28,14 @@ import java.time.LocalDate
  */
 internal fun LazyListScope.dayScheduleItems(
     selectedDate: LocalDate,
+    daySticker: String?,
     schedules: List<ScheduleOccurrence>,
     accountEmail: String,
+    onDayStickerClick: () -> Unit,
     onScheduleClick: (scheduleId: String) -> Unit,
 ) {
     item(key = "day-header") {
-        Text(
-            text = selectedDate.toDayHeader(),
-            modifier =
-                Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .testTag(SemanticsTags.HOME_DAY_HEADER)
-                    .semantics { heading() },
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-        )
+        DayHeader(date = selectedDate, sticker = daySticker, onStickerClick = onDayStickerClick)
     }
     if (schedules.isEmpty()) {
         item(key = "day-empty") {
@@ -79,8 +69,10 @@ private fun DayScheduleListPreview() {
         LazyColumn {
             dayScheduleItems(
                 selectedDate = PreviewDate,
+                daySticker = "🎉",
                 schedules = previewDaySchedules(),
                 accountEmail = "bia@exemplo.com",
+                onDayStickerClick = {},
                 onScheduleClick = {},
             )
         }
@@ -92,7 +84,14 @@ private fun DayScheduleListPreview() {
 private fun DayScheduleListEmptyPreview() {
     AndroidEventSchedulerTheme {
         LazyColumn {
-            dayScheduleItems(selectedDate = PreviewDate, schedules = emptyList(), accountEmail = "bia@exemplo.com", onScheduleClick = {})
+            dayScheduleItems(
+                selectedDate = PreviewDate,
+                daySticker = null,
+                schedules = emptyList(),
+                accountEmail = "bia@exemplo.com",
+                onDayStickerClick = {},
+                onScheduleClick = {},
+            )
         }
     }
 }

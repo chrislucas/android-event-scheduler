@@ -58,6 +58,16 @@ private data class HomeChrome(
 )
 
 /**
+ * Adesivo do dia [epochDay] e visibilidade do seu seletor (spec 09), agrupados para caber no `combine`.
+ * [epochDay] permite ignorar o adesivo de outro dia durante a troca de seleção.
+ */
+private data class DayStickerSource(
+    val epochDay: Long,
+    val sticker: String?,
+    val isPickerVisible: Boolean,
+)
+
+/**
  * Home reativa. O `uiState` é **derivado** (`combine`) de fontes privadas — o dia selecionado (no
  * `SavedStateHandle`), o ano do seletor de mês, a gaveta lateral (também no `SavedStateHandle`), os
  * calendários visíveis (DataStore) e o e-mail da conta — e das ocorrências observadas no repositório; os eventos
@@ -80,6 +90,7 @@ internal class HomeViewModel(
             .map { epochDay -> LocalDate.ofEpochDay(epochDay) }
     private val monthPickerYearFlow = MutableStateFlow<Int?>(null)
     private val drawerOpenFlow = savedStateHandle.getStateFlow(KEY_DRAWER_OPEN, false)
+    private val dayStickerPickerFlow = savedStateHandle.getStateFlow(KEY_DAY_STICKER_PICKER_OPEN, false)
     private val retryTrigger = MutableStateFlow(0)
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -90,7 +101,7 @@ internal class HomeViewModel(
 
     init {
         viewModelScope.launch(dispatcher) {
-            combine(observeGridData(), selectedDateFlow, observeChrome(), ::toUiState)
+            combine(observeGridData(), selectedDateFlow, observeChrome(), observeDaySticker(), ::toUiState)
                 .filterNotNull()
                 .collect { state -> _uiState.value = state }
         }
@@ -143,18 +154,18 @@ internal class HomeViewModel(
                 retryTrigger.update { it + 1 }
             }
 
-            HomeUiEvent.OnMenuClicked,
-            HomeUiEvent.OnDrawerDismissed,
-            is HomeUiEvent.OnCalendarSourceToggled,
-            HomeUiEvent.OnSettingsClicked,
-            -> {
+            is HomeUiEvent.DrawerEvent -> {
                 onDrawerEvent(event)
+            }
+
+            is HomeUiEvent.DayStickerEvent -> {
+                onDayStickerEvent(event)
             }
         }
     }
 
     /** Eventos da gaveta lateral (spec 06). */
-    private fun onDrawerEvent(event: HomeUiEvent) {
+    private fun onDrawerEvent(event: HomeUiEvent.DrawerEvent) {
         when (event) {
             HomeUiEvent.OnMenuClicked -> {
                 savedStateHandle[KEY_DRAWER_OPEN] = true
@@ -172,9 +183,35 @@ internal class HomeViewModel(
                 savedStateHandle[KEY_DRAWER_OPEN] = false
                 sendEffect(HomeUiEffect.NavigateToSettings)
             }
+        }
+    }
 
-            else -> {
-                Unit
+    /** Eventos do adesivo do dia (spec 09). */
+    private fun onDayStickerEvent(event: HomeUiEvent.DayStickerEvent) {
+        when (event) {
+            HomeUiEvent.OnDayStickerClicked -> {
+                savedStateHandle[KEY_DAY_STICKER_PICKER_OPEN] = true
+            }
+
+            HomeUiEvent.OnDayStickerPickerDismissed -> {
+                savedStateHandle[KEY_DAY_STICKER_PICKER_OPEN] = false
+            }
+
+            is HomeUiEvent.OnDayStickerSelected -> {
+                savedStateHandle[KEY_DAY_STICKER_PICKER_OPEN] = false
+                setDaySticker(event.emoji)
+            }
+        }
+    }
+
+    /** O adesivo exibido vem do fluxo do repositório (fonte única); falha de gravação mantém o que já estava. */
+    private fun setDaySticker(emoji: String?) {
+        val epochDay = selectedDate().toEpochDay()
+        viewModelScope.launch(dispatcher) {
+            try {
+                homePreferencesRepository.setDaySticker(epochDay, emoji)
+            } catch (_: IOException) {
+                // Sem efeito visível: a próxima emissão do DataStore continua sendo a verdade.
             }
         }
     }
@@ -221,6 +258,15 @@ internal class HomeViewModel(
             ::HomeChrome,
         )
 
+    private fun observeDaySticker(): Flow<DayStickerSource> =
+        selectedDateFlow
+            .flatMapLatest { date ->
+                val epochDay = date.toEpochDay()
+                combine(homePreferencesRepository.observeDaySticker(epochDay), dayStickerPickerFlow) { sticker, isPickerVisible ->
+                    DayStickerSource(epochDay, sticker, isPickerVisible)
+                }
+            }
+
     private fun observeGridData(): Flow<GridData> =
         combine(selectedDateFlow.map { YearMonth.from(it) }.distinctUntilChanged(), retryTrigger) { month, _ -> month }
             .flatMapLatest { month ->
@@ -236,6 +282,7 @@ internal class HomeViewModel(
         data: GridData,
         selectedDate: LocalDate,
         chrome: HomeChrome,
+        dayStickerSource: DayStickerSource,
     ): HomeUiState? =
         when {
             data is GridData.Failed && data.month == YearMonth.from(selectedDate) -> {
@@ -243,7 +290,7 @@ internal class HomeViewModel(
             }
 
             data is GridData.Loaded && data.month == YearMonth.from(selectedDate) -> {
-                buildContent(data, selectedDate, chrome)
+                buildContent(data, selectedDate, chrome, dayStickerSource)
             }
 
             else -> {
@@ -256,6 +303,7 @@ internal class HomeViewModel(
         data: GridData.Loaded,
         selectedDate: LocalDate,
         chrome: HomeChrome,
+        dayStickerSource: DayStickerSource,
     ): HomeUiState.Content {
         val today = LocalDate.now(clock)
         val ordered = data.occurrences.filter { it.item.calendarSource in chrome.enabledSources }.sortedWith(dayOrder)
@@ -281,6 +329,8 @@ internal class HomeViewModel(
             monthPickerYear = chrome.pickerYear ?: data.month.year,
             isDrawerOpen = chrome.isDrawerOpen,
             enabledSources = chrome.enabledSources,
+            selectedDaySticker = dayStickerSource.sticker.takeIf { dayStickerSource.epochDay == selectedDate.toEpochDay() },
+            isDayStickerPickerVisible = dayStickerSource.isPickerVisible,
         )
     }
 
@@ -291,6 +341,7 @@ internal class HomeViewModel(
     private companion object {
         const val KEY_SELECTED_EPOCH_DAY = "home_selected_epoch_day"
         const val KEY_DRAWER_OPEN = "home_drawer_open"
+        const val KEY_DAY_STICKER_PICKER_OPEN = "home_day_sticker_picker_open"
         const val MAX_INDICATORS = 3
 
         /** Dia inteiro primeiro; depois por horário de início. */

@@ -17,6 +17,9 @@ class FakeHomePreferencesRepository(
     val daySticker = MutableStateFlow<Map<Long, String>>(emptyMap())
     val dayStickerWrites = mutableListOf<Pair<Long, String?>>()
 
+    /** Quando definido, [setDaySticker] lança esta falha de I/O (sem gravar). */
+    var writeFailure: java.io.IOException? = null
+
     override fun observeEnabledCalendars(): Flow<Set<CalendarSource>> = enabled
 
     override suspend fun setCalendarEnabled(
@@ -33,6 +36,7 @@ class FakeHomePreferencesRepository(
         epochDay: Long,
         emoji: String?,
     ) {
+        writeFailure?.let { throw it }
         dayStickerWrites += epochDay to emoji
         daySticker.value = if (emoji.isNullOrBlank()) daySticker.value - epochDay else daySticker.value + (epochDay to emoji)
     }
