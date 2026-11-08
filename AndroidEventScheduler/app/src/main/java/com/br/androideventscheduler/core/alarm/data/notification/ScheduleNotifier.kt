@@ -27,6 +27,7 @@ import com.br.androideventscheduler.core.ui.format.toTimeLabel
  */
 internal class ScheduleNotifier(
     private val context: Context,
+    private val systemNotificationManager: NotificationManager = context.getSystemService(NotificationManager::class.java),
 ) {
     private val notificationManager: NotificationManagerCompat = NotificationManagerCompat.from(context)
 
@@ -69,7 +70,7 @@ internal class ScheduleNotifier(
     /** No API 34+ o usuário pode revogar o acesso; antes, `USE_FULL_SCREEN_INTENT` é concedida na instalação. */
     private fun canUseFullScreenIntent(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE ||
-            context.getSystemService(NotificationManager::class.java).canUseFullScreenIntent()
+            systemNotificationManager.canUseFullScreenIntent()
 
     private fun isFullScreenActivityInstalled(scheduleId: String): Boolean =
         context.packageManager.resolveActivity(AlarmIntents.fullScreenIntent(context, scheduleId), 0) != null
