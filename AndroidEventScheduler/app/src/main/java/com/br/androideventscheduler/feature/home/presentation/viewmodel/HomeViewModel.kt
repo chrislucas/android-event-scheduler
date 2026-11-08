@@ -59,8 +59,9 @@ private data class HomeChrome(
 
 /**
  * Home reativa. O `uiState` é **derivado** (`combine`) de fontes privadas — o dia selecionado (no
- * `SavedStateHandle`), o ano do seletor de mês, a gaveta lateral (também no `SavedStateHandle`), os calendários
- * visíveis (DataStore) e o e-mail da conta — e das ocorrências observadas no repositório; os eventos só escrevem nessas fontes. O mês visível é sempre o mês do dia selecionado
+ * `SavedStateHandle`), o ano do seletor de mês, a gaveta lateral (também no `SavedStateHandle`), os
+ * calendários visíveis (DataStore) e o e-mail da conta — e das ocorrências observadas no repositório; os eventos
+ * só escrevem nessas fontes. O mês visível é sempre o mês do dia selecionado
  * (trocar de mês também move a seleção, como em R3.2), o que mantém os dois consistentes e persistidos juntos.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -89,7 +90,9 @@ internal class HomeViewModel(
 
     init {
         viewModelScope.launch(dispatcher) {
-            combine(observeGridData(), selectedDateFlow, observeChrome(), ::toUiState).filterNotNull().collect { state -> _uiState.value = state }
+            combine(observeGridData(), selectedDateFlow, observeChrome(), ::toUiState)
+                .filterNotNull()
+                .collect { state -> _uiState.value = state }
         }
     }
 
@@ -140,6 +143,19 @@ internal class HomeViewModel(
                 retryTrigger.update { it + 1 }
             }
 
+            HomeUiEvent.OnMenuClicked,
+            HomeUiEvent.OnDrawerDismissed,
+            is HomeUiEvent.OnCalendarSourceToggled,
+            HomeUiEvent.OnSettingsClicked,
+            -> {
+                onDrawerEvent(event)
+            }
+        }
+    }
+
+    /** Eventos da gaveta lateral (spec 06). */
+    private fun onDrawerEvent(event: HomeUiEvent) {
+        when (event) {
             HomeUiEvent.OnMenuClicked -> {
                 savedStateHandle[KEY_DRAWER_OPEN] = true
             }
@@ -155,6 +171,10 @@ internal class HomeViewModel(
             HomeUiEvent.OnSettingsClicked -> {
                 savedStateHandle[KEY_DRAWER_OPEN] = false
                 sendEffect(HomeUiEffect.NavigateToSettings)
+            }
+
+            else -> {
+                Unit
             }
         }
     }

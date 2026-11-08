@@ -123,16 +123,19 @@ class CalendarHomeDrawerRobolectricTest {
         idle()
         openDrawer()
 
-        composeRule.onNodeWithTag(filterTag(CalendarSource.FAMILY))
+        composeRule
+            .onNodeWithTag(filterTag(CalendarSource.FAMILY))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Oculto"))
-        composeRule.onNodeWithTag(filterTag(CalendarSource.PERSONAL_ACCOUNT))
+        composeRule
+            .onNodeWithTag(filterTag(CalendarSource.PERSONAL_ACCOUNT))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Visível"))
     }
 
     @Test
     fun `given the drawer when toggling a filter then the event is sent, the state description flips and the drawer stays open`() {
-        scheduleRepository.items.value = listOf(scheduleItem(id = "fam", title = "Almoço", startDate = today).copy(calendarSource = CalendarSource.FAMILY))
+        scheduleRepository.items.value =
+            listOf(scheduleItem(id = "fam", title = "Almoço", startDate = today).copy(calendarSource = CalendarSource.FAMILY))
         setContent(createViewModel())
         idle()
         openDrawer()
@@ -141,7 +144,8 @@ class CalendarHomeDrawerRobolectricTest {
         idle()
 
         assertTrue(HomeUiEvent.OnCalendarSourceToggled(CalendarSource.FAMILY) in events)
-        composeRule.onNodeWithTag(filterTag(CalendarSource.FAMILY))
+        composeRule
+            .onNodeWithTag(filterTag(CalendarSource.FAMILY))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Oculto"))
         composeRule.onNodeWithTag(SemanticsTags.HOME_DRAWER_SHEET).assertIsDisplayed()
         assertEquals(setOf(CalendarSource.PERSONAL_ACCOUNT, CalendarSource.MY_REMINDERS), homePreferences.enabled.value)
@@ -149,7 +153,8 @@ class CalendarHomeDrawerRobolectricTest {
 
     @Test
     fun `given a family item when family is hidden in the drawer then it disappears from the day list`() {
-        scheduleRepository.items.value = listOf(scheduleItem(id = "fam", title = "Almoço", startDate = today).copy(calendarSource = CalendarSource.FAMILY))
+        scheduleRepository.items.value =
+            listOf(scheduleItem(id = "fam", title = "Almoço", startDate = today).copy(calendarSource = CalendarSource.FAMILY))
         setContent(createViewModel())
         idle()
         composeRule.onNodeWithTag(SemanticsTags.HOME_SCHEDULE_ITEM_PREFIX + "fam").assertExists()

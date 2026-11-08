@@ -108,6 +108,8 @@ internal fun HomeContent(
     }
 }
 
+// Sem preview própria: coberta por HomeContentDrawerOpenPreview (a folha tem as suas em CalendarDrawerSheet).
+
 /**
  * Gaveta lateral. O estado do ViewModel (`isDrawerOpen`) é a fonte da verdade e o [androidx.compose.material3.DrawerState]
  * o segue (abrir/fechar animado). Gestos do usuário (deslizar da borda, deslizar para fechar, toque no scrim) fazem

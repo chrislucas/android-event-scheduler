@@ -43,11 +43,15 @@ class HomeDrawerToSettingsRobolectricTest {
     private fun hasNode(tag: String) = composeRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
 
     @Test
-    fun `given a family item on the home when hiding family in the drawer and opening settings then the item disappears and settings opens`() {
+    fun `given a family item when hiding family in the drawer and opening settings then it disappears and settings opens`() {
         val repository = GlobalContext.get().get<ScheduleRepository>()
         runBlocking {
             repository.upsert(
-                scheduleItem(id = "family-lunch", title = "Almoço", startDate = LocalDate.now()).copy(calendarSource = CalendarSource.FAMILY),
+                scheduleItem(
+                    id = "family-lunch",
+                    title = "Almoço",
+                    startDate = LocalDate.now(),
+                ).copy(calendarSource = CalendarSource.FAMILY),
             )
         }
         val itemTag = SemanticsTags.HOME_SCHEDULE_ITEM_PREFIX + "family-lunch"
