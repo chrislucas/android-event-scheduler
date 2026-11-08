@@ -112,4 +112,14 @@ object SemanticsTags {
 
     // Compartilhar (spec 12)
     const val DETAIL_SHARE_BUTTON = "detail_share_button"
+
+    // Recorrência (spec 08)
+    const val RECURRENCE_DIALOG = "recurrence_dialog"
+    const val RECURRENCE_OPTION_NONE = "recurrence_option_none"
+    const val RECURRENCE_OPTION_DAILY = "recurrence_option_daily"
+    const val RECURRENCE_OPTION_WEEKLY = "recurrence_option_weekly"
+    const val RECURRENCE_DAY_TOGGLE_PREFIX = "recurrence_day_toggle_"
+    const val RECURRENCE_COUNT_INPUT = "recurrence_count_input"
+    const val RECURRENCE_CONFIRM_BUTTON = "recurrence_confirm_button"
+    const val RECURRENCE_DISMISS_BUTTON = "recurrence_dismiss_button"
 }
