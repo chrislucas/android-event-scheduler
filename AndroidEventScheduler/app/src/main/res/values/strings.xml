@@ -320,4 +320,45 @@
     <string name="backup_error_too_large">Arquivo grande demais para uma agenda do RememberMe</string>
     <string name="backup_error_empty_file">O arquivo não tem nenhum agendamento</string>
     <string name="backup_error_io">Não foi possível ler o arquivo</string>
+    <string name="backup_title">Importar e exportar agenda</string>
+    <string name="backup_export_section">Exportar</string>
+    <string name="backup_export_description">Gera um arquivo com todos os seus agendamentos para guardar um backup ou levar para outro aparelho.</string>
+    <string name="backup_export_share_button">Compartilhar arquivo</string>
+    <string name="backup_export_share_description">Compartilhar o arquivo da agenda por e-mail ou outro aplicativo</string>
+    <string name="backup_export_save_button">Salvar em arquivo</string>
+    <string name="backup_export_save_description">Salvar o arquivo da agenda em um local do aparelho</string>
+    <string name="backup_export_progress">Gerando o arquivo da agenda</string>
+    <string name="backup_encryption_warning">O arquivo não é criptografado; quem tiver o arquivo poderá ver sua agenda.</string>
+    <string name="backup_import_section">Importar</string>
+    <string name="backup_import_description">Escolha um arquivo exportado pelo RememberMe. Você verá um resumo antes de qualquer alteração.</string>
+    <string name="backup_import_pick_button">Escolher arquivo</string>
+    <string name="backup_import_pick_description">Escolher um arquivo de agenda para importar</string>
+    <string name="backup_import_reading">Lendo o arquivo</string>
+    <string name="backup_preview_title">Resumo do arquivo</string>
+    <plurals name="backup_preview_total">
+        <item quantity="one">%1$d agendamento no arquivo</item>
+        <item quantity="other">%1$d agendamentos no arquivo</item>
+    </plurals>
+    <plurals name="backup_preview_new">
+        <item quantity="one">%1$d novo</item>
+        <item quantity="other">%1$d novos</item>
+    </plurals>
+    <plurals name="backup_preview_existing">
+        <item quantity="one">%1$d já existe na agenda</item>
+        <item quantity="other">%1$d já existem na agenda</item>
+    </plurals>
+    <plurals name="backup_preview_invalid">
+        <item quantity="one">%1$d item ignorado por dados inválidos</item>
+        <item quantity="other">%1$d itens ignorados por dados inválidos</item>
+    </plurals>
+    <string name="backup_strategy_title">Para os que já existem</string>
+    <string name="backup_strategy_replace">Substituir pelos do arquivo</string>
+    <string name="backup_strategy_keep">Manter os atuais</string>
+    <string name="backup_strategy_copies">Importar como cópias</string>
+    <string name="backup_import_confirm_button">Importar</string>
+    <string name="backup_import_confirm_description">Importar os agendamentos do arquivo</string>
+    <string name="backup_import_cancel_button">Cancelar</string>
+    <string name="backup_importing">Importando os agendamentos</string>
+    <string name="backup_share_no_app">Nenhum app disponível para compartilhar</string>
+    <string name="backup_picker_unavailable">Não há um seletor de arquivos disponível neste aparelho</string>
 </resources>
