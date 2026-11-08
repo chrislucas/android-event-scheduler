@@ -17,6 +17,8 @@ import com.br.androideventscheduler.feature.detail.domain.usecase.DuplicateSched
 import com.br.androideventscheduler.feature.detail.presentation.effect.ScheduleDetailUiEffect
 import com.br.androideventscheduler.feature.detail.presentation.event.ScheduleDetailUiEvent
 import com.br.androideventscheduler.feature.detail.presentation.mapper.ScheduleDetailMapper
+import com.br.androideventscheduler.feature.detail.presentation.mapper.ScheduleShareTextBuilder
+import com.br.androideventscheduler.feature.detail.presentation.mapper.ShareContent
 import com.br.androideventscheduler.feature.detail.presentation.state.ScheduleDetailUiState
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -43,6 +45,7 @@ class ScheduleDetailViewModelTest {
     val mainRule = MainDispatcherRule()
 
     private val mapper = ScheduleDetailMapper(FakeStringProvider())
+    private val shareTextBuilder = mockk<ScheduleShareTextBuilder>()
     private val itemFlow = MutableStateFlow<ScheduleItem?>(null)
     private val scheduleRepository =
         mockk<ScheduleRepository> { every { observeById("item-1") } returns itemFlow }
@@ -60,6 +63,7 @@ class ScheduleDetailViewModelTest {
             strings = FakeStringProvider(),
             savedStateHandle = savedStateHandle,
             mapper = mapper,
+            shareTextBuilder = shareTextBuilder,
             dispatcher = mainRule.dispatcher,
         )
 
@@ -417,6 +421,36 @@ class ScheduleDetailViewModelTest {
             advanceUntilIdle()
 
             assertEquals(listOf<ScheduleDetailUiEffect>(ScheduleDetailUiEffect.NavigateToCopy("copy-1")), recorder.effects)
+            recorder.job.cancel()
+        }
+
+    @Test
+    fun `given loaded item when share is clicked then it emits the share effect with the built content`() =
+        runTest(mainRule.dispatcher) {
+            itemFlow.value = scheduleItem(id = "item-1", title = "Aula")
+            val viewModel = createViewModel()
+            val recorder = recordEffects(viewModel)
+            advanceUntilIdle()
+            every { shareTextBuilder.build(viewModel.content().schedule) } returns ShareContent("RememberMe: Aula", "corpo")
+
+            viewModel.onEvent(ScheduleDetailUiEvent.OnShareClicked)
+            advanceUntilIdle()
+
+            assertEquals(listOf<ScheduleDetailUiEffect>(ScheduleDetailUiEffect.ShareText("RememberMe: Aula", "corpo")), recorder.effects)
+            recorder.job.cancel()
+        }
+
+    @Test
+    fun `given item not loaded yet when share is clicked then no effect is emitted`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = createViewModel()
+            val recorder = recordEffects(viewModel)
+
+            viewModel.onEvent(ScheduleDetailUiEvent.OnShareClicked)
+            advanceUntilIdle()
+
+            assertEquals(ScheduleDetailUiState.NotFound, viewModel.uiState.value)
+            assertTrue(recorder.effects.none { it is ScheduleDetailUiEffect.ShareText })
             recorder.job.cancel()
         }
 }

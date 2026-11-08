@@ -214,4 +214,16 @@
     <string name="alarm_dismiss_button">Dispensar</string>
     <string name="alarm_dismiss_button_description">Dispensar lembrete do evento</string>
     <string name="alarm_snooze_error">Não foi possível adiar o lembrete. Tente novamente.</string>
+
+    <!-- Compartilhar (spec 12) -->
+    <string name="detail_share_label">Compartilhar</string>
+    <string name="detail_share_description">Compartilhar agendamento</string>
+    <string name="share_subject">RememberMe: %1$s</string>
+    <string name="share_line_title">📅 %1$s</string>
+    <string name="share_line_date">🕒 %1$s</string>
+    <string name="share_line_reminder">🔔 Alerta: %1$s</string>
+    <string name="share_line_recurrence">🔁 Repetição: %1$s</string>
+    <string name="share_line_location">📍 Local: %1$s</string>
+    <string name="share_line_notes">📝 Notas: %1$s</string>
+    <string name="share_error">Não foi possível compartilhar</string>
 </resources>

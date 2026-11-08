@@ -18,6 +18,12 @@ internal sealed interface ScheduleDetailUiEffect {
         val copyId: String,
     ) : ScheduleDetailUiEffect
 
+    /** Abre o seletor de compartilhamento do sistema; a tela dispara o Intent (precisa da `Activity`). */
+    data class ShareText(
+        val subject: String,
+        val body: String,
+    ) : ScheduleDetailUiEffect
+
     /** Substitui o detalhe atual pelo da cópia. */
     data class NavigateToCopy(
         val copyId: String,

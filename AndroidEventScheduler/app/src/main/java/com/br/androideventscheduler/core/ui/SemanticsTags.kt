@@ -109,4 +109,7 @@ object SemanticsTags {
     const val ALARM_SNOOZE_CHIP_PREFIX = "alarm_snooze_chip_"
     const val ALARM_FULLSCREEN_SNOOZE_BUTTON = "alarm_fullscreen_snooze_button"
     const val ALARM_FULLSCREEN_DISMISS_BUTTON = "alarm_fullscreen_dismiss_button"
+
+    // Compartilhar (spec 12)
+    const val DETAIL_SHARE_BUTTON = "detail_share_button"
 }

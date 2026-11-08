@@ -173,13 +173,14 @@ class ScheduleDetailScreenRobolectricTest {
     ) = ScheduleDetailUiState.Content(schedule, isDeleteDialogVisible, isProcessingAction)
 
     @Test
-    fun `given content when rendered then the bar shows duplicate first then edit then delete last`() {
+    fun `given content when rendered then the bar shows duplicate edit share and delete in that order`() {
         setContent(contentState())
 
         val actionBounds =
             listOf(
                 SemanticsTags.DETAIL_DUPLICATE_BUTTON,
                 SemanticsTags.DETAIL_EDIT_BUTTON,
+                SemanticsTags.DETAIL_SHARE_BUTTON,
                 SemanticsTags.DETAIL_DELETE_BUTTON,
             ).map { tag ->
                 composeRule
@@ -189,7 +190,7 @@ class ScheduleDetailScreenRobolectricTest {
             }
 
         assertEquals(actionBounds.sorted(), actionBounds)
-        assertEquals(3, actionBounds.toSet().size)
+        assertEquals(4, actionBounds.toSet().size)
     }
 
     @Test
@@ -232,12 +233,42 @@ class ScheduleDetailScreenRobolectricTest {
         listOf(
             SemanticsTags.DETAIL_DUPLICATE_BUTTON,
             SemanticsTags.DETAIL_EDIT_BUTTON,
+            SemanticsTags.DETAIL_SHARE_BUTTON,
             SemanticsTags.DETAIL_DELETE_BUTTON,
         ).forEach { tag ->
             composeRule.onNodeWithTag(tag).assertIsNotEnabled().performClick()
         }
 
         assertEquals(emptyList<ScheduleDetailUiEvent>(), events)
+    }
+
+    @Test
+    fun `given content when rendered then share is a described button with a large touch target`() {
+        setContent(contentState())
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.DETAIL_SHARE_BUTTON)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertContentDescriptionEquals("Compartilhar agendamento")
+            .assertHeightIsAtLeast(48.dp)
+            .assertWidthIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun `given content when share is clicked then the share event is sent`() {
+        setContent(contentState())
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_SHARE_BUTTON).performClick()
+
+        assertEquals(listOf<ScheduleDetailUiEvent>(ScheduleDetailUiEvent.OnShareClicked), events)
+    }
+
+    @Test
+    fun `given loading state when rendered then there is no share button to tap`() {
+        setContent(ScheduleDetailUiState.Loading)
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_SHARE_BUTTON).assertDoesNotExist()
     }
 
     @Test
