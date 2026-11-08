@@ -171,4 +171,21 @@
     <string name="home_month_option_description">%1$s de %2$d</string>
     <string name="home_error_generic">Não foi possível carregar a agenda. Tente novamente.</string>
     <string name="home_retry">Tentar novamente</string>
+
+    <!-- Duplicar/excluir (spec 11) -->
+    <string name="detail_duplicate_label">Duplicar</string>
+    <string name="detail_duplicate_description">Duplicar agendamento</string>
+    <string name="detail_delete_label">Excluir</string>
+    <string name="detail_delete_description">Excluir agendamento</string>
+    <string name="detail_copy_title_suffix">" (Cópia)"</string>
+    <string name="detail_copy_created">Cópia criada</string>
+    <string name="detail_copy_open_action">Abrir</string>
+    <string name="detail_duplicate_error">Não foi possível duplicar o agendamento</string>
+    <string name="detail_delete_error">Não foi possível excluir o agendamento</string>
+    <string name="delete_dialog_description">Diálogo de confirmação de exclusão</string>
+    <string name="delete_dialog_title">Excluir “%1$s”?</string>
+    <string name="delete_dialog_message">Esta ação não pode ser desfeita.</string>
+    <string name="delete_dialog_message_recurring">Todas as ocorrências deste agendamento serão removidas. Esta ação não pode ser desfeita.</string>
+    <string name="delete_dialog_confirm">Excluir</string>
+    <string name="delete_dialog_cancel">Cancelar</string>
 </resources>

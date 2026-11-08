@@ -32,6 +32,14 @@ object SemanticsTags {
     const val DETAIL_NOT_FOUND = "detail_not_found"
     const val DETAIL_ACTION_BAR = "detail_action_bar"
 
+    // Duplicar/excluir (spec 11)
+    const val DETAIL_DUPLICATE_BUTTON = "detail_duplicate_button"
+    const val DETAIL_DELETE_BUTTON = "detail_delete_button"
+    const val DETAIL_SNACKBAR_HOST = "detail_snackbar_host"
+    const val DELETE_CONFIRM_DIALOG = "delete_confirm_dialog"
+    const val DELETE_CONFIRM_BUTTON = "delete_confirm_button"
+    const val DELETE_CANCEL_BUTTON = "delete_cancel_button"
+
     // Pesquisa (spec 13)
     const val SEARCH_QUERY_INPUT = "search_query_input"
     const val SEARCH_CLEAR_BUTTON = "search_clear_button"

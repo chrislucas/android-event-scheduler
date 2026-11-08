@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,9 +48,11 @@ internal data class ScheduleAction(
     val onClick: () -> Unit,
     val enabled: Boolean = true,
     @StringRes val description: Int = label,
+    /** Ação destrutiva (ex.: Excluir): ícone e rótulo na cor de erro. */
+    val isDestructive: Boolean = false,
 )
 
-/** Barra de ações em pílula. As specs 11 e 12 só acrescentam itens à lista (Duplicar, Editar, Compartilhar, Excluir). */
+/** Barra de ações em pílula. A spec 12 só acrescenta itens à lista (Duplicar, Editar, Compartilhar, Excluir). */
 @Composable
 internal fun ScheduleActionBar(
     actions: List<ScheduleAction>,
@@ -84,6 +87,7 @@ private fun ScheduleActionButton(
     modifier: Modifier = Modifier,
 ) {
     val description = stringResource(action.description)
+    val contentColor = if (action.isDestructive) MaterialTheme.colorScheme.error else LocalContentColor.current
     Column(
         modifier =
             modifier
@@ -99,8 +103,9 @@ private fun ScheduleActionButton(
             painter = painterResource(action.icon),
             contentDescription = null,
             modifier = Modifier.size(ACTION_ICON_SIZE),
+            tint = contentColor,
         )
-        Text(text = stringResource(action.label), style = MaterialTheme.typography.labelMedium)
+        Text(text = stringResource(action.label), style = MaterialTheme.typography.labelMedium, color = contentColor)
     }
 }
 
@@ -111,6 +116,25 @@ private val previewEditAction =
         tag = SemanticsTags.DETAIL_EDIT_BUTTON,
         onClick = {},
         description = R.string.detail_edit_description,
+    )
+
+private val previewDuplicateAction =
+    ScheduleAction(
+        label = R.string.detail_duplicate_label,
+        icon = R.drawable.ic_content_copy,
+        tag = SemanticsTags.DETAIL_DUPLICATE_BUTTON,
+        onClick = {},
+        description = R.string.detail_duplicate_description,
+    )
+
+private val previewDeleteAction =
+    ScheduleAction(
+        label = R.string.detail_delete_label,
+        icon = R.drawable.ic_delete,
+        tag = SemanticsTags.DETAIL_DELETE_BUTTON,
+        onClick = {},
+        description = R.string.detail_delete_description,
+        isDestructive = true,
     )
 
 @Preview(name = "Só Editar", showBackground = true)
@@ -130,6 +154,25 @@ private fun ScheduleActionBarManyActionsPreview() {
                     previewEditAction.copy(tag = "preview_b", enabled = false),
                     previewEditAction.copy(tag = "preview_c"),
                 ),
+        )
+    }
+}
+
+@Preview(name = "Duplicar, Editar e Excluir", showBackground = true)
+@Composable
+private fun ScheduleActionBarDuplicateEditDeletePreview() {
+    AndroidEventSchedulerTheme {
+        ScheduleActionBar(actions = listOf(previewDuplicateAction, previewEditAction, previewDeleteAction))
+    }
+}
+
+@Preview(name = "Processando (desabilitadas)", showBackground = true)
+@Composable
+private fun ScheduleActionBarProcessingPreview() {
+    AndroidEventSchedulerTheme {
+        ScheduleActionBar(
+            actions =
+                listOf(previewDuplicateAction, previewEditAction, previewDeleteAction).map { it.copy(enabled = false) },
         )
     }
 }
