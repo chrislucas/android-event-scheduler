@@ -96,6 +96,7 @@ object SemanticsTags {
     const val UPSERT_SAVE_BUTTON = "upsert_save_button"
     const val UPSERT_CANCEL_BUTTON = "upsert_cancel_button"
     const val UPSERT_LOADING = "upsert_loading"
+
     // Tela cheia (spec 14)
     const val ALARM_FULLSCREEN_LOADING = "alarm_fullscreen_loading"
     const val ALARM_FULLSCREEN_BADGE = "alarm_fullscreen_badge"

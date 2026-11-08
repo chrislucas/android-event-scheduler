@@ -188,6 +188,7 @@
     <string name="delete_dialog_message_recurring">Todas as ocorrências deste agendamento serão removidas. Esta ação não pode ser desfeita.</string>
     <string name="delete_dialog_confirm">Excluir</string>
     <string name="delete_dialog_cancel">Cancelar</string>
+
     <!-- Tela cheia (spec 14) -->
     <plurals name="alarm_badge_in_minutes">
         <item quantity="one">Evento em %1$d minuto</item>
