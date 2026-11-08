@@ -140,7 +140,12 @@ class HomeViewModelTest {
             val viewModel = createViewModel()
             runCurrent()
 
-            val withSchedules = viewModel.content().cells.filter { it.scheduleCount > 0 }.map { it.date }
+            val withSchedules =
+                viewModel
+                    .content()
+                    .cells
+                    .filter { it.scheduleCount > 0 }
+                    .map { it.date }
             assertEquals(
                 listOf(4, 11, 18, 25).map { LocalDate.of(2026, 11, it) } + listOf(2, 9).map { LocalDate.of(2026, 12, it) },
                 withSchedules,
@@ -173,7 +178,12 @@ class HomeViewModelTest {
             val viewModel = createViewModel()
             runCurrent()
 
-            val marked = viewModel.content().cells.filter { it.scheduleCount == 1 }.map { it.date.dayOfMonth }
+            val marked =
+                viewModel
+                    .content()
+                    .cells
+                    .filter { it.scheduleCount == 1 }
+                    .map { it.date.dayOfMonth }
             assertEquals(listOf(9, 10, 11), marked)
         }
 

@@ -87,20 +87,50 @@ internal class HomeViewModel(
 
     fun onEvent(event: HomeUiEvent) {
         when (event) {
-            is HomeUiEvent.OnDayClicked -> selectDate(event.date)
-            HomeUiEvent.OnPreviousMonthClicked -> moveToMonth(visibleMonth().minusMonths(1))
-            HomeUiEvent.OnNextMonthClicked -> moveToMonth(visibleMonth().plusMonths(1))
-            HomeUiEvent.OnMonthHeaderClicked -> monthPickerYearFlow.value = visibleMonth().year
-            HomeUiEvent.OnMonthPickerDismissed -> monthPickerYearFlow.value = null
-            is HomeUiEvent.OnMonthPickerYearChanged -> monthPickerYearFlow.update { year -> year?.plus(event.delta) }
+            is HomeUiEvent.OnDayClicked -> {
+                selectDate(event.date)
+            }
+
+            HomeUiEvent.OnPreviousMonthClicked -> {
+                moveToMonth(visibleMonth().minusMonths(1))
+            }
+
+            HomeUiEvent.OnNextMonthClicked -> {
+                moveToMonth(visibleMonth().plusMonths(1))
+            }
+
+            HomeUiEvent.OnMonthHeaderClicked -> {
+                monthPickerYearFlow.value = visibleMonth().year
+            }
+
+            HomeUiEvent.OnMonthPickerDismissed -> {
+                monthPickerYearFlow.value = null
+            }
+
+            is HomeUiEvent.OnMonthPickerYearChanged -> {
+                monthPickerYearFlow.update { year -> year?.plus(event.delta) }
+            }
+
             is HomeUiEvent.OnMonthPicked -> {
                 monthPickerYearFlow.value = null
                 moveToMonth(event.month)
             }
-            HomeUiEvent.OnSearchClicked -> sendEffect(HomeUiEffect.NavigateToSearch)
-            HomeUiEvent.OnQuickAddClicked -> sendEffect(HomeUiEffect.NavigateToUpsert(selectedDate().toEpochDay()))
-            is HomeUiEvent.OnScheduleClicked -> sendEffect(HomeUiEffect.NavigateToDetail(event.scheduleId))
-            HomeUiEvent.OnRetryClicked -> retryTrigger.update { it + 1 }
+
+            HomeUiEvent.OnSearchClicked -> {
+                sendEffect(HomeUiEffect.NavigateToSearch)
+            }
+
+            HomeUiEvent.OnQuickAddClicked -> {
+                sendEffect(HomeUiEffect.NavigateToUpsert(selectedDate().toEpochDay()))
+            }
+
+            is HomeUiEvent.OnScheduleClicked -> {
+                sendEffect(HomeUiEffect.NavigateToDetail(event.scheduleId))
+            }
+
+            HomeUiEvent.OnRetryClicked -> {
+                retryTrigger.update { it + 1 }
+            }
         }
     }
 
@@ -143,10 +173,17 @@ internal class HomeViewModel(
         accountEmail: String,
     ): HomeUiState? =
         when {
-            data is GridData.Failed && data.month == YearMonth.from(selectedDate) -> HomeUiState.Error(R.string.home_error_generic)
-            data is GridData.Loaded && data.month == YearMonth.from(selectedDate) ->
+            data is GridData.Failed && data.month == YearMonth.from(selectedDate) -> {
+                HomeUiState.Error(R.string.home_error_generic)
+            }
+
+            data is GridData.Loaded && data.month == YearMonth.from(selectedDate) -> {
                 buildContent(data, selectedDate, pickerYear, accountEmail)
-            else -> null
+            }
+
+            else -> {
+                null
+            }
         }
 
     /** Recebe as ocorrências já prontas: é aqui que a spec 06 aplica o filtro de calendários. */
