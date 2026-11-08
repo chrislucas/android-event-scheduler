@@ -1,7 +1,7 @@
 # 17 — Importar e exportar a agenda — Tarefas
 
 - [x] 1. `core.schedule`: `ScheduleRepository.upsertAll(items)` com `@Transaction` no DAO + teste de atomicidade; rota `AgendaBackup(pendingImportUri)` em `core.navigation` (R6.1).
-- [ ] 2. Domain: modelos (`ImportPreview`, `ImportStrategy`, `ImportResult`, `ExportTarget`, `ExportResult`, `BackupError`) e interface `AgendaBackupRepository`.
+- [x] 2. Domain: modelos (`ImportPreview`, `ImportStrategy`, `ImportResult`, `ExportTarget`, `ExportResult`, `BackupError`) e interface `AgendaBackupRepository`.
 - [ ] 3. Data (TDD): DTOs `@Serializable`, `AgendaJsonCodec`, `AgendaDtoMapper` (validação por item, truncamento) + testes; `docs/formato-agenda-json.md` com exemplo (R2, R5.1–R5.3, R7.3).
 - [ ] 4. Domain (TDD): `ImportAgendaUseCase` + `ImportAgendaUseCaseTest` (R5.5, R6).
 - [ ] 5. Data (sem nenhuma permissão nova — confirmar no `RequestedPermissionsGuardRobolectricTest` e registrar em `docs/permissoes.md` que o backup não usa armazenamento): `ExportFileStore`, leitura com limite de 5 MB, `AgendaBackupRepositoryImpl` + testes; `FileProvider` e `file_paths.xml` no manifest (R3.5, R4.3, R7.1, R7.2).
