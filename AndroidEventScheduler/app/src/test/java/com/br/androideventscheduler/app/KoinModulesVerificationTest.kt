@@ -3,6 +3,8 @@ package com.br.androideventscheduler.app
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
+import android.content.res.Resources
+import androidx.lifecycle.SavedStateHandle
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -21,10 +23,17 @@ class KoinModulesVerificationTest {
             Context::class,
             AlarmManager::class,
             NotificationManager::class,
+            // Resources: entregue por androidContext() (mapper da pesquisa).
+            Resources::class,
         )
 
-    // Tipos fornecidos em runtime (rota/`parametersOf`), não por um módulo.
-    private val runtimeParameterTypes = listOf(String::class)
+    // Tipos fornecidos em runtime (rota/`parametersOf` e Koin ao criar ViewModels), não por um módulo.
+    private val runtimeParameterTypes =
+        listOf(
+            String::class,
+            // SavedStateHandle: injetado pelo Koin ao criar ViewModels.
+            SavedStateHandle::class,
+        )
 
     @Test
     fun `given all registered modules when verifying the aggregated graph then every definition resolves`() {

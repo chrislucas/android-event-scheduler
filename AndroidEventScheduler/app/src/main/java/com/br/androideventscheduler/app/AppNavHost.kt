@@ -20,10 +20,12 @@ import androidx.navigation3.ui.NavDisplay
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.navigation.Home
+import com.br.androideventscheduler.core.navigation.ScheduleDetail
 import com.br.androideventscheduler.core.navigation.Splash
 import com.br.androideventscheduler.core.navigation.UpsertSchedule
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.detail.navigation.detailEntry
+import com.br.androideventscheduler.feature.search.navigation.searchEntry
 import com.br.androideventscheduler.feature.settings.navigation.settingsEntry
 import com.br.androideventscheduler.feature.splash.navigation.splashEntry
 import org.koin.compose.koinInject
@@ -54,6 +56,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             entryProvider {
                 splashEntry(onNavigateToHome = { backStack.replaceSplashWithHome() })
                 settingsEntry(onBack = { backStack.removeLastOrNull() })
+                // Pesquisa (spec 13); o detalhe é empilhado, mantendo a busca no back stack.
+                searchEntry(
+                    onBack = { backStack.removeLastOrNull() },
+                    onOpenDetail = { scheduleId -> backStack.add(ScheduleDetail(scheduleId)) },
+                )
                 // Placeholder temporário; substituído pela feature Home na spec 05.
                 entry<Home> { HomePlaceholder() }
                 // Detalhes (spec 10)
