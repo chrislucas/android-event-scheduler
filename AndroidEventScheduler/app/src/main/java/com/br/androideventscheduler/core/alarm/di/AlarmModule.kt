@@ -5,6 +5,7 @@ import android.content.Context
 import com.br.androideventscheduler.core.alarm.data.AndroidAlarmScheduler
 import com.br.androideventscheduler.core.alarm.data.notification.ScheduleNotifier
 import com.br.androideventscheduler.core.alarm.domain.scheduler.AlarmScheduler
+import com.br.androideventscheduler.core.alarm.domain.usecase.RescheduleAllAlarmsUseCase
 import com.br.androideventscheduler.core.alarm.domain.usecase.ScheduleNextAlarmUseCase
 import com.br.androideventscheduler.core.alarm.domain.usecase.SnoozeAlarmUseCase
 import org.koin.android.ext.koin.androidContext
@@ -24,4 +25,7 @@ val alarmModule =
         single { ScheduleNextAlarmUseCase(recurrenceEngine = get(), alarmScheduler = get(), clock = get()) }
         // Tela cheia (spec 14)
         single { SnoozeAlarmUseCase(scheduleRepository = get(), alarmScheduler = get(), clock = get()) }
+
+        // Pós-boot (spec 15)
+        factory { RescheduleAllAlarmsUseCase(scheduleRepository = get(), scheduleNextAlarm = get()) }
     }
