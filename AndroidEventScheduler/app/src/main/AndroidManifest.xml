@@ -45,6 +45,24 @@
             android:name=".core.alarm.data.ScheduleAlarmReceiver"
             android:exported="false" />
 
+        <!-- Tela cheia (spec 14): alerta de evento sobre a tela de bloqueio, aberto pelo fullScreenIntent da notificação.
+             Sem <data>: o PendingIntent da spec 04 só envia ação + extra. showWhenLocked/turnScreenOn dispensam permissão. -->
+        <activity
+            android:name=".feature.alarm.presentation.screen.FullScreenAlarmActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AndroidEventScheduler"
+            android:turnScreenOn="true">
+            <intent-filter>
+                <action android:name="com.br.androideventscheduler.action.SHOW_FULL_SCREEN_ALARM" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- Koin é iniciado pelo App Startup, antes de Application.onCreate, Activities e Receivers. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
