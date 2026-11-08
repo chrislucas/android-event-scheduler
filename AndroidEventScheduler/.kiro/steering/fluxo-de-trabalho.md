@@ -23,6 +23,13 @@ inclusion: always
 - Nunca commitar/push direto em `main`. O push da branch da spec e o PR da spec (seção 0) estão autorizados; qualquer outro push/PR (incluindo PR empilhado) exige a confirmação do Christopher.
 - Comportamentos que só valem em aparelho/emulador (alarme real, tela cheia sobre o bloqueio, broadcast de boot, permissões em runtime) devem ser declarados no PR como **não verificados em dispositivo**, quando for o caso.
 
+## 1.1. Todo commit compila (`git bisect`)
+
+- **Cada commit** da branch compila produção e testes, não só o último commit. Sem isso, o `git bisect` aponta o culpado errado ou para sem resposta, e `revert`/`cherry-pick` de um commit isolado quebram.
+- Camada que só compila junto com a seguinte vai **no mesmo commit** dela. Casos típicos: membro novo numa `sealed` consumida por `when` exaustivo (o tipo e os ramos entram juntos); parâmetro obrigatório novo (os call sites mudam juntos); dependência nova no ViewModel (o módulo Koin muda junto); string nova (entra com o código que a usa). Não use `else ->` para "fazer compilar": ele esconde efeitos futuros sem tratamento.
+- **Antes de abrir o PR** (depois do merge o histórico fica): `git rebase --exec "cd AndroidEventScheduler && ./gradlew :app:compileDebugUnitTestKotlin -q" origin/main`. O `--exec` roda na raiz do repositório. Commit que falhar é unido ao que o completa (`fixup`).
+- Caso real (PR #16, spec 12: dois commits que não compilam ficaram na `main` e devem ser pulados num bisect), guia de `git bisect` e script com `exit 125`: [`docs/decisoes/commits-compilaveis-e-git-bisect.md`](../../docs/decisoes/commits-compilaveis-e-git-bisect.md).
+
 ## 2. Review do Copilot em todo PR
 
 Ao abrir um PR, **peça o review do Copilot** (botão "Copilot" em *Reviewers*), desde que ainda haja cota. Depois que o review chegar:
