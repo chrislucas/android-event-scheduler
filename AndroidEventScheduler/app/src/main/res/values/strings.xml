@@ -255,4 +255,13 @@
     <string name="recurrence_count_description">Limite de repetições em número de vezes</string>
     <string name="recurrence_confirm_button">Concluir</string>
     <string name="recurrence_dismiss_button">Cancelar</string>
+
+    <!-- Gaveta da Home (spec 06) -->
+    <string name="home_menu_description">Abrir menu de navegação</string>
+    <string name="home_drawer_description">Menu lateral de calendários e configurações</string>
+    <string name="home_drawer_calendars_title">Calendários</string>
+    <string name="home_drawer_filter_visible">Visível</string>
+    <string name="home_drawer_filter_hidden">Oculto</string>
+    <string name="home_drawer_settings">Configurações</string>
+    <string name="home_drawer_settings_description">Abrir configurações do aplicativo</string>
 </resources>

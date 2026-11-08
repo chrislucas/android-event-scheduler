@@ -122,4 +122,10 @@ object SemanticsTags {
     const val RECURRENCE_COUNT_INPUT = "recurrence_count_input"
     const val RECURRENCE_CONFIRM_BUTTON = "recurrence_confirm_button"
     const val RECURRENCE_DISMISS_BUTTON = "recurrence_dismiss_button"
+
+    // Gaveta da Home (spec 06)
+    const val HOME_MENU_BUTTON = "home_menu_button"
+    const val HOME_DRAWER_SHEET = "home_drawer_sheet"
+    const val HOME_DRAWER_FILTER_PREFIX = "home_drawer_filter_"
+    const val HOME_DRAWER_SETTINGS_BUTTON = "home_drawer_settings_button"
 }

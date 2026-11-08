@@ -1,5 +1,6 @@
 package com.br.androideventscheduler.feature.home.presentation.event
 
+import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -33,4 +34,14 @@ sealed interface HomeUiEvent {
     ) : HomeUiEvent
 
     data object OnRetryClicked : HomeUiEvent
+
+    data object OnMenuClicked : HomeUiEvent
+
+    data object OnDrawerDismissed : HomeUiEvent
+
+    data class OnCalendarSourceToggled(
+        val source: CalendarSource,
+    ) : HomeUiEvent
+
+    data object OnSettingsClicked : HomeUiEvent
 }

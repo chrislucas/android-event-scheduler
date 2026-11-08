@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.testing.FakeUserSettingsRepository
+import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
@@ -13,6 +14,7 @@ import com.br.androideventscheduler.feature.home.domain.calendar.MonthGridBuilde
 import com.br.androideventscheduler.feature.home.presentation.effect.HomeUiEffect
 import com.br.androideventscheduler.feature.home.presentation.event.HomeUiEvent
 import com.br.androideventscheduler.feature.home.presentation.state.HomeUiState
+import com.br.androideventscheduler.feature.home.testing.FakeHomePreferencesRepository
 import com.br.androideventscheduler.feature.home.testing.FakeHomeScheduleRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -39,11 +41,13 @@ class HomeViewModelTest {
     private val today = LocalDate.of(2026, 11, 7)
     private val repository = FakeHomeScheduleRepository()
     private val settingsRepository = FakeUserSettingsRepository(UserSettings(activeAccountEmail = "bia@exemplo.com"))
+    private val homePreferences = FakeHomePreferencesRepository()
 
     private fun createViewModel(savedStateHandle: SavedStateHandle = SavedStateHandle()) =
         HomeViewModel(
             scheduleRepository = repository,
             userSettingsRepository = settingsRepository,
+            homePreferencesRepository = homePreferences,
             monthGridBuilder = MonthGridBuilder(),
             clock = clock,
             savedStateHandle = savedStateHandle,
@@ -62,9 +66,10 @@ class HomeViewModelTest {
         endDate: LocalDate = date,
         allDay: Boolean = false,
         recurrence: RecurrencePattern = RecurrencePattern.None,
+        source: CalendarSource = CalendarSource.PERSONAL_ACCOUNT,
     ): ScheduleItem =
         scheduleItem(id = id, startDate = date, endDate = endDate, startTime = time, isAllDay = allDay, recurrencePattern = recurrence)
-            .copy(colorHex = color)
+            .copy(colorHex = color, calendarSource = source)
 
     @Test
     fun `given a new screen when created then it is loading until the first data arrives`() =
@@ -409,6 +414,115 @@ class HomeViewModelTest {
                 ),
                 effects,
             )
+            collectJob.cancel()
+        }
+
+    @Test
+    fun `given a family item when family is hidden then month cell and day list drop it and showing it again restores it`() =
+        runTest {
+            repository.items.value =
+                listOf(item("mine"), item("family", source = CalendarSource.FAMILY, time = LocalTime.of(11, 0)))
+            val viewModel = createViewModel()
+            runCurrent()
+            assertEquals(listOf("mine", "family"), viewModel.content().daySchedules.map { it.item.id })
+
+            viewModel.onEvent(HomeUiEvent.OnCalendarSourceToggled(CalendarSource.FAMILY))
+            runCurrent()
+
+            assertEquals(setOf(CalendarSource.PERSONAL_ACCOUNT, CalendarSource.MY_REMINDERS), viewModel.content().enabledSources)
+            assertEquals(listOf("mine"), viewModel.content().daySchedules.map { it.item.id })
+            assertEquals(1, viewModel.cell(today).scheduleCount)
+
+            viewModel.onEvent(HomeUiEvent.OnCalendarSourceToggled(CalendarSource.FAMILY))
+            runCurrent()
+
+            assertEquals(listOf("mine", "family"), viewModel.content().daySchedules.map { it.item.id })
+            assertEquals(2, viewModel.cell(today).scheduleCount)
+        }
+
+    @Test
+    fun `given every calendar hidden when building then grid and list are empty without error`() =
+        runTest {
+            repository.items.value = listOf(item("mine"), item("family", source = CalendarSource.FAMILY))
+            homePreferences.enabled.value = emptySet()
+            val viewModel = createViewModel()
+            runCurrent()
+
+            val content = viewModel.content()
+            assertTrue(content.daySchedules.isEmpty())
+            assertTrue(content.cells.all { it.scheduleCount == 0 && it.indicatorColors.isEmpty() })
+            assertTrue(content.enabledSources.isEmpty())
+        }
+
+    @Test
+    fun `given the persisted filter when created then the hidden calendar stays hidden`() =
+        runTest {
+            repository.items.value = listOf(item("reminder", source = CalendarSource.MY_REMINDERS))
+            homePreferences.enabled.value = setOf(CalendarSource.PERSONAL_ACCOUNT)
+            val viewModel = createViewModel()
+            runCurrent()
+
+            assertTrue(viewModel.content().daySchedules.isEmpty())
+        }
+
+    @Test
+    fun `given the account email changes in settings when observing then the label updates without restart`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+
+            settingsRepository.settings.value = UserSettings(activeAccountEmail = "novo@exemplo.com")
+            runCurrent()
+
+            assertEquals("novo@exemplo.com", viewModel.content().accountEmail)
+        }
+
+    @Test
+    fun `given the drawer closed when the menu is clicked and then dismissed then the state follows`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            assertFalse(viewModel.content().isDrawerOpen)
+
+            viewModel.onEvent(HomeUiEvent.OnMenuClicked)
+            runCurrent()
+            assertTrue(viewModel.content().isDrawerOpen)
+
+            viewModel.onEvent(HomeUiEvent.OnDrawerDismissed)
+            runCurrent()
+            assertFalse(viewModel.content().isDrawerOpen)
+        }
+
+    @Test
+    fun `given the drawer saved as open when the view model is recreated then it is restored open`() =
+        runTest {
+            val savedStateHandle = SavedStateHandle()
+            val first = createViewModel(savedStateHandle)
+            runCurrent()
+            first.onEvent(HomeUiEvent.OnMenuClicked)
+            runCurrent()
+
+            val second = createViewModel(savedStateHandle)
+            runCurrent()
+
+            assertTrue(second.content().isDrawerOpen)
+        }
+
+    @Test
+    fun `given the drawer open when settings is clicked then it closes and navigates to settings`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            val effects = mutableListOf<HomeUiEffect>()
+            val collectJob = launch { viewModel.uiEffect.toList(effects) }
+            viewModel.onEvent(HomeUiEvent.OnMenuClicked)
+            runCurrent()
+
+            viewModel.onEvent(HomeUiEvent.OnSettingsClicked)
+            runCurrent()
+
+            assertFalse(viewModel.content().isDrawerOpen)
+            assertEquals(listOf<HomeUiEffect>(HomeUiEffect.NavigateToSettings), effects)
             collectJob.cancel()
         }
 }

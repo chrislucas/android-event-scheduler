@@ -1,6 +1,7 @@
 package com.br.androideventscheduler.feature.home.presentation.state
 
 import androidx.annotation.StringRes
+import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleOccurrence
 import java.time.LocalDate
 import java.time.YearMonth
@@ -18,6 +19,9 @@ sealed class HomeUiState {
         val accountEmail: String,
         val isMonthPickerVisible: Boolean = false,
         val monthPickerYear: Int = visibleMonth.year,
+        val isDrawerOpen: Boolean = false,
+        /** Calendários visíveis na grade e na lista (todos, por padrão). */
+        val enabledSources: Set<CalendarSource> = CalendarSource.entries.toSet(),
     ) : HomeUiState()
 
     data class Error(
