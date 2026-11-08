@@ -14,6 +14,7 @@ import org.koin.test.verify.verify
 class KoinModulesVerificationTest {
     @Test
     fun `given all registered modules when verifying the aggregated graph then every definition resolves`() {
-        module { includes(appModules) }.verify()
+        // String: id do agendamento fornecido em runtime pela rota (`parametersOf`), não por um módulo.
+        module { includes(appModules) }.verify(extraTypes = listOf(String::class))
     }
 }
