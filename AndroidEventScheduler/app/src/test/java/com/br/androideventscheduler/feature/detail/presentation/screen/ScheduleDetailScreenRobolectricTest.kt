@@ -9,10 +9,12 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -162,5 +164,119 @@ class ScheduleDetailScreenRobolectricTest {
             .assertIsDisplayed()
             .assertTextContains(context.getString(R.string.detail_not_found))
         composeRule.onNodeWithTag(SemanticsTags.DETAIL_EDIT_BUTTON).assertDoesNotExist()
+    }
+
+    private fun contentState(
+        schedule: ScheduleDetailUi = fullSchedule,
+        isDeleteDialogVisible: Boolean = false,
+        isProcessingAction: Boolean = false,
+    ) = ScheduleDetailUiState.Content(schedule, isDeleteDialogVisible, isProcessingAction)
+
+    @Test
+    fun `given content when rendered then the bar shows duplicate first then edit then delete last`() {
+        setContent(contentState())
+
+        val actionBounds =
+            listOf(
+                SemanticsTags.DETAIL_DUPLICATE_BUTTON,
+                SemanticsTags.DETAIL_EDIT_BUTTON,
+                SemanticsTags.DETAIL_DELETE_BUTTON,
+            ).map { tag ->
+                composeRule
+                    .onNodeWithTag(tag)
+                    .fetchSemanticsNode()
+                    .boundsInRoot.left
+            }
+
+        assertEquals(actionBounds.sorted(), actionBounds)
+        assertEquals(3, actionBounds.toSet().size)
+    }
+
+    @Test
+    fun `given content when rendered then duplicate and delete are described buttons with large touch targets`() {
+        setContent(contentState())
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.DETAIL_DUPLICATE_BUTTON)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertContentDescriptionEquals(context.getString(R.string.detail_duplicate_description))
+            .assertHeightIsAtLeast(48.dp)
+            .assertWidthIsAtLeast(48.dp)
+        composeRule
+            .onNodeWithTag(SemanticsTags.DETAIL_DELETE_BUTTON)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertContentDescriptionEquals(context.getString(R.string.detail_delete_description))
+            .assertHeightIsAtLeast(48.dp)
+            .assertWidthIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun `given content when duplicate and delete are clicked then their events are sent`() {
+        setContent(contentState())
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_DUPLICATE_BUTTON).performClick()
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_DELETE_BUTTON).performClick()
+
+        assertEquals(
+            listOf(ScheduleDetailUiEvent.OnDuplicateClicked, ScheduleDetailUiEvent.OnDeleteClicked),
+            events,
+        )
+    }
+
+    @Test
+    fun `given processing action when rendered then every bar button is disabled and clicks send nothing`() {
+        setContent(contentState(isProcessingAction = true))
+
+        listOf(
+            SemanticsTags.DETAIL_DUPLICATE_BUTTON,
+            SemanticsTags.DETAIL_EDIT_BUTTON,
+            SemanticsTags.DETAIL_DELETE_BUTTON,
+        ).forEach { tag ->
+            composeRule.onNodeWithTag(tag).assertIsNotEnabled().performClick()
+        }
+
+        assertEquals(emptyList<ScheduleDetailUiEvent>(), events)
+    }
+
+    @Test
+    fun `given hidden dialog when rendered then the delete dialog does not exist`() {
+        setContent(contentState())
+
+        composeRule.onNodeWithTag(SemanticsTags.DELETE_CONFIRM_DIALOG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `given visible dialog for a single item when rendered then it shows the title and no recurrence warning`() {
+        setContent(contentState(isDeleteDialogVisible = true))
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.DELETE_CONFIRM_DIALOG)
+            .assertIsDisplayed()
+            .assertContentDescriptionEquals(context.getString(R.string.delete_dialog_description))
+        composeRule.onNodeWithText(context.getString(R.string.delete_dialog_title, "Aula de Kotlin")).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.delete_dialog_message)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.delete_dialog_message_recurring)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `given visible dialog for a recurring item when rendered then it warns that all occurrences are removed`() {
+        setContent(contentState(schedule = fullSchedule.copy(isRecurring = true), isDeleteDialogVisible = true))
+
+        composeRule.onNodeWithText(context.getString(R.string.delete_dialog_message_recurring)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `given visible dialog when confirm or cancel is clicked then the matching events are sent`() {
+        setContent(contentState(isDeleteDialogVisible = true))
+
+        composeRule.onNodeWithTag(SemanticsTags.DELETE_CONFIRM_BUTTON).assertHasClickAction().performClick()
+        composeRule.onNodeWithTag(SemanticsTags.DELETE_CANCEL_BUTTON).assertHasClickAction().performClick()
+
+        assertEquals(
+            listOf(ScheduleDetailUiEvent.OnConfirmDeleteClicked, ScheduleDetailUiEvent.OnDismissDeleteDialog),
+            events,
+        )
     }
 }

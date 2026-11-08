@@ -1,18 +1,26 @@
 package com.br.androideventscheduler.feature.detail
 
+import android.content.Context
 import android.os.Looper
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
+import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.detail.presentation.screen.ScheduleDetailScreen
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +55,7 @@ class DetailFlowRobolectricTest {
 
         composeRule.setContent {
             AndroidEventSchedulerTheme {
-                ScheduleDetailScreen(scheduleId = "stored-1", onBack = {}, onEdit = { editedIds += it })
+                ScheduleDetailScreen(scheduleId = "stored-1", onBack = {}, onEdit = { editedIds += it }, onOpenCopy = {})
             }
         }
         waitUntilWithMainLooper { tagCount(SemanticsTags.DETAIL_TITLE) > 0 }
@@ -65,7 +73,7 @@ class DetailFlowRobolectricTest {
 
         composeRule.setContent {
             AndroidEventSchedulerTheme {
-                ScheduleDetailScreen(scheduleId = "does-not-exist", onBack = { backCalls++ }, onEdit = {})
+                ScheduleDetailScreen(scheduleId = "does-not-exist", onBack = { backCalls++ }, onEdit = {}, onOpenCopy = {})
             }
         }
         waitUntilWithMainLooper { backCalls > 0 }
@@ -79,7 +87,7 @@ class DetailFlowRobolectricTest {
         var backCalls = 0
         composeRule.setContent {
             AndroidEventSchedulerTheme {
-                ScheduleDetailScreen(scheduleId = "to-delete", onBack = { backCalls++ }, onEdit = {})
+                ScheduleDetailScreen(scheduleId = "to-delete", onBack = { backCalls++ }, onEdit = {}, onOpenCopy = {})
             }
         }
         waitUntilWithMainLooper { tagCount(SemanticsTags.DETAIL_TITLE) > 0 }
@@ -88,5 +96,97 @@ class DetailFlowRobolectricTest {
         waitUntilWithMainLooper { backCalls > 0 }
 
         assertEquals(1, backCalls)
+    }
+
+    @Test
+    fun `given open detail when deleting through the dialog then the item is removed and the screen goes back once`() {
+        runBlocking { repository.upsert(scheduleItem(id = "doomed", title = "Consulta")) }
+        var backCalls = 0
+        composeRule.setContent {
+            AndroidEventSchedulerTheme {
+                ScheduleDetailScreen(scheduleId = "doomed", onBack = { backCalls++ }, onEdit = {}, onOpenCopy = {})
+            }
+        }
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DETAIL_TITLE) > 0 }
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_DELETE_BUTTON).performClick()
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DELETE_CONFIRM_DIALOG) > 0 }
+        composeRule.onNodeWithTag(SemanticsTags.DELETE_CONFIRM_BUTTON).performClick()
+        waitUntilWithMainLooper { backCalls > 0 }
+        composeRule.waitForIdle()
+
+        assertEquals(1, backCalls)
+        assertNull(runBlocking { repository.getById("doomed") })
+        assertEquals(0, tagCount(SemanticsTags.DELETE_CONFIRM_DIALOG))
+    }
+
+    @Test
+    fun `given open detail when cancelling the delete dialog then the item stays and the screen does not go back`() {
+        runBlocking { repository.upsert(scheduleItem(id = "kept", title = "Consulta")) }
+        var backCalls = 0
+        composeRule.setContent {
+            AndroidEventSchedulerTheme {
+                ScheduleDetailScreen(scheduleId = "kept", onBack = { backCalls++ }, onEdit = {}, onOpenCopy = {})
+            }
+        }
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DETAIL_TITLE) > 0 }
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_DELETE_BUTTON).performClick()
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DELETE_CONFIRM_DIALOG) > 0 }
+        composeRule.onNodeWithTag(SemanticsTags.DELETE_CANCEL_BUTTON).performClick()
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DELETE_CONFIRM_DIALOG) == 0 }
+
+        assertEquals(0, backCalls)
+        assertNotNull(runBlocking { repository.getById("kept") })
+    }
+
+    @Test
+    fun `given recurring item when opening the delete dialog then it warns about all occurrences`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        runBlocking {
+            repository.upsert(scheduleItem(id = "series", title = "Academia", recurrencePattern = RecurrencePattern.Daily()))
+        }
+        composeRule.setContent {
+            AndroidEventSchedulerTheme {
+                ScheduleDetailScreen(scheduleId = "series", onBack = {}, onEdit = {}, onOpenCopy = {})
+            }
+        }
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DETAIL_TITLE) > 0 }
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_DELETE_BUTTON).performClick()
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DELETE_CONFIRM_DIALOG) > 0 }
+
+        composeRule.onNodeWithText(context.getString(R.string.delete_dialog_message_recurring)).assertExists()
+    }
+
+    @Test
+    fun `given open detail when duplicating then the copy is stored and the snackbar open action navigates to it`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        runBlocking { repository.upsert(scheduleItem(id = "source", title = "Consulta", location = "Clínica")) }
+        val openedCopyIds = mutableListOf<String>()
+        composeRule.setContent {
+            AndroidEventSchedulerTheme {
+                ScheduleDetailScreen(
+                    scheduleId = "source",
+                    onBack = {},
+                    onEdit = {},
+                    onOpenCopy = { openedCopyIds += it },
+                )
+            }
+        }
+        waitUntilWithMainLooper { tagCount(SemanticsTags.DETAIL_TITLE) > 0 }
+
+        composeRule.onNodeWithTag(SemanticsTags.DETAIL_DUPLICATE_BUTTON).performClick()
+        waitUntilWithMainLooper {
+            composeRule.onAllNodesWithText(context.getString(R.string.detail_copy_created)).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        val copy = runBlocking { repository.getAll() }.single { it.id != "source" }
+        assertEquals("Consulta (Cópia)", copy.title)
+        assertEquals("Clínica", copy.location)
+        composeRule.onNodeWithText(context.getString(R.string.detail_copy_open_action)).performClick()
+        waitUntilWithMainLooper { openedCopyIds.isNotEmpty() }
+        assertEquals(listOf(copy.id), openedCopyIds)
+        assertEquals("Consulta", runBlocking { repository.getById("source") }?.title)
     }
 }
