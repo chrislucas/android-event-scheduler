@@ -188,4 +188,29 @@
     <string name="delete_dialog_message_recurring">Todas as ocorrências deste agendamento serão removidas. Esta ação não pode ser desfeita.</string>
     <string name="delete_dialog_confirm">Excluir</string>
     <string name="delete_dialog_cancel">Cancelar</string>
+    <!-- Tela cheia (spec 14) -->
+    <plurals name="alarm_badge_in_minutes">
+        <item quantity="one">Evento em %1$d minuto</item>
+        <item quantity="other">Evento em %1$d minutos</item>
+    </plurals>
+    <string name="alarm_badge_now">Evento agora</string>
+    <string name="alarm_time_range">%1$s – %2$s</string>
+    <string name="alarm_time_all_day">Dia inteiro</string>
+    <string name="alarm_time_description">Horário: %1$s</string>
+    <string name="alarm_location_description">Local: %1$s</string>
+    <string name="alarm_notes_description">Notas: %1$s</string>
+    <string name="alarm_snooze_chips_description">Duração do adiamento</string>
+    <string name="alarm_snooze_chip_label">%1$d min</string>
+    <plurals name="alarm_snooze_chip_description">
+        <item quantity="one">Adiar por %1$d minuto</item>
+        <item quantity="other">Adiar por %1$d minutos</item>
+    </plurals>
+    <string name="alarm_snooze_button">Adiar</string>
+    <plurals name="alarm_snooze_button_description">
+        <item quantity="one">Adiar lembrete do evento por %1$d minuto</item>
+        <item quantity="other">Adiar lembrete do evento por %1$d minutos</item>
+    </plurals>
+    <string name="alarm_dismiss_button">Dispensar</string>
+    <string name="alarm_dismiss_button_description">Dispensar lembrete do evento</string>
+    <string name="alarm_snooze_error">Não foi possível adiar o lembrete. Tente novamente.</string>
 </resources>
