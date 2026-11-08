@@ -1,7 +1,7 @@
 package com.br.androideventscheduler.app
 
-import com.br.androideventscheduler.core.common.commonModule
 import com.br.androideventscheduler.core.alarm.di.alarmModule
+import com.br.androideventscheduler.core.common.commonModule
 import com.br.androideventscheduler.core.database.databaseModule
 import com.br.androideventscheduler.core.datastore.dataStoreModule
 import com.br.androideventscheduler.core.di.dispatchersModule
