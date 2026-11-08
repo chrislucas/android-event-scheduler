@@ -1,8 +1,8 @@
 # 11 — Duplicar e excluir agendamento — Tarefas
 
-- [ ] 1. Confirmar que `ScheduleNotFoundException` (spec 01) e `StringProvider` (spec 10) existem; criar o que faltar + testes.
-- [ ] 2. TDD: `DuplicateScheduleUseCase` + `DuplicateScheduleUseCaseTest` (R1.2, R1.3, R1.5, R1.6).
-- [ ] 3. TDD: `DeleteScheduleUseCase` + `DeleteScheduleUseCaseTest` (R2.3, R2.5, R2.6).
+- [x] 1. Confirmar que `ScheduleNotFoundException` (spec 01) e `StringProvider` (spec 10) existem; criar o que faltar + testes.
+- [x] 2. TDD: `DuplicateScheduleUseCase` + `DuplicateScheduleUseCaseTest` (R1.2, R1.3, R1.5, R1.6).
+- [x] 3. TDD: `DeleteScheduleUseCase` + `DeleteScheduleUseCaseTest` (R2.3, R2.5, R2.6).
 - [ ] 4. Estender `ScheduleDetailUiState/Event/Effect` e `ScheduleDetailViewModel` (+ testes) incl. proteção de toques repetidos e diálogo restaurável (R1.4, R2, R3).
 - [ ] 5. `DeleteConfirmationDialog` com previews, tags e aviso de recorrência (R2.2).
 - [ ] 6. Acrescentar Duplicar/Excluir ao `ScheduleActionBar`, Snackbar com ação, `onOpenCopy` no `detailEntry`/`AppNavHost`.
