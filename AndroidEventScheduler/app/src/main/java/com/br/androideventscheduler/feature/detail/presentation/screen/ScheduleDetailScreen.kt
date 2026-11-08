@@ -115,6 +115,13 @@ internal fun ScheduleDetailScreen(
                 }
             }
 
+            // Ponto único de disparo do share sheet (a spec 16 chamará `suppressNextLock()` aqui, antes do Intent).
+            is ScheduleDetailUiEffect.ShareText -> {
+                if (!launchShareChooser(context, effect.subject, effect.body)) {
+                    Toast.makeText(context, context.getString(R.string.share_error), Toast.LENGTH_SHORT).show()
+                }
+            }
+
             // Toast (e não Snackbar): a tela fecha logo em seguida e um Snackbar sumiria junto com ela.
             is ScheduleDetailUiEffect.ShowMessage -> {
                 Toast.makeText(context, context.getString(effect.messageRes), Toast.LENGTH_SHORT).show()
@@ -154,7 +161,6 @@ internal fun ScheduleDetailContent(
         },
         bottomBar = {
             if (uiState is ScheduleDetailUiState.Content) {
-                // A spec 12 acrescenta Compartilhar a esta lista (entre Editar e Excluir).
                 ScheduleActionBar(actions = detailActions(isEnabled = !uiState.isProcessingAction, onEvent = onEvent))
             }
         },
@@ -177,7 +183,7 @@ internal fun ScheduleDetailContent(
     }
 }
 
-/** Duplicar (primeira), Editar e Excluir (última, destrutiva). Todas desabilitadas enquanto uma ação roda. */
+/** Duplicar (primeira), Editar, Compartilhar e Excluir (última, destrutiva). Todas desabilitadas enquanto uma ação roda. */
 private fun detailActions(
     isEnabled: Boolean,
     onEvent: (ScheduleDetailUiEvent) -> Unit,
@@ -198,6 +204,14 @@ private fun detailActions(
             onClick = { onEvent(ScheduleDetailUiEvent.OnEditClicked) },
             enabled = isEnabled,
             description = R.string.detail_edit_description,
+        ),
+        ScheduleAction(
+            label = R.string.detail_share_label,
+            icon = R.drawable.ic_share,
+            tag = SemanticsTags.DETAIL_SHARE_BUTTON,
+            onClick = { onEvent(ScheduleDetailUiEvent.OnShareClicked) },
+            enabled = isEnabled,
+            description = R.string.detail_share_description,
         ),
         ScheduleAction(
             label = R.string.detail_delete_label,

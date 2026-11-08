@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.br.androideventscheduler.R
@@ -105,7 +106,14 @@ private fun ScheduleActionButton(
             modifier = Modifier.size(ACTION_ICON_SIZE),
             tint = contentColor,
         )
-        Text(text = stringResource(action.label), style = MaterialTheme.typography.labelMedium, color = contentColor)
+        Text(
+            text = stringResource(action.label),
+            style = MaterialTheme.typography.labelMedium,
+            color = contentColor,
+            // Em telas estreitas o rótulo pode virar "Compart…"; a descrição de acessibilidade não muda.
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -125,6 +133,15 @@ private val previewDuplicateAction =
         tag = SemanticsTags.DETAIL_DUPLICATE_BUTTON,
         onClick = {},
         description = R.string.detail_duplicate_description,
+    )
+
+private val previewShareAction =
+    ScheduleAction(
+        label = R.string.detail_share_label,
+        icon = R.drawable.ic_share,
+        tag = SemanticsTags.DETAIL_SHARE_BUTTON,
+        onClick = {},
+        description = R.string.detail_share_description,
     )
 
 private val previewDeleteAction =
@@ -158,6 +175,16 @@ private fun ScheduleActionBarManyActionsPreview() {
     }
 }
 
+@Preview(name = "Barra completa", showBackground = true)
+@Composable
+private fun ScheduleActionBarFullPreview() {
+    AndroidEventSchedulerTheme {
+        ScheduleActionBar(
+            actions = listOf(previewDuplicateAction, previewEditAction, previewShareAction, previewDeleteAction),
+        )
+    }
+}
+
 @Preview(name = "Duplicar, Editar e Excluir", showBackground = true)
 @Composable
 private fun ScheduleActionBarDuplicateEditDeletePreview() {
@@ -172,7 +199,8 @@ private fun ScheduleActionBarProcessingPreview() {
     AndroidEventSchedulerTheme {
         ScheduleActionBar(
             actions =
-                listOf(previewDuplicateAction, previewEditAction, previewDeleteAction).map { it.copy(enabled = false) },
+                listOf(previewDuplicateAction, previewEditAction, previewShareAction, previewDeleteAction)
+                    .map { it.copy(enabled = false) },
         )
     }
 }
