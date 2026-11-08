@@ -6,8 +6,8 @@
 - [x] 4. Data: `NotificationChannels` (criados na inicialização) e `ScheduleNotifier` + testes (R3.2–R3.4, R4.1).
 - [x] 5. Data: `ScheduleAlarmReceiver` + manifest (receiver `exported=false`, permissões do R4.2) + `ScheduleAlarmReceiverRobolectricTest` (R3).
 - [x] 6. `AlarmModule` Koin (scheduler, notifier, use case, `Clock.systemDefaultZone()`); registrar em `AppModules`.
-- [ ] 7. `core.permissions.NotificationPermissionEffect` + teste (R4.3).
-- [ ] 8. Deep link: `DeepLinkState`, `MainActivity` (`onCreate`/`onNewIntent`) e consumo no `AppNavHost` (R5) + teste do fluxo com `ActivityScenario`.
+- [x] 7. `core.permissions.NotificationPermissionEffect` + teste (R4.3).
+- [x] 8. Deep link: `DeepLinkState`, `MainActivity` (`onCreate`/`onNewIntent`) e consumo no `AppNavHost` (R5) + teste do fluxo com `ActivityScenario`.
 - [ ] 9. Atualizar `KoinModulesVerificationTest`; verificação final conforme `specs/README.md`. Informar que disparo real de alarme/tela cheia só pode ser validado em aparelho/emulador.
 
 ## Critérios de aceite

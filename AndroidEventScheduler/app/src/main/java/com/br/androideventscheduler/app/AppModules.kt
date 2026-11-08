@@ -27,4 +27,5 @@ val appModules: List<Module> =
         detailModule,
         // Alarmes (spec 04)
         alarmModule,
+        deepLinkModule,
     )
