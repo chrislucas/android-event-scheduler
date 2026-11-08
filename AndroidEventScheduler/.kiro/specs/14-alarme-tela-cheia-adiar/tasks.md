@@ -4,7 +4,7 @@
 - [ ] 2. TDD: `SnoozeAlarmUseCase` + `SnoozeAlarmUseCaseTest` (R2.1–R2.3, R2.5–R2.6).
 - [ ] 3. Contrato State/Event/Effect (sealed) e `FullScreenAlarmViewModel` + `FullScreenAlarmViewModelTest` (R1.5–R1.6, R2, R3).
 - [ ] 4. Componentes `SnoozeChipsRow`, `AlarmActionButtons` e `FullScreenAlarmContent` com previews, strings e tags (R1.3–R1.5, R4).
-- [ ] 5. `FullScreenAlarmActivity` + manifest + `AlarmFeatureModule`; `onNewIntent` e flags por API (R1.1–R1.2).
+- [ ] 5. `FullScreenAlarmActivity` + manifest (sem `WAKE_LOCK`/`DISABLE_KEYGUARD`: `setShowWhenLocked`/`setTurnScreenOn` dispensam permissão; atualizar a seção 2.4 de `docs/permissoes.md` com o uso real) + `AlarmFeatureModule`; `onNewIntent` e flags por API (R1.1–R1.2).
 - [ ] 6. `FullScreenAlarmActivityRobolectricTest` e `SnoozeThenFireIntegrationTest` (R2.4, R3).
 - [ ] 7. Atualizar `KoinModulesVerificationTest`; verificação final conforme `specs/README.md`. Informar que a exibição sobre a tela de bloqueio só é verificável em aparelho/emulador.
 

@@ -95,6 +95,7 @@ UseCases previstos: `SaveScheduleUseCase` (07), `ScheduleNextAlarmUseCase` (04),
   - [ ] Todo `@Composable` visual novo tem `@Preview` (obrigatório, `arquitetura.md` §5.3).
   - [ ] Nenhum texto literal na UI (§5.5); tags/semântica de acessibilidade presentes; nenhum import entre features.
   - [ ] Módulo Koin novo coberto pelo `KoinModulesVerificationTest`.
+  - [ ] Permissão nova (ou removida) documentada em `docs/permissoes.md`, comentada no manifest e refletida no `RequestedPermissionsGuardRobolectricTest` (`arquitetura.md` §5.6).
   - [ ] `ordem-de-execucao.md` §8 atualizado (e §1–§5 se algo diferiu).
 - **Definição de pronto**: checklist da seção 7 de `arquitetura.md` + todas as tasks marcadas `[x]` + verificação acima verde. Relatar com franqueza o que não pôde ser verificado (ex.: comportamento real de alarme/tela cheia só em aparelho).
 - **Skills do Kiro úteis**: `navigation-3`, `testing-setup`, `edge-to-edge`, `agp-9-upgrade` (se algo do AGP 9 atrapalhar o plugin do Room/KSP).

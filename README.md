@@ -156,6 +156,10 @@ Requisitos: Android Studio recente, JDK compatível com o Gradle do projeto e um
 
 > Comportamentos dependentes do sistema — alarme exato, tela cheia sobre o bloqueio, broadcast de boot e permissões em runtime — só são totalmente verificáveis em aparelho ou emulador.
 
+## Permissões
+
+O app pede só o necessário para lembrar no horário certo — notificações, alarmes exatos e alerta em tela cheia — e **nenhum** acesso à internet, armazenamento, localização ou contatos. Cada permissão, sua justificativa, o comportamento quando negada e as implicações de política do Google Play estão em [`docs/permissoes.md`](AndroidEventScheduler/docs/permissoes.md).
+
 ## Documentos de decisão
 
 - [`docs/decisoes/mvi-viewmodel-abstrata.md`](AndroidEventScheduler/docs/decisoes/mvi-viewmodel-abstrata.md) — proposta (em avaliação) de uma `MviViewModel` abstrata: migração, vantagens, desvantagens, alternativas e matriz de decisão.
