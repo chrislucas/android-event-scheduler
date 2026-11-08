@@ -8,18 +8,20 @@ import com.br.androideventscheduler.feature.home.presentation.screen.HomeScreen
 /**
  * API pública da feature: registra a rota [Home]. [onNavigateToUpsert] recebe o dia selecionado
  * (`LocalDate.toEpochDay()`) como data inicial da criação; [onNavigateToDetail] recebe o id do agendamento.
- * (A navegação para Configurações entra com a gaveta lateral, spec 06.)
+ * [onNavigateToSettings] é o atalho "Configurações" da gaveta lateral.
  */
 fun EntryProviderScope<NavKey>.homeEntry(
     onNavigateToSearch: () -> Unit,
     onNavigateToUpsert: (initialDateEpochDay: Long) -> Unit,
     onNavigateToDetail: (scheduleId: String) -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     entry<Home> {
         HomeScreen(
             onNavigateToSearch = onNavigateToSearch,
             onNavigateToUpsert = onNavigateToUpsert,
             onNavigateToDetail = onNavigateToDetail,
+            onNavigateToSettings = onNavigateToSettings,
         )
     }
 }

@@ -51,6 +51,7 @@ internal fun previewOccurrence(
 internal fun previewContent(
     daySchedules: List<ScheduleOccurrence> = previewDaySchedules(),
     isMonthPickerVisible: Boolean = false,
+    isDrawerOpen: Boolean = false,
 ): HomeUiState.Content {
     val month = YearMonth.of(2026, 11)
     val today = LocalDate.of(2026, 11, 7)
@@ -74,6 +75,7 @@ internal fun previewContent(
         daySchedules = daySchedules,
         accountEmail = "bia@exemplo.com",
         isMonthPickerVisible = isMonthPickerVisible,
+        isDrawerOpen = isDrawerOpen,
     )
 }
 

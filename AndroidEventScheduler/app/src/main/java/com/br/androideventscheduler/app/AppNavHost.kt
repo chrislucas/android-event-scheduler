@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.br.androideventscheduler.core.navigation.ScheduleDetail
 import com.br.androideventscheduler.core.navigation.Search
+import com.br.androideventscheduler.core.navigation.Settings
 import com.br.androideventscheduler.core.navigation.Splash
 import com.br.androideventscheduler.core.navigation.UpsertSchedule
 import com.br.androideventscheduler.feature.detail.navigation.detailEntry
@@ -55,6 +56,8 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                     onNavigateToSearch = { backStack.add(Search) },
                     onNavigateToUpsert = { dayEpoch -> backStack.add(UpsertSchedule(initialDateEpochDay = dayEpoch)) },
                     onNavigateToDetail = { scheduleId -> backStack.add(ScheduleDetail(scheduleId)) },
+                    // Gaveta (spec 06)
+                    onNavigateToSettings = { backStack.add(Settings) },
                 )
                 // Detalhes (spec 10)
                 detailEntry(

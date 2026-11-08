@@ -1,5 +1,6 @@
 package com.br.androideventscheduler.feature.home.presentation.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,16 +10,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -36,6 +43,7 @@ import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.permissions.NotificationPermissionEffect
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.feature.home.presentation.component.CalendarDrawerSheet
 import com.br.androideventscheduler.feature.home.presentation.component.MonthGridSection
 import com.br.androideventscheduler.feature.home.presentation.component.MonthPickerSheetContent
 import com.br.androideventscheduler.feature.home.presentation.component.QuickAddBar
@@ -54,6 +62,7 @@ internal fun HomeScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToUpsert: (initialDateEpochDay: Long) -> Unit,
     onNavigateToDetail: (scheduleId: String) -> Unit,
+    onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -65,6 +74,7 @@ internal fun HomeScreen(
             HomeUiEffect.NavigateToSearch -> onNavigateToSearch()
             is HomeUiEffect.NavigateToUpsert -> onNavigateToUpsert(effect.initialDateEpochDay)
             is HomeUiEffect.NavigateToDetail -> onNavigateToDetail(effect.scheduleId)
+            HomeUiEffect.NavigateToSettings -> onNavigateToSettings()
         }
     }
 
@@ -78,22 +88,70 @@ internal fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     val content = uiState as? HomeUiState.Content
-    Scaffold(
-        modifier = modifier,
-        topBar = { HomeTopBar(content = content, onEvent = onEvent) },
-        bottomBar = { QuickAddBar(onClick = { onEvent(HomeUiEvent.OnQuickAddClicked) }) },
-    ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            when (uiState) {
-                HomeUiState.Loading -> HomeLoading()
-                is HomeUiState.Error -> HomeError(messageRes = uiState.messageRes, onRetry = { onEvent(HomeUiEvent.OnRetryClicked) })
-                is HomeUiState.Content -> HomeBody(content = uiState, onEvent = onEvent)
+    HomeDrawerHost(content = content, onEvent = onEvent) {
+        Scaffold(
+            modifier = modifier,
+            topBar = { HomeTopBar(content = content, onEvent = onEvent) },
+            bottomBar = { QuickAddBar(onClick = { onEvent(HomeUiEvent.OnQuickAddClicked) }) },
+        ) { innerPadding ->
+            Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                when (uiState) {
+                    HomeUiState.Loading -> HomeLoading()
+                    is HomeUiState.Error -> HomeError(messageRes = uiState.messageRes, onRetry = { onEvent(HomeUiEvent.OnRetryClicked) })
+                    is HomeUiState.Content -> HomeBody(content = uiState, onEvent = onEvent)
+                }
             }
         }
     }
     if (content?.isMonthPickerVisible == true) {
         MonthPickerSheet(content = content, onEvent = onEvent)
     }
+}
+
+/**
+ * Gaveta lateral. O estado do ViewModel (`isDrawerOpen`) é a fonte da verdade e o [androidx.compose.material3.DrawerState]
+ * o segue (abrir/fechar animado). Gestos do usuário (deslizar da borda, deslizar para fechar, toque no scrim) fazem
+ * o caminho inverso: quando a gaveta **assenta** num valor diferente do estado, o evento correspondente é enviado.
+ * Sem laço: quando a mudança veio do estado, a gaveta assenta no mesmo valor e nada é emitido.
+ */
+@Composable
+private fun HomeDrawerHost(
+    content: HomeUiState.Content?,
+    onEvent: (HomeUiEvent) -> Unit,
+    body: @Composable () -> Unit,
+) {
+    val isDrawerOpen = content?.isDrawerOpen == true
+    val drawerState = rememberDrawerState(if (isDrawerOpen) DrawerValue.Open else DrawerValue.Closed)
+    val currentIsDrawerOpen by rememberUpdatedState(isDrawerOpen)
+    val currentOnEvent by rememberUpdatedState(onEvent)
+    LaunchedEffect(isDrawerOpen) {
+        if (isDrawerOpen) drawerState.open() else drawerState.close()
+    }
+    LaunchedEffect(drawerState) {
+        snapshotFlow { drawerState.currentValue == DrawerValue.Open }.collect { settledOpen ->
+            when {
+                settledOpen && !currentIsDrawerOpen -> currentOnEvent(HomeUiEvent.OnMenuClicked)
+                !settledOpen && currentIsDrawerOpen -> currentOnEvent(HomeUiEvent.OnDrawerDismissed)
+            }
+        }
+    }
+    // Voltar do sistema com a gaveta aberta: fecha a gaveta (não sai da Home).
+    BackHandler(enabled = isDrawerOpen) { onEvent(HomeUiEvent.OnDrawerDismissed) }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = content != null,
+        // A folha é sempre composta (mesmo em Loading/Error, quando fica inacessível): com o conteúdo vazio a
+        // largura seria 0, a posição "fechada" seria calculada em 0 e a gaveta apareceria aberta ao chegar o Content.
+        drawerContent = {
+            CalendarDrawerSheet(
+                enabledSources = content?.enabledSources.orEmpty(),
+                personalAccountLabel = content?.accountEmail.orEmpty(),
+                onToggle = { source -> onEvent(HomeUiEvent.OnCalendarSourceToggled(source)) },
+                onSettingsClick = { onEvent(HomeUiEvent.OnSettingsClicked) },
+            )
+        },
+        content = body,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,6 +161,16 @@ private fun HomeTopBar(
     onEvent: (HomeUiEvent) -> Unit,
 ) {
     TopAppBar(
+        navigationIcon = {
+            if (content != null) {
+                IconButton(
+                    onClick = { onEvent(HomeUiEvent.OnMenuClicked) },
+                    modifier = Modifier.testTag(SemanticsTags.HOME_MENU_BUTTON),
+                ) {
+                    Icon(painter = painterResource(R.drawable.ic_menu), contentDescription = stringResource(R.string.home_menu_description))
+                }
+            }
+        },
         title = {
             if (content == null) {
                 Text(text = stringResource(R.string.splash_title))
@@ -240,4 +308,10 @@ private fun HomeContentLoadingPreview() {
 @Composable
 private fun HomeContentErrorPreview() {
     AndroidEventSchedulerTheme { HomeContent(uiState = HomeUiState.Error(R.string.home_error_generic), onEvent = {}) }
+}
+
+@Preview(showBackground = true, name = "Gaveta aberta")
+@Composable
+private fun HomeContentDrawerOpenPreview() {
+    AndroidEventSchedulerTheme { HomeContent(uiState = previewContent(isDrawerOpen = true), onEvent = {}) }
 }

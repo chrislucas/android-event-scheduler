@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
+import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleOccurrence
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.feature.home.domain.calendar.MonthGridBuilder
+import com.br.androideventscheduler.feature.home.domain.repository.HomePreferencesRepository
 import com.br.androideventscheduler.feature.home.presentation.effect.HomeUiEffect
 import com.br.androideventscheduler.feature.home.presentation.event.HomeUiEvent
 import com.br.androideventscheduler.feature.home.presentation.state.CalendarDayCell
@@ -23,11 +25,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.YearMonth
@@ -45,16 +49,25 @@ private sealed interface GridData {
     ) : GridData
 }
 
+/** Fontes "de cromo" da tela (seletor de mês, gaveta, filtros e conta), agrupadas para caber no `combine`. */
+private data class HomeChrome(
+    val pickerYear: Int?,
+    val isDrawerOpen: Boolean,
+    val enabledSources: Set<CalendarSource>,
+    val accountEmail: String,
+)
+
 /**
  * Home reativa. O `uiState` é **derivado** (`combine`) de fontes privadas — o dia selecionado (no
- * `SavedStateHandle`), o ano do seletor de mês e o e-mail da conta — e das ocorrências observadas no
- * repositório; os eventos só escrevem nessas fontes. O mês visível é sempre o mês do dia selecionado
+ * `SavedStateHandle`), o ano do seletor de mês, a gaveta lateral (também no `SavedStateHandle`), os calendários
+ * visíveis (DataStore) e o e-mail da conta — e das ocorrências observadas no repositório; os eventos só escrevem nessas fontes. O mês visível é sempre o mês do dia selecionado
  * (trocar de mês também move a seleção, como em R3.2), o que mantém os dois consistentes e persistidos juntos.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class HomeViewModel(
     private val scheduleRepository: ScheduleRepository,
     private val userSettingsRepository: UserSettingsRepository,
+    private val homePreferencesRepository: HomePreferencesRepository,
     private val monthGridBuilder: MonthGridBuilder,
     private val clock: Clock,
     private val savedStateHandle: SavedStateHandle,
@@ -65,6 +78,7 @@ internal class HomeViewModel(
             .getStateFlow(KEY_SELECTED_EPOCH_DAY, LocalDate.now(clock).toEpochDay())
             .map { epochDay -> LocalDate.ofEpochDay(epochDay) }
     private val monthPickerYearFlow = MutableStateFlow<Int?>(null)
+    private val drawerOpenFlow = savedStateHandle.getStateFlow(KEY_DRAWER_OPEN, false)
     private val retryTrigger = MutableStateFlow(0)
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -75,13 +89,7 @@ internal class HomeViewModel(
 
     init {
         viewModelScope.launch(dispatcher) {
-            combine(
-                observeGridData(),
-                selectedDateFlow,
-                monthPickerYearFlow,
-                userSettingsRepository.observe().map { it.activeAccountEmail }.distinctUntilChanged(),
-                ::toUiState,
-            ).filterNotNull().collect { state -> _uiState.value = state }
+            combine(observeGridData(), selectedDateFlow, observeChrome(), ::toUiState).filterNotNull().collect { state -> _uiState.value = state }
         }
     }
 
@@ -131,6 +139,23 @@ internal class HomeViewModel(
             HomeUiEvent.OnRetryClicked -> {
                 retryTrigger.update { it + 1 }
             }
+
+            HomeUiEvent.OnMenuClicked -> {
+                savedStateHandle[KEY_DRAWER_OPEN] = true
+            }
+
+            HomeUiEvent.OnDrawerDismissed -> {
+                savedStateHandle[KEY_DRAWER_OPEN] = false
+            }
+
+            is HomeUiEvent.OnCalendarSourceToggled -> {
+                toggleCalendar(event.source)
+            }
+
+            HomeUiEvent.OnSettingsClicked -> {
+                savedStateHandle[KEY_DRAWER_OPEN] = false
+                sendEffect(HomeUiEffect.NavigateToSettings)
+            }
         }
     }
 
@@ -155,6 +180,27 @@ internal class HomeViewModel(
         selectDate(target)
     }
 
+    /** A UI só reflete o resultado pelo fluxo do repositório (fonte única); falha de gravação mantém o filtro atual. */
+    private fun toggleCalendar(source: CalendarSource) {
+        viewModelScope.launch(dispatcher) {
+            try {
+                val current = homePreferencesRepository.observeEnabledCalendars().first()
+                homePreferencesRepository.setCalendarEnabled(source, enabled = source !in current)
+            } catch (_: IOException) {
+                // Sem efeito visível: a próxima emissão do DataStore continua sendo a verdade.
+            }
+        }
+    }
+
+    private fun observeChrome(): Flow<HomeChrome> =
+        combine(
+            monthPickerYearFlow,
+            drawerOpenFlow,
+            homePreferencesRepository.observeEnabledCalendars(),
+            userSettingsRepository.observe().map { it.activeAccountEmail }.distinctUntilChanged(),
+            ::HomeChrome,
+        )
+
     private fun observeGridData(): Flow<GridData> =
         combine(selectedDateFlow.map { YearMonth.from(it) }.distinctUntilChanged(), retryTrigger) { month, _ -> month }
             .flatMapLatest { month ->
@@ -169,8 +215,7 @@ internal class HomeViewModel(
     private fun toUiState(
         data: GridData,
         selectedDate: LocalDate,
-        pickerYear: Int?,
-        accountEmail: String,
+        chrome: HomeChrome,
     ): HomeUiState? =
         when {
             data is GridData.Failed && data.month == YearMonth.from(selectedDate) -> {
@@ -178,7 +223,7 @@ internal class HomeViewModel(
             }
 
             data is GridData.Loaded && data.month == YearMonth.from(selectedDate) -> {
-                buildContent(data, selectedDate, pickerYear, accountEmail)
+                buildContent(data, selectedDate, chrome)
             }
 
             else -> {
@@ -186,15 +231,14 @@ internal class HomeViewModel(
             }
         }
 
-    /** Recebe as ocorrências já prontas: é aqui que a spec 06 aplica o filtro de calendários. */
+    /** Recebe as ocorrências já prontas e aplica o filtro de calendários (só a Home; pesquisa e alarmes o ignoram). */
     private fun buildContent(
         data: GridData.Loaded,
         selectedDate: LocalDate,
-        pickerYear: Int?,
-        accountEmail: String,
+        chrome: HomeChrome,
     ): HomeUiState.Content {
         val today = LocalDate.now(clock)
-        val ordered = data.occurrences.sortedWith(dayOrder)
+        val ordered = data.occurrences.filter { it.item.calendarSource in chrome.enabledSources }.sortedWith(dayOrder)
         val cells =
             data.grid.map { date ->
                 val onDate = ordered.filter { occurrence -> date in occurrence.startDate..occurrence.endDate }
@@ -212,9 +256,11 @@ internal class HomeViewModel(
             selectedDate = selectedDate,
             cells = cells,
             daySchedules = ordered.filter { occurrence -> selectedDate in occurrence.startDate..occurrence.endDate },
-            accountEmail = accountEmail,
-            isMonthPickerVisible = pickerYear != null,
-            monthPickerYear = pickerYear ?: data.month.year,
+            accountEmail = chrome.accountEmail,
+            isMonthPickerVisible = chrome.pickerYear != null,
+            monthPickerYear = chrome.pickerYear ?: data.month.year,
+            isDrawerOpen = chrome.isDrawerOpen,
+            enabledSources = chrome.enabledSources,
         )
     }
 
@@ -224,6 +270,7 @@ internal class HomeViewModel(
 
     private companion object {
         const val KEY_SELECTED_EPOCH_DAY = "home_selected_epoch_day"
+        const val KEY_DRAWER_OPEN = "home_drawer_open"
         const val MAX_INDICATORS = 3
 
         /** Dia inteiro primeiro; depois por horário de início. */

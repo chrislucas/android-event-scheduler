@@ -38,6 +38,7 @@ import com.br.androideventscheduler.feature.home.presentation.component.previewC
 import com.br.androideventscheduler.feature.home.presentation.event.HomeUiEvent
 import com.br.androideventscheduler.feature.home.presentation.state.HomeUiState
 import com.br.androideventscheduler.feature.home.presentation.viewmodel.HomeViewModel
+import com.br.androideventscheduler.feature.home.testing.FakeHomePreferencesRepository
 import com.br.androideventscheduler.feature.home.testing.FakeHomeScheduleRepository
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
@@ -84,6 +85,7 @@ class HomeScreenRobolectricTest {
         return HomeViewModel(
             scheduleRepository = repository,
             userSettingsRepository = FakeUserSettingsRepository(),
+            homePreferencesRepository = FakeHomePreferencesRepository(),
             monthGridBuilder = MonthGridBuilder(),
             clock = FakeClock(),
             savedStateHandle = SavedStateHandle(),
@@ -102,6 +104,7 @@ class HomeScreenRobolectricTest {
         onSearch: () -> Unit = {},
         onUpsert: (Long) -> Unit = {},
         onDetail: (String) -> Unit = {},
+        onSettings: () -> Unit = {},
     ) {
         val owner =
             object : ActivityResultRegistryOwner {
@@ -114,6 +117,7 @@ class HomeScreenRobolectricTest {
                         onNavigateToSearch = onSearch,
                         onNavigateToUpsert = onUpsert,
                         onNavigateToDetail = onDetail,
+                        onNavigateToSettings = onSettings,
                         viewModel = viewModel,
                     )
                 }

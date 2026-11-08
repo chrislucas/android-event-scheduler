@@ -74,7 +74,7 @@ class HomeFlowRobolectricTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides permissionOwner) {
                 AndroidEventSchedulerTheme {
-                    HomeScreen(onNavigateToSearch = {}, onNavigateToUpsert = {}, onNavigateToDetail = { openedDetailId = it })
+                    HomeScreen(onNavigateToSearch = {}, onNavigateToUpsert = {}, onNavigateToDetail = { openedDetailId = it }, onNavigateToSettings = {})
                 }
             }
         }
@@ -93,7 +93,7 @@ class HomeFlowRobolectricTest {
         composeRule.setContent {
             CompositionLocalProvider(LocalActivityResultRegistryOwner provides permissionOwner) {
                 AndroidEventSchedulerTheme {
-                    HomeScreen(onNavigateToSearch = {}, onNavigateToUpsert = {}, onNavigateToDetail = {})
+                    HomeScreen(onNavigateToSearch = {}, onNavigateToUpsert = {}, onNavigateToDetail = {}, onNavigateToSettings = {})
                 }
             }
         }

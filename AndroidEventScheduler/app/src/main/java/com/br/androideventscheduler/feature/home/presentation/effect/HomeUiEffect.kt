@@ -10,4 +10,6 @@ sealed interface HomeUiEffect {
     data class NavigateToDetail(
         val scheduleId: String,
     ) : HomeUiEffect
+
+    data object NavigateToSettings : HomeUiEffect
 }
