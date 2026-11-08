@@ -279,6 +279,13 @@ Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources =
 - **Previews e testes**: previews usam os mesmos resources; asserções de UI preferem `testTag`/semântica ou `context.getString(R.string.x)` a texto literal copiado.
 - Strings de recurso têm nome por contexto (`<tela>_<elemento>`, ex.: `settings_save_button`, `home_empty_day`); sem reaproveitar um resource só porque o texto atual coincide.
 
+### 5.6 Permissões: só com justificativa documentada
+
+- **Toda** permissão do APK — declarada por nós ou injetada por biblioteca no merge do manifest — está em [`docs/permissoes.md`](../../docs/permissoes.md) com: para que serve, como é pedida, o que acontece se negada/ausente e implicações de política do Google Play.
+- Permissão sem boa justificativa **não entra**; se vier de biblioteca e não for necessária, remover com `tools:node="remove"`. Prefira APIs que dispensam permissão (SAF/`FileProvider` em vez de armazenamento, *full-screen intent* em vez de `SYSTEM_ALERT_WINDOW`).
+- Permissões restritas pelo Google Play (`USE_EXACT_ALARM`, `USE_FULL_SCREEN_INTENT`…) exigem justificativa de função principal **e** comportamento de degradação testado quando negadas.
+- Cada permissão tem um comentário de uma linha no `AndroidManifest.xml`, e o `RequestedPermissionsGuardRobolectricTest` (lista exata do manifest mesclado) é atualizado no mesmo PR.
+
 ## 6. Mapeamento spec → pacotes
 
 | Spec | Pacotes principais |
@@ -305,4 +312,5 @@ Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources =
 - [ ] UI coleta efeitos uma vez (`CollectEffects`); conteúdo stateless `(uiState, onEvent)`.
 - [ ] Todo `@Composable` visual novo tem `@Preview` (seção 5.3, obrigatório) — ou o comentário `// Sem preview: <motivo>` numa das exceções permitidas.
 - [ ] Nenhum texto literal na UI: fixo via `strings.xml`, com variável via resource formatado (`%1$s`) ou `plurals` (5.5); tags e semântica de acessibilidade presentes (5.4).
+- [ ] Nenhuma permissão nova sem entrada em `docs/permissoes.md`, comentário no manifest e atualização do `RequestedPermissionsGuardRobolectricTest` (5.6).
 - [ ] Testes de UseCases, repositórios, ViewModels e mappers presentes; `given/when/then` em inglês, sem Turbine; módulo Koin novo coberto pelo `KoinModulesVerificationTest`.

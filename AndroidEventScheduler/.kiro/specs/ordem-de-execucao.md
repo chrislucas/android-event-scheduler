@@ -207,6 +207,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-08 | Regra de permissões (`arquitetura.md` §5.6) e `docs/permissoes.md`. Specs **14, 15, 16 e 17** ganharam o passo de documentar/travar permissões; a 16 deve remover `USE_FINGERPRINT` injetada pela `androidx.biometric`. Ordem inalterada | Revisão das permissões após a spec 04 (`USE_EXACT_ALARM` restrita pelo Google Play) |
 | 2026-11-07 | Spec 03 concluída. **Todas** as specs com ViewModel passam a injetar o dispatcher `main` e os testes de integração de tela seguem o padrão de drenar o looper (steering §5.1/§5.2). Ordem inalterada; próxima onda paralela: **04 ∥ 10 ∥ 13** | Toast fora da main e `single`s com arquivos de testes anteriores |
 | 2026-11-07 | Spec 01 concluída. A **09** passa a criar os rótulos de acessibilidade de `StickerEmoji`/`EventColorOption` em `strings.xml` e a **06** os de `CalendarSource` (antes previstos no domínio). Ordem inalterada | Domínio não conhece `R` (`arquitetura.md` §5.5) |
 | 2026-11-07 | Novas specs **16 (autenticação com o bloqueio do dispositivo)** e **17 (importar/exportar a agenda)**, posicionadas no fim (17 → 16); nova corrente Configurações/app shell (03 → 17 → 16) e ondas G/H | Pedido de novas funcionalidades; 16 é transversal e integra 12, 14 e 17 |
