@@ -65,6 +65,7 @@ internal class UpsertScheduleViewModel(
             is UpsertScheduleUiEvent.FieldEvent -> onFieldEvent(event)
             is UpsertScheduleUiEvent.ScheduleTimeEvent -> onScheduleTimeEvent(event)
             is UpsertScheduleUiEvent.RecurrenceEvent -> onRecurrenceEvent(event)
+            is UpsertScheduleUiEvent.AppearanceEvent -> onAppearanceEvent(event)
             UpsertScheduleUiEvent.OnSaveClicked -> save()
             UpsertScheduleUiEvent.OnCancelClicked -> sendEffect(UpsertScheduleUiEffect.NavigateBack)
         }
@@ -97,6 +98,39 @@ internal class UpsertScheduleViewModel(
             UpsertScheduleUiEvent.OnRecurrenceRowClicked -> updateContent { it.copy(isRecurrenceDialogVisible = true) }
             UpsertScheduleUiEvent.OnRecurrenceDialogDismissed -> updateContent { it.copy(isRecurrenceDialogVisible = false) }
             is UpsertScheduleUiEvent.OnRecurrencePatternConfirmed -> confirmRecurrence(event.pattern)
+        }
+    }
+
+    private fun onAppearanceEvent(event: UpsertScheduleUiEvent.AppearanceEvent) {
+        when (event) {
+            UpsertScheduleUiEvent.OnStickerButtonClicked -> {
+                updateContent { it.copy(isStickerPickerVisible = true) }
+            }
+
+            UpsertScheduleUiEvent.OnStickerPickerDismissed -> {
+                updateContent { it.copy(isStickerPickerVisible = false) }
+            }
+
+            is UpsertScheduleUiEvent.OnStickerSelected -> {
+                updateContent {
+                    it.copy(
+                        stickerEmoji = event.emoji,
+                        isStickerPickerVisible = false,
+                    )
+                }
+            }
+
+            UpsertScheduleUiEvent.OnColorButtonClicked -> {
+                updateContent { it.copy(isColorPickerVisible = true) }
+            }
+
+            UpsertScheduleUiEvent.OnColorPickerDismissed -> {
+                updateContent { it.copy(isColorPickerVisible = false) }
+            }
+
+            is UpsertScheduleUiEvent.OnColorSelected -> {
+                updateContent { it.copy(colorHex = event.colorHex, isColorPickerVisible = false) }
+            }
         }
     }
 

@@ -629,4 +629,121 @@ class UpsertScheduleViewModelTest {
         }
 
     // endregion
+
+    // region cor e adesivo (spec 09)
+
+    @Test
+    fun `given the form when the sticker button is clicked then the picker opens and dismissing closes it keeping the sticker`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerSelected("🚀"))
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerButtonClicked)
+            assertTrue(viewModel.content().isStickerPickerVisible)
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerPickerDismissed)
+
+            assertFalse(viewModel.content().isStickerPickerVisible)
+            assertEquals("🚀", viewModel.content().stickerEmoji)
+        }
+
+    @Test
+    fun `given the sticker picker open when selecting an emoji then it enters the draft and the picker closes`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerButtonClicked)
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerSelected("🎉"))
+
+            assertEquals("🎉", viewModel.content().stickerEmoji)
+            assertFalse(viewModel.content().isStickerPickerVisible)
+        }
+
+    @Test
+    fun `given a sticker in the draft when removing it then the draft has no sticker`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerSelected("🎉"))
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerSelected(null))
+
+            assertEquals(null, viewModel.content().stickerEmoji)
+        }
+
+    @Test
+    fun `given the form when the color button is clicked then the picker opens and dismissing closes it keeping the color`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnColorButtonClicked)
+            assertTrue(viewModel.content().isColorPickerVisible)
+            viewModel.onEvent(UpsertScheduleUiEvent.OnColorPickerDismissed)
+
+            assertFalse(viewModel.content().isColorPickerVisible)
+            assertEquals(EventColorOption.LIGHT_BLUE.hex, viewModel.content().colorHex)
+        }
+
+    @Test
+    fun `given the color picker open when selecting a color then it enters the draft and the picker closes`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnColorButtonClicked)
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnColorSelected(EventColorOption.CORAL.hex))
+
+            assertEquals(EventColorOption.CORAL.hex, viewModel.content().colorHex)
+            assertFalse(viewModel.content().isColorPickerVisible)
+        }
+
+    @Test
+    fun `given a reminder with color and sticker when saving then the use case receives both`() =
+        runTest(mainRule.dispatcher) {
+            val savedItem = slot<ScheduleItem>()
+            coEvery { saveScheduleUseCase(capture(savedItem)) } answers { Result.success(firstArg()) }
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnTitleChanged("Treino"))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnColorSelected(EventColorOption.PURPLE.hex))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerSelected("🥋"))
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnSaveClicked)
+            advanceUntilIdle()
+
+            assertEquals(EventColorOption.PURPLE.hex, savedItem.captured.colorHex)
+            assertEquals("🥋", savedItem.captured.stickerEmoji)
+        }
+
+    @Test
+    fun `given an event with color and sticker when saving then the use case receives both`() =
+        runTest(mainRule.dispatcher) {
+            val savedItem = slot<ScheduleItem>()
+            coEvery { saveScheduleUseCase(capture(savedItem)) } answers { Result.success(firstArg()) }
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnModeSelected(ScheduleType.EVENT))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnTitleChanged("Workshop"))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnColorSelected(EventColorOption.TEAL.hex))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnStickerSelected("💻"))
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnSaveClicked)
+            advanceUntilIdle()
+
+            assertEquals(ScheduleType.EVENT, savedItem.captured.type)
+            assertEquals(EventColorOption.TEAL.hex, savedItem.captured.colorHex)
+            assertEquals("💻", savedItem.captured.stickerEmoji)
+        }
+
+    @Test
+    fun `given an item with color and sticker when editing then the draft comes filled`() =
+        runTest(mainRule.dispatcher) {
+            val stored = scheduleItem(id = "item-9").copy(colorHex = EventColorOption.INDIGO.hex, stickerEmoji = "📚")
+            coEvery { scheduleRepository.getById("item-9") } returns stored
+
+            val viewModel = createViewModel(scheduleId = "item-9")
+            advanceUntilIdle()
+
+            assertEquals(EventColorOption.INDIGO.hex, viewModel.content().colorHex)
+            assertEquals("📚", viewModel.content().stickerEmoji)
+            assertFalse(viewModel.content().isStickerPickerVisible)
+            assertFalse(viewModel.content().isColorPickerVisible)
+        }
+
+    // endregion
 }

@@ -31,6 +31,9 @@ internal sealed interface UpsertScheduleUiEvent {
     /** Diálogo de repetição (spec 08). */
     sealed interface RecurrenceEvent : UpsertScheduleUiEvent
 
+    /** Seletores de adesivo e de cor (spec 09). */
+    sealed interface AppearanceEvent : UpsertScheduleUiEvent
+
     data class OnModeSelected(
         val mode: ScheduleType,
     ) : FieldEvent
@@ -90,6 +93,23 @@ internal sealed interface UpsertScheduleUiEvent {
     data class OnRecurrencePatternConfirmed(
         val pattern: RecurrencePattern,
     ) : RecurrenceEvent
+
+    data object OnStickerButtonClicked : AppearanceEvent
+
+    data object OnStickerPickerDismissed : AppearanceEvent
+
+    /** `null` remove o adesivo. */
+    data class OnStickerSelected(
+        val emoji: String?,
+    ) : AppearanceEvent
+
+    data object OnColorButtonClicked : AppearanceEvent
+
+    data object OnColorPickerDismissed : AppearanceEvent
+
+    data class OnColorSelected(
+        val colorHex: Long,
+    ) : AppearanceEvent
 
     data object OnSaveClicked : UpsertScheduleUiEvent
 

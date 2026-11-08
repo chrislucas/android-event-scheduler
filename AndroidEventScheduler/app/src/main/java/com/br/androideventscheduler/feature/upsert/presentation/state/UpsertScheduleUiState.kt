@@ -12,8 +12,8 @@ internal sealed class UpsertScheduleUiState {
     data object Loading : UpsertScheduleUiState()
 
     /**
-     * Rascunho do formulário. [colorHex] e [stickerEmoji] ainda não têm edição na tela: são carregados/gravados
-     * como estão e ganham interface na spec 09. [isRecurrenceDialogVisible] controla o diálogo de repetição.
+     * Rascunho do formulário. [isRecurrenceDialogVisible], [isStickerPickerVisible] e [isColorPickerVisible]
+     * controlam os diálogos de repetição, adesivo e cor. [colorHex] fora do catálogo é exibido como a cor padrão.
      */
     data class Content(
         val scheduleId: String? = null,
@@ -33,6 +33,8 @@ internal sealed class UpsertScheduleUiState {
         val isRecurrenceDialogVisible: Boolean = false,
         val colorHex: Long = EventColorOption.LIGHT_BLUE.hex,
         val stickerEmoji: String? = null,
+        val isStickerPickerVisible: Boolean = false,
+        val isColorPickerVisible: Boolean = false,
         val location: String = "",
         val notes: String = "",
         val isSaving: Boolean = false,
