@@ -1,5 +1,8 @@
 package com.br.androideventscheduler.app
 
+import android.app.AlarmManager
+import android.app.NotificationManager
+import android.content.Context
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -12,9 +15,19 @@ import org.koin.test.verify.verify
  */
 @OptIn(KoinExperimentalAPI::class)
 class KoinModulesVerificationTest {
+    // Tipos do framework entregues por `androidContext()`/serviços do sistema, que o verify não enxerga como definições.
+    private val androidFrameworkTypes =
+        listOf(
+            Context::class,
+            AlarmManager::class,
+            NotificationManager::class,
+        )
+
+    // Tipos fornecidos em runtime (rota/`parametersOf`), não por um módulo.
+    private val runtimeParameterTypes = listOf(String::class)
+
     @Test
     fun `given all registered modules when verifying the aggregated graph then every definition resolves`() {
-        // String: id do agendamento fornecido em runtime pela rota (`parametersOf`), não por um módulo.
-        module { includes(appModules) }.verify(extraTypes = listOf(String::class))
+        module { includes(appModules) }.verify(extraTypes = androidFrameworkTypes + runtimeParameterTypes)
     }
 }

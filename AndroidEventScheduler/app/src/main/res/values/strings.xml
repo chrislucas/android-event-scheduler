@@ -64,4 +64,12 @@
     <string name="detail_edit_label">Editar</string>
     <string name="detail_edit_description">Editar agendamento</string>
     <string name="upsert_placeholder_title">Edição de agendamento (em breve)</string>
+    <!-- Alarmes e notificações (spec 04) -->
+    <string name="notification_channel_reminders_name">Lembretes</string>
+    <string name="notification_channel_reminders_description">Avisos dos seus lembretes e agendamentos</string>
+    <string name="notification_channel_events_name">Eventos</string>
+    <string name="notification_channel_events_description">Alertas dos seus eventos, inclusive em tela cheia</string>
+    <string name="notification_text_time">%1$s</string>
+    <string name="notification_text_time_location">%1$s • %2$s</string>
+    <string name="notification_all_day">Dia inteiro</string>
 </resources>

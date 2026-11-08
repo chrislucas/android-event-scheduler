@@ -26,6 +26,7 @@ import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.detail.navigation.detailEntry
 import com.br.androideventscheduler.feature.settings.navigation.settingsEntry
 import com.br.androideventscheduler.feature.splash.navigation.splashEntry
+import org.koin.compose.koinInject
 
 // Sem preview: host de navegação que resolve telas e ViewModels pelo Koin; cada tela tem a sua preview.
 
@@ -37,6 +38,8 @@ import com.br.androideventscheduler.feature.splash.navigation.splashEntry
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
     val backStack = rememberNavBackStack(Splash)
+    // Deep link da notificação (spec 04): abre o detalhe sobre a Home assim que a Splash termina.
+    DeepLinkEffect(backStack = backStack, deepLinkState = koinInject())
 
     NavDisplay(
         backStack = backStack,
