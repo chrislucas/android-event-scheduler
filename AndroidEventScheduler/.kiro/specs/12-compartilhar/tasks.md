@@ -1,6 +1,6 @@
 # 12 — Compartilhar agendamento — Tarefas
 
-- [ ] 1. TDD: `ScheduleShareTextBuilder` + `ShareContent` + strings pt-BR + `ScheduleShareTextBuilderTest` (R2).
+- [x] 1. TDD: `ScheduleShareTextBuilder` + `ShareContent` + strings pt-BR + `ScheduleShareTextBuilderTest` (R2).
 - [ ] 2. `OnShareClicked` / `ShareText` no contrato de presentation e no `ScheduleDetailViewModel` + testes (R1.2, R3.2).
 - [ ] 3. `ShareLauncher` + `ShareLauncherRobolectricTest` (R1.2, R3.1, R3.3).
 - [ ] 4. Botão Compartilhar na `ScheduleActionBar` (posição 3), coleta do efeito na tela, mensagem de erro + teste de tela (R1.1, R3).
