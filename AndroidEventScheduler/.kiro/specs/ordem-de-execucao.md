@@ -177,9 +177,9 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | Spec | Status | Concluída em | Branch / PR | Desvios e descobertas |
 |---|---|---|---|---|
 | 00 | **concluída e mergeada** | 2026-11-07 | `feat/00-fundacao-projeto` / PR [#1](https://github.com/chrislucas/android-event-scheduler/pull/1) | detekt 2.0 alpha (JDK 25); `kotlinx-serialization` 1.9.0 (compilador Kotlin 2.2); testes Robolectric via `TestRememberMeApplication`; `core-splashscreen` movido para a 02 |
-| 01 | **concluída** (aguardando merge) | 2026-11-07 | `feat/01-nucleo-agendamentos` / PR [#4](https://github.com/chrislucas/android-event-scheduler/pull/4) | rótulos de emoji/cor/calendário saem do domínio (vão para resources nas specs 09 e 06); ordenação "dia inteiro primeiro" já no núcleo; formatos pt-BR conferidos só na JVM |
+| 01 | **concluída e mergeada** | 2026-11-07 | `feat/01-nucleo-agendamentos` / PR [#4](https://github.com/chrislucas/android-event-scheduler/pull/4) | rótulos de emoji/cor/calendário saem do domínio (vão para resources nas specs 09 e 06); ordenação "dia inteiro primeiro" já no núcleo; formatos pt-BR conferidos só na JVM |
 | 02 | **concluída e mergeada** | 2026-11-07 | `feat/02-splash` / PR [#2](https://github.com/chrislucas/android-event-scheduler/pull/2) | placeholder de **Home** no `AppNavHost` (removido na 05); verificação Koin do grafo agregado |
-| 03 | pendente | | | |
+| 03 | **concluída** (aguardando merge) | 2026-11-07 | `feat/03-configuracoes` / PR #PR03 | ViewModels passam a usar o dispatcher `main` (Splash ajustada); `TestRememberMeApplication` recarrega módulos a cada teste; efeitos Toast × Snackbar |
 | 04 | pendente | | | |
 | 05 | pendente | | | |
 | 06 | pendente | | | |
@@ -207,6 +207,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-07 | Spec 03 concluída. **Todas** as specs com ViewModel passam a injetar o dispatcher `main` e os testes de integração de tela seguem o padrão de drenar o looper (steering §5.1/§5.2). Ordem inalterada; próxima onda paralela: **04 ∥ 10 ∥ 13** | Toast fora da main e `single`s com arquivos de testes anteriores |
 | 2026-11-07 | Spec 01 concluída. A **09** passa a criar os rótulos de acessibilidade de `StickerEmoji`/`EventColorOption` em `strings.xml` e a **06** os de `CalendarSource` (antes previstos no domínio). Ordem inalterada | Domínio não conhece `R` (`arquitetura.md` §5.5) |
 | 2026-11-07 | Novas specs **16 (autenticação com o bloqueio do dispositivo)** e **17 (importar/exportar a agenda)**, posicionadas no fim (17 → 16); nova corrente Configurações/app shell (03 → 17 → 16) e ondas G/H | Pedido de novas funcionalidades; 16 é transversal e integra 12, 14 e 17 |
 | 2026-11-07 | Spec 02 concluída. A 05 passa a remover também o placeholder de `Home` criado pela 02. Ordem inalterada | Home ainda não existe quando a Splash navega |
