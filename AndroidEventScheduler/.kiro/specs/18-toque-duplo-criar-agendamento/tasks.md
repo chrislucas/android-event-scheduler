@@ -1,6 +1,6 @@
 # 18 — Toque duplo numa data cria evento ou lembrete — Tarefas
 
-- [ ] 1. TDD: `DayDoubleTapDetector` + `DayDoubleTapDetectorTest` (R2.2–R2.4, R6.2).
+- [x] 1. TDD: `DayDoubleTapDetector` + `DayDoubleTapDetectorTest` (R2.2–R2.4, R6.2).
 - [ ] 2. Família `HomeUiEvent.DayCellEvent` (move `OnDayClicked`, mesmo nome; acrescenta `OnDayDoubleTapped`), `onDayCellEvent` no `HomeViewModel` + acréscimos no `HomeViewModelTest` (R1.1, R3.1). Contrato e handler no **mesmo commit** (`when` exaustivo).
 - [ ] 3. `MonthGridSection`: `pointerInput` passivo + detector (ignora gestos acima do `touchSlop`, R2.5), ação de acessibilidade personalizada, parâmetro `onDayDoubleTap` e todos os call sites/previews no mesmo commit; `HomeScreen` repassa `OnDayDoubleTapped`; strings `home_day_add_action` (R1.1, R2.1, R4).
 - [ ] 4. Dica no estado vazio (`home_empty_day_hint`, `HOME_EMPTY_DAY_HINT`) com preview (R5.1).
