@@ -3,6 +3,7 @@ package com.br.androideventscheduler
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,13 +13,18 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import com.br.androideventscheduler.app.AppNavHost
 import com.br.androideventscheduler.app.DeepLinkState
 import com.br.androideventscheduler.app.IncomingFileState
 import com.br.androideventscheduler.app.incomingAgendaFileUri
 import com.br.androideventscheduler.core.alarm.data.AlarmIntents
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
 import com.br.androideventscheduler.core.security.data.CredentialLauncherRegistry
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 // FragmentActivity: exigência do BiometricPrompt (spec 16); o Compose (setContent) funciona igual.
@@ -26,6 +32,7 @@ class MainActivity : FragmentActivity() {
     private val deepLinkState: DeepLinkState by inject()
     private val incomingFileState: IncomingFileState by inject()
     private val credentialLauncherRegistry: CredentialLauncherRegistry by inject()
+    private val userSettingsRepository: UserSettingsRepository by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // SplashScreen API: precisa vir antes de super.onCreate para trocar o tema de partida pelo principal.
@@ -38,6 +45,7 @@ class MainActivity : FragmentActivity() {
             registerDeepLink(intent)
             registerIncomingFile(intent)
         }
+        applySecureFlagFromPreference()
         // Tema escuro fixo: barras do sistema sempre com ícones claros, independente do modo do sistema.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -52,6 +60,26 @@ class MainActivity : FragmentActivity() {
                     AppNavHost()
                 }
             }
+        }
+    }
+
+    /**
+     * `FLAG_SECURE` só com a proteção ligada (spec 16, R4.1): a miniatura em "Recentes" não mostra a agenda e capturas
+     * de tela ficam bloqueadas. Acompanha a preferência enquanto a Activity existe.
+     */
+    private fun applySecureFlagFromPreference() {
+        lifecycleScope.launch {
+            userSettingsRepository
+                .observe()
+                .map { settings -> settings.appLockEnabled }
+                .distinctUntilChanged()
+                .collect { enabled ->
+                    if (enabled) {
+                        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+                    } else {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
+                }
         }
     }
 

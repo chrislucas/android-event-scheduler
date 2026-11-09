@@ -6,7 +6,7 @@
 - [x] 4. Data (TDD): `DeviceSecurityChecker` e `AppLockController` (ProcessLifecycleOwner, relógio monotônico injetado, estados `Pending`/`Locked`/`Unlocked`, `suppressNextLock`, desativação por dispositivo inseguro) + `AppLockControllerTest` (R2, R3.6, R6.2).
 - [x] 5. Data: `BiometricPromptAuthenticator` (API 30+), `KeyguardIntentAuthenticator` (API 24–29) com `CredentialLauncherRegistry`; `SecurityModule` com o único `if` de versão; mapeamento de erros testado (R5).
 - [x] 6. feature.auth: contrato sealed, `LockViewModel` + testes, `LockScreen`/`LockContent` com previews, strings e tags (R3).
-- [ ] 7. app: gate no `AppNavHost` (back stack acima do `if`, deep link só desbloqueado, `BackHandler`), `FLAG_SECURE` na `MainActivity`, registrar o controller no `KoinInitializer` + `AppLockGateRobolectricTest` (R2.1, R3.3, R3.7, R4.1, R4.2).
+- [x] 7. app: gate no `AppNavHost` (back stack acima do `if`, deep link só desbloqueado, `BackHandler`), `FLAG_SECURE` na `MainActivity`, registrar o controller no `KoinInitializer` + `AppLockGateRobolectricTest` (R2.1, R3.3, R3.7, R4.1, R4.2).
 - [ ] 8. Settings (spec 03): seção "Segurança" com switch autenticado, seletor de tempo, estado de dispositivo inseguro e atalho para as configurações do Android + testes (R1).
 - [ ] 9. Integrações: `suppressNextLock()` antes do share sheet (spec 12) e do seletor/compartilhamento de arquivo (spec 17, se já existir); alarme em tela cheia oculta local/notas (spec 14) + testes (R2.3, R4.3).
 - [ ] 10. Atualizar `KoinModulesVerificationTest`; verificação final conforme `specs/README.md`; validação manual em emulador API 30+ e API 29 (listar no PR o que foi e não foi executado).
