@@ -61,6 +61,10 @@ internal class SettingsViewModel(
             SettingsUiEvent.OnBackClicked -> {
                 sendEffect(SettingsUiEffect.NavigateBack)
             }
+
+            SettingsUiEvent.OnBackupClicked -> {
+                sendEffect(SettingsUiEffect.NavigateToBackup)
+            }
         }
     }
 

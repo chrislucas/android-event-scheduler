@@ -22,4 +22,7 @@ internal sealed interface SettingsUiEvent {
     data object OnSaveClicked : SettingsUiEvent
 
     data object OnBackClicked : SettingsUiEvent
+
+    /** Abre a tela de importar/exportar agenda (spec 17). */
+    data object OnBackupClicked : SettingsUiEvent
 }

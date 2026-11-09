@@ -40,6 +40,29 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Importar agenda (spec 17): "Abrir com" o RememberMe num arquivo .json (anexo de e-mail, gerenciador de
+                 arquivos). A MainActivity já é exportada (launcher), então o intent é não confiável: só content://
+                 e application/json casam aqui, sem BROWSABLE (links da web não abrem a importação), e o código
+                 revalida ação, MIME e esquema antes de usar a URI (ver IncomingFileIntent). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:mimeType="application/json"
+                    android:scheme="content" />
+            </intent-filter>
+
+            <!-- Importar agenda (spec 17): "Compartilhar com" o RememberMe um arquivo .json (a URI vem em EXTRA_STREAM). -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/json" />
+            </intent-filter>
         </activity>
 
         <!-- Alarmes (spec 04): disparo do alarme agendado; só o sistema (AlarmManager) o aciona. -->
@@ -94,6 +117,19 @@
             <meta-data
                 android:name="com.br.androideventscheduler.core.alarm.data.notification.NotificationChannelsInitializer"
                 android:value="androidx.startup" />
+        </provider>
+
+        <!-- Importar/exportar (spec 17): FileProvider para entregar o arquivo exportado ao share sheet (e-mail, Drive...).
+             exported=false: só recebe acesso quem ganhar permissão de leitura por URI (grantUriPermissions); expõe apenas
+             cacheDir/exports/ (res/xml/file_paths.xml). Dispensa qualquer permissão de armazenamento. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 

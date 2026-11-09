@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Importar/exportar (spec 17): o FileProvider expõe SOMENTE cacheDir/exports/ (arquivos temporários de compartilhamento). -->
+<paths>
+    <cache-path
+        name="exports"
+        path="exports/" />
+</paths>

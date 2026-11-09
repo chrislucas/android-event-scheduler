@@ -47,5 +47,7 @@ class FakeHomeScheduleRepository(
 
     override suspend fun upsert(item: ScheduleItem) = error("not used by home")
 
+    override suspend fun upsertAll(items: List<ScheduleItem>) = error("not used by home")
+
     override suspend fun delete(id: String) = error("not used by home")
 }

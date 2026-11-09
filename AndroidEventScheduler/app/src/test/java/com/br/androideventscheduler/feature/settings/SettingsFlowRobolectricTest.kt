@@ -41,7 +41,7 @@ class SettingsFlowRobolectricTest {
     @Test
     fun `given settings screen when user changes email and saves then it is persisted and screen closes`() {
         var backCalls = 0
-        composeRule.setContent { AndroidEventSchedulerTheme { SettingsScreen(onBack = { backCalls++ }) } }
+        composeRule.setContent { AndroidEventSchedulerTheme { SettingsScreen(onBack = { backCalls++ }, onOpenBackup = {}) } }
         waitUntilWithMainLooper {
             composeRule.onAllNodesWithTag(SemanticsTags.SETTINGS_ACCOUNT_EMAIL_INPUT).fetchSemanticsNodes().isNotEmpty()
         }

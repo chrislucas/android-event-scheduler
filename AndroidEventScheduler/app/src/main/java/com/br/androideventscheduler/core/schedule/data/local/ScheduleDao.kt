@@ -47,6 +47,10 @@ interface ScheduleDao {
     @Upsert
     suspend fun upsert(entity: ScheduleEntity)
 
+    /** Grava todos numa única transação (o Room envolve o upsert em lote em uma): ou entram todos, ou nenhum. */
+    @Upsert
+    suspend fun upsertAll(entities: List<ScheduleEntity>)
+
     @Query("DELETE FROM schedules WHERE id = :id")
     suspend fun deleteById(id: String)
 

@@ -168,4 +168,18 @@ class SettingsViewModelTest {
             assertEquals(listOf<SettingsUiEffect>(SettingsUiEffect.NavigateBack), effects)
             collectJob.cancel()
         }
+
+    @Test
+    fun `given backup item clicked when handled then navigate to backup is emitted`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = createLoadedViewModel(FakeUserSettingsRepository())
+            val effects = mutableListOf<SettingsUiEffect>()
+            val collectJob = launch { viewModel.uiEffect.collect { effects += it } }
+
+            viewModel.onEvent(SettingsUiEvent.OnBackupClicked)
+            advanceUntilIdle()
+
+            assertEquals(listOf<SettingsUiEffect>(SettingsUiEffect.NavigateToBackup), effects)
+            collectJob.cancel()
+        }
 }

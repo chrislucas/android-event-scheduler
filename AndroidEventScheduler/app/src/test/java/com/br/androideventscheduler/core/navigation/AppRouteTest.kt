@@ -25,4 +25,16 @@ class AppRouteTest {
         assertEquals(create, decodedCreate)
         assertEquals(edit, decodedEdit)
     }
+
+    @Test
+    fun `given backup route with and without pending uri when serializing then it round trips`() {
+        val plain = AgendaBackup()
+        val withFile = AgendaBackup(pendingImportUri = "content://mail/attachments/agenda.json")
+
+        val decodedPlain = Json.decodeFromString(AgendaBackup.serializer(), Json.encodeToString(AgendaBackup.serializer(), plain))
+        val decodedFile = Json.decodeFromString(AgendaBackup.serializer(), Json.encodeToString(AgendaBackup.serializer(), withFile))
+
+        assertEquals(plain, decodedPlain)
+        assertEquals(withFile, decodedFile)
+    }
 }

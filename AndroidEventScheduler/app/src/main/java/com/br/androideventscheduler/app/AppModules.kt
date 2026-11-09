@@ -8,6 +8,7 @@ import com.br.androideventscheduler.core.di.dispatchersModule
 import com.br.androideventscheduler.core.preferences.di.preferencesModule
 import com.br.androideventscheduler.core.schedule.di.scheduleCoreModule
 import com.br.androideventscheduler.feature.alarm.di.alarmFeatureModule
+import com.br.androideventscheduler.feature.backup.di.backupModule
 import com.br.androideventscheduler.feature.detail.di.detailModule
 import com.br.androideventscheduler.feature.home.di.homeModule
 import com.br.androideventscheduler.feature.search.di.searchModule
@@ -40,4 +41,7 @@ val appModules: List<Module> =
         upsertModule,
         // Tela cheia (spec 14)
         alarmFeatureModule,
+        // Importar/exportar (spec 17)
+        backupModule,
+        incomingFileModule,
     )

@@ -145,4 +145,26 @@ object SemanticsTags {
 
     /** `home_schedule_color_bar_<id>_<colorHex>`. */
     const val HOME_SCHEDULE_COLOR_BAR_PREFIX = "home_schedule_color_bar_"
+
+    // Importar/exportar agenda (spec 17)
+    const val SETTINGS_BACKUP_ITEM = "settings_backup_item"
+    const val BACKUP_BACK_BUTTON = "backup_back_button"
+    const val BACKUP_LOADING = "backup_loading"
+    const val BACKUP_EXPORT_SHARE_BUTTON = "backup_export_share_button"
+    const val BACKUP_EXPORT_SAVE_BUTTON = "backup_export_save_button"
+    const val BACKUP_EXPORT_EMPTY_MESSAGE = "backup_export_empty_message"
+    const val BACKUP_EXPORT_PROGRESS = "backup_export_progress"
+    const val BACKUP_ENCRYPTION_WARNING = "backup_encryption_warning"
+    const val BACKUP_IMPORT_PICK_BUTTON = "backup_import_pick_button"
+    const val BACKUP_IMPORT_PROGRESS = "backup_import_progress"
+    const val BACKUP_IMPORT_ERROR = "backup_import_error"
+    const val BACKUP_IMPORT_PREVIEW = "backup_import_preview"
+    const val BACKUP_IMPORT_PREVIEW_TOTAL = "backup_import_preview_total"
+    const val BACKUP_IMPORT_PREVIEW_NEW = "backup_import_preview_new"
+    const val BACKUP_IMPORT_PREVIEW_EXISTING = "backup_import_preview_existing"
+    const val BACKUP_IMPORT_PREVIEW_INVALID = "backup_import_preview_invalid"
+    const val BACKUP_IMPORT_STRATEGY_GROUP = "backup_import_strategy_group"
+    const val BACKUP_IMPORT_STRATEGY_OPTION_PREFIX = "backup_import_strategy_option_"
+    const val BACKUP_IMPORT_CONFIRM_BUTTON = "backup_import_confirm_button"
+    const val BACKUP_IMPORT_CANCEL_BUTTON = "backup_import_cancel_button"
 }

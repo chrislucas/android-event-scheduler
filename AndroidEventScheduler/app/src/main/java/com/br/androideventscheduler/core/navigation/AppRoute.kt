@@ -26,3 +26,12 @@ data class UpsertSchedule(
     val scheduleId: String? = null,
     val initialDateEpochDay: Long? = null,
 ) : NavKey
+
+/**
+ * Importar e exportar a agenda (spec 17). [pendingImportUri] é a URI (texto) de um arquivo recebido de outro app
+ * por `VIEW`/`SEND`; quando presente, a tela abre direto na pré-visualização da importação.
+ */
+@Serializable
+data class AgendaBackup(
+    val pendingImportUri: String? = null,
+) : NavKey

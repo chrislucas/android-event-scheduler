@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -151,5 +152,45 @@ class ScheduleDaoTest {
             dao.upsert(scheduleItem(id = "early", startTime = LocalTime.of(8, 0)).toEntity())
 
             assertEquals(listOf("allday", "early", "late"), dao.getAll().map { it.id })
+        }
+
+    @Test
+    fun `given new and existing items when upserting all then all are stored and existing ones replaced`() =
+        runTest {
+            dao.upsert(scheduleItem(id = "a", title = "Antigo").toEntity())
+
+            dao.upsertAll(listOf(scheduleItem(id = "a", title = "Novo"), scheduleItem(id = "b", title = "B")).map { it.toEntity() })
+
+            assertEquals(mapOf("a" to "Novo", "b" to "B"), dao.getAll().associate { it.id to it.title })
+        }
+
+    @Test
+    fun `given a failure in the middle of the list when upserting all then nothing is stored`() =
+        runTest {
+            dao.upsert(scheduleItem(id = "kept", title = "Original").toEntity())
+            // Gatilho que aborta a inserção do id "boom": simula falha no meio do lote.
+            database.openHelper.writableDatabase.execSQL(
+                "CREATE TRIGGER fail_boom BEFORE INSERT ON schedules WHEN NEW.id = 'boom' BEGIN SELECT RAISE(ABORT, 'boom'); END",
+            )
+            val batch =
+                listOf(
+                    scheduleItem(id = "kept", title = "Alterado"),
+                    scheduleItem(id = "first"),
+                    scheduleItem(id = "boom"),
+                    scheduleItem(id = "last"),
+                ).map { it.toEntity() }
+
+            val result = runCatching { dao.upsertAll(batch) }
+
+            assertTrue(result.isFailure)
+            assertEquals(mapOf("kept" to "Original"), dao.getAll().associate { it.id to it.title })
+        }
+
+    @Test
+    fun `given an empty list when upserting all then nothing changes`() =
+        runTest {
+            dao.upsertAll(emptyList())
+
+            assertTrue(dao.getAll().isEmpty())
         }
 }

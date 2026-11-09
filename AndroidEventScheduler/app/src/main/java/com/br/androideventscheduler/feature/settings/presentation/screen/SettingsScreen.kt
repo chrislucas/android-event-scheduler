@@ -49,6 +49,7 @@ import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.core.ui.format.toDisplayLabel
+import com.br.androideventscheduler.feature.settings.presentation.component.SettingsNavigationRow
 import com.br.androideventscheduler.feature.settings.presentation.component.SettingsRadioGroup
 import com.br.androideventscheduler.feature.settings.presentation.component.SettingsSectionTitle
 import com.br.androideventscheduler.feature.settings.presentation.component.SettingsSwitchRow
@@ -64,6 +65,7 @@ private val SCREEN_HORIZONTAL_PADDING = 16.dp
 @Composable
 internal fun SettingsScreen(
     onBack: () -> Unit,
+    onOpenBackup: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -74,6 +76,10 @@ internal fun SettingsScreen(
         when (effect) {
             SettingsUiEffect.NavigateBack -> {
                 onBack()
+            }
+
+            SettingsUiEffect.NavigateToBackup -> {
+                onOpenBackup()
             }
 
             SettingsUiEffect.ShowSavedConfirmation -> {
@@ -202,6 +208,14 @@ private fun SettingsForm(
             checked = draft.fullScreenEventAlertEnabled,
             onCheckedChange = { onEvent(SettingsUiEvent.OnFullScreenToggled(it)) },
             modifier = Modifier.testTag(SemanticsTags.SETTINGS_FULLSCREEN_SWITCH),
+        )
+
+        SettingsSectionTitle(text = stringResource(R.string.settings_backup_section))
+        SettingsNavigationRow(
+            label = stringResource(R.string.settings_backup_item),
+            supportingText = stringResource(R.string.settings_backup_item_supporting),
+            onClick = { onEvent(SettingsUiEvent.OnBackupClicked) },
+            modifier = Modifier.testTag(SemanticsTags.SETTINGS_BACKUP_ITEM),
         )
 
         Spacer(Modifier.height(16.dp))

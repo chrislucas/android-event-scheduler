@@ -53,7 +53,7 @@ Princípios:
 - **Feature-first**: cada feature tem `data/ domain/ presentation/ navigation/ di/` e **nunca importa outra feature**; o que é comum sobe para `core`.
 - **`core` não importa `feature` nem `app`**; por isso o `AppNavHost`, que conhece todas as telas, fica em `app`.
 - **`domain` sem `android.*`**; repositórios são interfaces no domínio.
-- **UseCases são exceção**, não regra: existem seis (`SaveSchedule`, `ScheduleNextAlarm`, `DuplicateSchedule`, `DeleteSchedule`, `SnoozeAlarm`, `RescheduleAllAlarms`). O resto dos fluxos usa o repositório direto.
+- **UseCases são exceção**, não regra: existem sete (`SaveSchedule`, `ScheduleNextAlarm`, `DuplicateSchedule`, `DeleteSchedule`, `SnoozeAlarm`, `RescheduleAllAlarms`, `ImportAgenda`). O resto dos fluxos usa o repositório direto.
 - **Efeitos one-off** (navegar, Snackbar, compartilhar, fechar tela) via `Channel`, nunca no `UiState`.
 - Relógio, fuso e dispatchers são **injetados**, o que torna alarmes e recorrência testáveis de forma determinística.
 
@@ -67,7 +67,8 @@ com.br.androideventscheduler
 ├── app/                                  Composição do app (único que conhece todas as features)
 │   ├── KoinInitializer · AppModules      DI inicializada pelo App Startup
 │   ├── AppNavHost                        Navigation 3: agrega as telas das features
-│   └── DeepLinkState                     Toque na notificação → detalhe
+│   ├── DeepLinkState                     Toque na notificação → detalhe
+│   └── IncomingFileState                 Arquivo .json recebido (VIEW/SEND) → pré-visualização
 │
 ├── core/                                 Compartilhado entre features
 │   ├── designsystem · ui · navigation    Tema escuro, CollectEffects, SemanticsTags, diálogos
@@ -102,7 +103,8 @@ com.br.androideventscheduler
     │   └── Compartilhar                  (efeito de UI → share sheet)
     ├── search/                           Pesquisa com debounce e filtro por tipo
     ├── settings/                         Configurações do usuário
-    └── alarm/                            Alarme em tela cheia + Adiar / Dispensar
+    ├── alarm/                            Alarme em tela cheia + Adiar / Dispensar
+    └── backup/                           Importar/exportar a agenda (JSON, SAF, FileProvider)
 ```
 
 ### Fluxo de navegação
@@ -111,8 +113,9 @@ com.br.androideventscheduler
 Splash ──► Home ──┬──► Search ──► Detail
                   ├──► Detail ──► Upsert (editar)
                   ├──► Upsert (criar)
-                  └──► Settings
+                  └──► Settings ──► Importar/exportar agenda
 Notificação ──► Detail          Alarme (tela cheia) ──► Adiar / Dispensar
+Arquivo .json (Abrir com / Compartilhar) ──► Importar/exportar agenda (pré-visualização)
 ```
 
 ### Fluxo de um alarme

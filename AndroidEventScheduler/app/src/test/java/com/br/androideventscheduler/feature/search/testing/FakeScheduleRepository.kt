@@ -39,5 +39,7 @@ class FakeScheduleRepository : ScheduleRepository {
 
     override suspend fun upsert(item: ScheduleItem) = error("not used by search")
 
+    override suspend fun upsertAll(items: List<ScheduleItem>) = error("not used by search")
+
     override suspend fun delete(id: String) = error("not used by search")
 }

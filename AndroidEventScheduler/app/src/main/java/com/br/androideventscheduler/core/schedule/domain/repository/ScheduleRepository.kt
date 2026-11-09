@@ -32,5 +32,8 @@ interface ScheduleRepository {
 
     suspend fun upsert(item: ScheduleItem)
 
+    /** Grava [items] de forma atômica (uma transação): ou entram todos, ou nenhum. Lista vazia não faz nada. */
+    suspend fun upsertAll(items: List<ScheduleItem>)
+
     suspend fun delete(id: String)
 }
