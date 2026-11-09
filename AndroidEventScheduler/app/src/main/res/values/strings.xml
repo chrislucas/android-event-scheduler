@@ -28,6 +28,11 @@
     <!-- Configurações -->
     <string name="settings_title">Configurações</string>
     <string name="navigate_back">Voltar</string>
+    <string name="settings_appearance_section">Aparência</string>
+    <string name="settings_theme_system">Seguir o sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_theme_save_error">Não foi possível salvar o tema. Tente novamente.</string>
     <string name="settings_account_section">Conta</string>
     <string name="settings_account_email_label">E-mail da conta ativa</string>
     <string name="settings_account_email_description">Campo de e-mail da conta ativa</string>

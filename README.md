@@ -47,7 +47,7 @@ Aplicativo Android **100% offline** para organizar a rotina pessoal com **Evento
 
 | Camada | Tecnologia |
 |---|---|
-| UI | Jetpack Compose + Material 3 (tema escuro) |
+| UI | Jetpack Compose + Material 3 (tema claro e escuro) |
 | DI / Inicialização | Koin + Jetpack App Startup |
 | Persistência | Room (KSP) e DataStore Preferences |
 | Assíncrono | Kotlin Coroutines + Flow |
@@ -95,7 +95,7 @@ com.br.androideventscheduler
 │   └── IncomingFileState                 Arquivo .json recebido (VIEW/SEND) → pré-visualização
 │
 ├── core/                                 Compartilhado entre features
-│   ├── designsystem · ui · navigation    Tema escuro, CollectEffects, SemanticsTags, diálogos
+│   ├── designsystem · ui · navigation    Temas claro e escuro, CollectEffects, SemanticsTags, diálogos
 │   │                                     de cor/emoji, formatadores pt-BR, rotas
 │   ├── di · common · testing             Dispatchers, StringProvider, MainDispatcherRule/FakeClock
 │   ├── database · datastore              RememberMeDatabase (Room) · DataStore único

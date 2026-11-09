@@ -305,6 +305,12 @@ private fun HomeContentPreview() {
     AndroidEventSchedulerTheme { HomeContent(uiState = previewContent(), onEvent = {}) }
 }
 
+@Preview(showBackground = true, name = "Com compromissos (claro)")
+@Composable
+private fun HomeContentLightPreview() {
+    AndroidEventSchedulerTheme(darkTheme = false) { HomeContent(uiState = previewContent(), onEvent = {}) }
+}
+
 @Preview(showBackground = true, name = "Dia vazio")
 @Composable
 private fun HomeContentEmptyPreview() {

@@ -253,6 +253,14 @@ private fun SearchContentResultsPreview() {
     AndroidEventSchedulerTheme { SearchContent(SearchUiState.Results("re", SearchFilter.ALL, previewResults), onEvent = {}) }
 }
 
+@Preview(showBackground = true, name = "Resultados (claro)")
+@Composable
+private fun SearchContentResultsLightPreview() {
+    AndroidEventSchedulerTheme(darkTheme = false) {
+        SearchContent(SearchUiState.Results("re", SearchFilter.ALL, previewResults), onEvent = {})
+    }
+}
+
 @Preview(showBackground = true, name = "Filtro Eventos")
 @Composable
 private fun SearchContentEventsFilterPreview() {

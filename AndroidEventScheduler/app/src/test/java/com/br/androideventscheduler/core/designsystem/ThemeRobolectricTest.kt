@@ -35,4 +35,22 @@ class ThemeRobolectricTest {
         assertEquals(Color(0xFF26C6DA), primary)
         assertEquals(Color(0xFF171717), surface)
     }
+
+    @Test
+    @Config(qualifiers = "night")
+    fun `given darkTheme false when applying theme then palette is light even with the system in night mode`() {
+        var background = Color.Unspecified
+        var primary = Color.Unspecified
+
+        composeRule.setContent {
+            AndroidEventSchedulerTheme(darkTheme = false) {
+                background = MaterialTheme.colorScheme.background
+                primary = MaterialTheme.colorScheme.primary
+            }
+        }
+        composeRule.waitForIdle()
+
+        assertEquals(Color(0xFFFAFAFA), background)
+        assertEquals(Color(0xFF00727F), primary)
+    }
 }
