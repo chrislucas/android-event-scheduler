@@ -20,6 +20,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.preferences.domain.ThemeMode
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.ui.SemanticsTags
@@ -145,5 +146,39 @@ class SettingsScreenRobolectricTest {
 
         assertEquals(SettingsUiEvent.OnBackupClicked, events.last())
         composeRule.onNodeWithText(context.getString(R.string.settings_backup_item)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `given content when rendered then the appearance section lists three radio options with the current one selected`() {
+        setContent(SettingsUiState.Content(draft = UserSettings(), themeMode = ThemeMode.SYSTEM))
+
+        composeRule.onNodeWithText(context.getString(R.string.settings_appearance_section)).assertIsDisplayed()
+        ThemeMode.entries.forEach { mode ->
+            composeRule
+                .onNodeWithTag(SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + mode.name)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+        }
+        composeRule.onNodeWithText(context.getString(R.string.settings_theme_system)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.settings_theme_light)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.settings_theme_dark)).assertIsDisplayed()
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + ThemeMode.SYSTEM.name).assertIsSelected()
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + ThemeMode.LIGHT.name).assertIsNotSelected()
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + ThemeMode.DARK.name).assertIsNotSelected()
+    }
+
+    @Test
+    fun `given the default state when rendered then dark is the selected theme`() {
+        setContent(SettingsUiState.Content(draft = UserSettings()))
+
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + ThemeMode.DARK.name).assertIsSelected()
+    }
+
+    @Test
+    fun `given theme options when clicking light then the appearance event carries light`() {
+        setContent(SettingsUiState.Content(draft = UserSettings()))
+
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + ThemeMode.LIGHT.name).performScrollTo().performClick()
+
+        assertEquals(SettingsUiEvent.AppearanceEvent.OnThemeModeSelected(ThemeMode.LIGHT), events.last())
     }
 }

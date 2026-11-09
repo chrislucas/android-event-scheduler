@@ -12,6 +12,7 @@ val settingsModule =
         viewModel {
             SettingsViewModel(
                 userSettingsRepository = get(),
+                themePreferenceRepository = get(),
                 dispatcher = get(named(DispatcherNames.MAIN)),
             )
         }

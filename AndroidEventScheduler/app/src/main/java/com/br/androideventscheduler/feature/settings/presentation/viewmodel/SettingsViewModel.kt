@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.preferences.domain.SettingsValidationError
+import com.br.androideventscheduler.core.preferences.domain.ThemeMode
+import com.br.androideventscheduler.core.preferences.domain.ThemePreferenceRepository
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
 import com.br.androideventscheduler.feature.settings.presentation.effect.SettingsUiEffect
@@ -21,6 +23,7 @@ import kotlinx.coroutines.launch
 
 internal class SettingsViewModel(
     private val userSettingsRepository: UserSettingsRepository,
+    private val themePreferenceRepository: ThemePreferenceRepository,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
@@ -30,9 +33,11 @@ internal class SettingsViewModel(
     val uiEffect: Flow<SettingsUiEffect> = _uiEffect.receiveAsFlow()
 
     init {
-        // Leitura única: reemissões do DataStore não devem sobrescrever o que o usuário está editando.
+        // Rascunho: leitura única, reemissões do DataStore não devem sobrescrever o que o usuário está editando.
+        // Tema: observado, porque grava na hora e a seleção na tela vem do que foi persistido. Só `themeMode` muda.
         viewModelScope.launch(dispatcher) {
-            _uiState.value = SettingsUiState.Content(draft = userSettingsRepository.current())
+            val initialDraft = userSettingsRepository.current()
+            themePreferenceRepository.observe().collect { mode -> applyThemeMode(initialDraft, mode) }
         }
     }
 
@@ -54,6 +59,10 @@ internal class SettingsViewModel(
                 updateContent { copy(draft = draft.copy(fullScreenEventAlertEnabled = event.enabled)) }
             }
 
+            is SettingsUiEvent.AppearanceEvent -> {
+                onAppearanceEvent(event)
+            }
+
             SettingsUiEvent.OnSaveClicked -> {
                 save()
             }
@@ -65,6 +74,32 @@ internal class SettingsViewModel(
             SettingsUiEvent.OnBackupClicked -> {
                 sendEffect(SettingsUiEffect.NavigateToBackup)
             }
+        }
+    }
+
+    private fun applyThemeMode(
+        initialDraft: UserSettings,
+        mode: ThemeMode,
+    ) {
+        _uiState.update { state ->
+            when (state) {
+                SettingsUiState.Loading -> SettingsUiState.Content(draft = initialDraft, themeMode = mode)
+                is SettingsUiState.Content -> state.copy(themeMode = mode)
+            }
+        }
+    }
+
+    private fun onAppearanceEvent(event: SettingsUiEvent.AppearanceEvent) {
+        when (event) {
+            is SettingsUiEvent.AppearanceEvent.OnThemeModeSelected -> setThemeMode(event.mode)
+        }
+    }
+
+    /** Não toca no rascunho nem em `UserSettingsRepository.save()`: só a chave do tema é gravada. */
+    private fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch(dispatcher) {
+            runCatching { themePreferenceRepository.set(mode) }
+                .onFailure { _uiEffect.send(SettingsUiEffect.ShowError(R.string.settings_theme_save_error)) }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.br.androideventscheduler.feature.settings.presentation.screen
 
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.preferences.domain.ThemeMode
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.ui.CollectEffects
@@ -161,6 +163,15 @@ private fun SettingsForm(
                 .padding(horizontal = SCREEN_HORIZONTAL_PADDING),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
+        SettingsSectionTitle(text = stringResource(R.string.settings_appearance_section))
+        SettingsRadioGroup(
+            options = ThemeMode.entries,
+            selectedOption = content.themeMode,
+            labelFor = { mode -> stringResource(mode.labelRes()) },
+            testTagFor = { mode -> SemanticsTags.SETTINGS_THEME_OPTION_PREFIX + mode.name },
+            onSelect = { mode -> onEvent(SettingsUiEvent.AppearanceEvent.OnThemeModeSelected(mode)) },
+        )
+
         SettingsSectionTitle(text = stringResource(R.string.settings_account_section))
         OutlinedTextField(
             value = draft.activeAccountEmail,
@@ -237,6 +248,14 @@ private fun SettingsForm(
         Spacer(Modifier.height(24.dp))
     }
 }
+
+@StringRes
+private fun ThemeMode.labelRes(): Int =
+    when (this) {
+        ThemeMode.SYSTEM -> R.string.settings_theme_system
+        ThemeMode.LIGHT -> R.string.settings_theme_light
+        ThemeMode.DARK -> R.string.settings_theme_dark
+    }
 
 private val previewContent = SettingsUiState.Content(draft = UserSettings())
 
