@@ -27,10 +27,11 @@ Cada pasta abaixo contém: `requirements.md` (o quê), `design.md` (como), `task
 | 15 | `15-restauracao-pos-boot` | 04 |
 | 16 | `16-autenticacao-dispositivo` | 00, 03 (integra 04, 12, 14 e 17 — ver `ordem-de-execucao.md`) |
 | 17 | `17-importar-exportar-agenda` | 01, 03, 04, 10 (`StringProvider`) |
+| 18 | `18-toque-duplo-criar-agendamento` | 05, 07 (rota com data inicial); 06 e 09 por conflito no `HomeViewModel` |
 
 **Ordem de execução recomendada, dependências por task, ondas de paralelização e status de cada spec: [`ordem-de-execucao.md`](./ordem-de-execucao.md)** (atualizar ao concluir cada spec).
 
-Ordem linear resumida: 00 → 02 → 01 → 03 → 04 → 05 → 07 → 10 → 11 → 12 → 14 → 15 → 08 → 06 → 09 → 13 → 17 → 16.
+Ordem linear resumida: 00 → 02 → 01 → 03 → 04 → 05 → 07 → 10 → 11 → 12 → 14 → 15 → 08 → 06 → 09 → 13 → 17 → 16 → 18 (a 18 não depende da 16 e pode ir antes dela).
 
 Paralelização (ver `steering/fluxo-de-trabalho.md` §3 e as ondas em `ordem-de-execucao.md` §5): specs de correntes diferentes tocam pacotes distintos e só colidem de forma trivial (`AppModules`, `AppNavHost`, `strings.xml`, `SemanticsTags.kt`); specs da mesma corrente (05→06, 07→08→09, 10→11→12) são sequenciais.
 
@@ -89,7 +90,7 @@ UseCases previstos: `SaveScheduleUseCase` (07), `ScheduleNextAlarmUseCase` (04),
 - **Textos**: regra em `steering/arquitetura.md` §5.5 — texto fixo sempre de `strings.xml` (pt-BR), texto com variável via resource formatado (`%1$s`)/`plurals`; nada de string literal nem concatenação na UI. Erros de domínio viram `@StringRes` na apresentação, nunca texto cru de exceção.
 - **Datas**: `java.time` (`LocalDate`, `LocalTime`, `ZoneId`); relógio e fuso **injetados** (`Clock`) para testes determinísticos.
 - **Git**: uma spec → uma branch `feat/<nome-da-spec>` a partir de `main`, commits por camada (conventional commits pt-BR) → **UM PR** aberto só depois de todos os critérios de aceite marcados (autorizado; ver `steering/fluxo-de-trabalho.md` §0).
-- **Critérios de aceite comuns (valem para toda spec, somados à seção `## Critérios de aceite` do `tasks.md`)**:
+- **Critérios de aceite comuns (valem para toda spec, somados à seção `## Critérios de aceite` do `tasks.md`)**. A lista completa e canônica, com o modelo de corpo de PR, está em [`criterios-de-aceite.md`](./criterios-de-aceite.md). O resumo abaixo é o mínimo:
   - [ ] `./gradlew ktlintCheck detekt testDebugUnitTest :app:assembleDebug` → BUILD SUCCESSFUL.
   - [ ] Todas as tasks `[x]` e todos os critérios específicos `[x]`, cada um verificado.
   - [ ] Todo `@Composable` visual novo tem `@Preview` (obrigatório, `arquitetura.md` §5.3).

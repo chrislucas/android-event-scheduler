@@ -8,7 +8,7 @@ inclusion: always
 
 ## 0. Critérios de aceite e PR por spec
 
-- **Cada spec tem uma seção `## Critérios de aceite`** no fim do seu `tasks.md` (checklist verificável) e os **critérios comuns** do `.kiro/specs/README.md`. São eles — e não a sensação de "terminei" — que definem se a spec foi concluída com êxito.
+- **Cada spec tem uma seção `## Critérios de aceite`** no fim do seu `tasks.md` (checklist verificável) e os **critérios gerais** de [`.kiro/specs/criterios-de-aceite.md`](../specs/criterios-de-aceite.md) (lista canônica, resumida no `.kiro/specs/README.md`, com o modelo de corpo de PR). São eles — e não a sensação de "terminei" — que definem se a spec foi concluída com êxito.
 - Marque `- [x]` em cada critério **somente depois de verificá-lo** (rodando o teste/comando, não presumindo). Critério que não puder ser verificado (ex.: depende de aparelho) fica `[ ]` com a nota `(não verificado: motivo)` e deve ser dito no PR; só é aceitável se o próprio critério prever essa ressalva.
 - **Fluxo por spec: uma branch → UM PR.** Com todos os critérios marcados e a verificação completa verde: push da branch `feat/<spec>` e abertura do PR contra `main`. O PR contém o checklist dos critérios de aceite (marcado) e o resultado da verificação. Autorização do Christopher: a abertura de **um PR por spec** está autorizada; push em `main`, `--force`, merge e PRs adicionais continuam exigindo confirmação.
 - Uma spec dependente só começa depois que a anterior estiver **mergeada** (ver `ordem-de-execucao.md`).

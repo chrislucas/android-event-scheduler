@@ -24,6 +24,7 @@
 | 16 | `13-pesquisa` | 01, 03 (05 só para o atalho da lupa) | Folha do grafo: ninguém depende dela; a lupa da Home usa placeholder até aqui |
 | 17 | `17-importar-exportar-agenda` | 01 (`upsertAll` novo), 03 (item em Configurações), 04 (`ScheduleNextAlarmUseCase`), 10 (`StringProvider`) | Funcionalidade isolada (feature própria); vem antes da 16 para que a autenticação já encontre o seletor/compartilhamento de arquivo e o "arquivo recebido" para integrar |
 | 18 | `16-autenticacao-dispositivo` | 00, 03 (seção Segurança em Configurações); integra 04 (deep link), 12 (share sheet), 14 (ocultar local/notas) e 17 (seletor/arquivo recebido) | **Transversal**: é um gate acima do `AppNavHost` e toca várias telas. Por último, integra tudo de uma vez, sem ramos "se a spec X já existir" |
+| 19 | `18-toque-duplo-criar-agendamento` | 05 (grade), 07 (rota `UpsertSchedule(initialDateEpochDay)`); 06 e 09 por conflito no `HomeViewModel` | Funcionalidade nova pedida após a onda G. Pequena e só na Home; não depende da 16 (pode ser executada antes dela ou em paralelo, em outra worktree). Reaproveita o efeito `NavigateToUpsert` da adição rápida |
 
 **Critérios usados, em ordem de peso:** (1) dependência dura de código; (2) risco técnico (alarmes cedo, para descobrir problemas de plataforma antes de empilhar UI); (3) feedback vertical rápido (criar → listar → abrir → editar antes dos "extras"); (4) conflito de arquivos (specs que editam o mesmo ViewModel ficam em sequência).
 
@@ -49,13 +50,13 @@
                   ├─────────────► 10 ─┴─► 12       (10 exige 01+03; 11 exige 10+04)
                   └─────────────► 13               (exige 01+03)
 ```
-Novas specs: `17` depende de 01, 03, 04 e 10; `16` depende de 00 e 03 e integra 04, 12, 14 e 17.
+Novas specs: `17` depende de 01, 03, 04 e 10; `16` depende de 00 e 03 e integra 04, 12, 14 e 17; `18` depende de 05 e 07 (e vem depois de 06/09 na corrente Home).
 
 Três **correntes de arquivos** (cada uma edita sempre o mesmo ViewModel/tela → sequenciais dentro da corrente, independentes entre si):
 
 | Corrente | Specs | Arquivos compartilhados |
 |---|---|---|
-| Home | 05 → 06 → 09 (parte Home) | `HomeViewModel`, `HomeUiState`, `HomeScreen` |
+| Home | 05 → 06 → 09 (parte Home) → 18 | `HomeViewModel`, `HomeUiState`, `HomeScreen`, `MonthGridSection` |
 | Upsert | 07 → 08 → 09 (parte formulário) | `UpsertScheduleViewModel`, `UpsertScheduleUiState`, `TitleRow`, `UpsertScheduleScreen` |
 | Detail | 10 → 11 → 12 | `ScheduleDetailViewModel`, `ScheduleDetailUiState`, `ScheduleActionBar`, `ScheduleDetailScreen` |
 | Configurações / app shell | 03 → 17 → 16 | `SettingsViewModel`, `SettingsScreen`, `AppNavHost`, `MainActivity` (intent-filters, `FLAG_SECURE`) |
@@ -108,6 +109,8 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 | 17.t4 | 04.t2, 10.t2 | `ScheduleNextAlarmUseCase`; `StringProvider` para o sufixo " (Importado)" |
 | 17.t8 | 03.t5 | item em Configurações |
 | 17.t9 | 04.t8 | mesmo padrão do `DeepLinkState` (`IncomingFileState`) |
+| 18.t2 | 05 (`HomeUiEvent`), 06/09 (famílias `DrawerEvent`/`DayStickerEvent`) | `OnDayClicked` entra na família nova `DayCellEvent` com o mesmo nome |
+| 18.t3, 18.t5 | 05.t4 (`MonthGridSection`), 07 (rota com data inicial) | toque duplo reaproveita `HomeUiEffect.NavigateToUpsert`; guarda contra criação duplicada no `AppNavHost` |
 | 16.t3, 16.t8 | 03.t2–t5 | `UserSettings` e tela de Configurações |
 | 16.t7 | 04.t8, 17.t9 | gate só consome deep link e arquivo recebido quando desbloqueado. Caminhos reais: `DeepLinkState` → `DeepLinkEffect` e `MainActivity.registerIncomingFile` → `IncomingFileState` → `IncomingFileEffect`, ambos no `AppNavHost`; o gate só precisa adiar esses dois efeitos enquanto bloqueado |
 | 16.t9 | 12.t4, 14.t3, 17.t7 | `suppressNextLock()` em dois pontos únicos e comentados: tratamento de `ShareText` em `ScheduleDetailScreen` (spec 12) e `launchExternalUi { … }` em `BackupScreen` (spec 17: `ShareFile`, `LaunchCreateDocument`, `LaunchOpenDocument`); ocultar local/notas no alarme (`FullScreenAlarmMapper`/tela da 14) |
@@ -153,6 +156,7 @@ Com mais de um executor, em **ondas**; dentro de cada onda as specs tocam pacote
 | F | 06 ∥ 08 ∥ 12 ✅ | 05 / 07 / 10(+11) respectivamente |
 | G | 09 ∥ 17 ✅ | 09: 06 e 08 mergeadas · 17: 03, 04 e 10 mergeadas (pode adiantar para a onda E/F) |
 | H | 16 | 17 mergeada (e 12, 14) |
+| I | 18 | 05, 06, 07 e 09 mergeadas (já estão). Independe da 16: pode rodar em paralelo com ela, em outra worktree; o conflito previsto é só de agregação (`strings.xml`, `SemanticsTags`) e no `AppNavHost` (a 16 envolve o host com o gate; a 18 só altera o lambda `onNavigateToUpsert`) |
 
 **Nunca em paralelo:** specs da mesma corrente (§2) — conflito **não-trivial** (mesmo ViewModel/barra de ações). Em cada onda, rebase mantendo as linhas de agregação de ambos os lados.
 A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback vertical, as ondas priorizam profundidade do grafo.
@@ -197,6 +201,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 15 | **concluída e mergeada** | 2026-11-08 | `feat/15-restauracao-pos-boot` / PR [#11](https://github.com/chrislucas/android-event-scheduler/pull/11) | receiver com `exported="false"` (o sistema ainda entrega); sem `LOCKED_BOOT_COMPLETED`/`directBootAware`; `RECEIVE_BOOT_COMPLETED` em `docs/permissoes.md` §2.6; o adiamento da 14 se perde no reboot; guia [`docs/testes-pos-boot-adb.md`](../../docs/testes-pos-boot-adb.md). Teste em aparelho não executado |
 | 16 | pendente | | | |
 | 17 | **concluída e mergeada** | 2026-11-08 | `feat/17-importar-exportar-agenda` / PR [#22](https://github.com/chrislucas/android-event-scheduler/pull/22) | `upsertAll` com `@Upsert` em lote (transação do Room; teste com gatilho SQLite prova o tudo-ou-nada); `VIEW` só `content://` e sem `BROWSABLE`; limites do JSON (5 MB, profundidade 16, 1 milhão de nós: `parseToJsonElement` estoura a pilha com aninhamento profundo); arquivo recebido abre sobre qualquer tela exceto a Splash; motivo da recusa inline; testes com `FileProvider` precisam de `resetFileProviderCache()`. E-mail, seletor real e anexo (marco M5) não executados em aparelho |
+| 18 | pendente | | | spec criada em 2026-11-09 |
 
 ### Como manter este documento
 
@@ -210,6 +215,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-09 | Nova spec **18 (toque duplo numa data cria evento ou lembrete)**, posição 19 da §1 e onda I; corrente Home passa a 05 → 06 → 09 → 18. Novo documento [`criterios-de-aceite.md`](./criterios-de-aceite.md) com a lista canônica do que define uma spec bem implementada, referenciado pelo README das specs, pelo steering e pela `tasks.md` da 18 | Pedido de nova funcionalidade; consolidar em um lugar os critérios espalhados pelo steering, README e lições das ondas A–G |
 | 2026-11-08 | Onda G concluída (09, 17). §3 da spec 16 detalhada com os caminhos reais do deep link e do arquivo recebido e com os dois pontos de `suppressNextLock()`. Ordem inalterada; resta a onda **H: 16**, sozinha | Integrações deixadas prontas pelas specs 04, 12, 14 e 17 |
 | 2026-11-08 | Onda F concluída (06, 08, 12). Novas regras de processo: **todo commit compila** (`fluxo-de-trabalho.md` §1.1, checado com `git rebase --exec` antes do PR) e **eventos de UI em famílias `sealed`** em telas grandes (`arquitetura.md`, UiEvent). A 09 deve acrescentar uma família no Upsert e seguir o padrão `HomeChrome`/`onDrawerEvent` na Home. Ordem inalterada; próxima onda: **09 ∥ 17** | O #16 entrou com dois commits que não compilam isolados (membro novo de `sealed` antes do ramo no `when` exaustivo); a regra pegou o mesmo padrão em três commits do #18, corrigidos antes do merge. O `onEvent` do Upsert passou do limite do detekt na 08 e ia piorar na 09 |
 | 2026-11-08 | Onda E concluída (05, 07, 11, 14, 15) e status de 03, 04, 10 e 13 atualizados para mergeada. Novas dependências: a **06** acrescenta `onNavigateToSettings` ao `homeEntry`; a **12** insere Compartilhar em `detailActions(...)`. M4 aponta para `docs/testes-pos-boot-adb.md`. Ordem inalterada; próxima onda: **06 ∥ 08 ∥ 12** | Lições da onda E: (1) placeholders vizinhos apagados por duas specs exigem remoção completa no rebase; (2) a junção de blocos de agregação perde a linha em branco (ktlint `spacing-between-declarations-with-comments`); (3) testes de tela precisam de tela alta no Robolectric (`-w411dp-h891dp`, formulário `-h2400dp`); (4) `adb shell am broadcast` de `BOOT_COMPLETED` exige root; (5) cada sincronização ganhou um teste ponta a ponta com a `MainActivity` cobrindo a integração que a spec isolada não alcançava |
