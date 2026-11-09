@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
+import com.br.androideventscheduler.feature.backup.di.backupModule
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module
@@ -41,5 +43,12 @@ class KoinModulesVerificationTest {
     @Test
     fun `given all registered modules when verifying the aggregated graph then every definition resolves`() {
         module { includes(appModules) }.verify(extraTypes = androidFrameworkTypes + runtimeParameterTypes)
+    }
+
+    // Importar/exportar (spec 17)
+    @Test
+    fun `given the backup feature when listing the aggregated modules then its modules are registered`() {
+        assertTrue(backupModule in appModules)
+        assertTrue(incomingFileModule in appModules)
     }
 }
