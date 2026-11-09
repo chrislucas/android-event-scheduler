@@ -160,6 +160,7 @@
     </plurals>
     <string name="home_day_add_action">Adicionar agendamento em %1$s</string>
     <string name="home_empty_day">Nenhum compromisso neste dia</string>
+    <string name="home_empty_day_hint">Toque duas vezes no dia para adicionar</string>
     <string name="home_all_day">Todo o dia</string>
     <string name="home_interval_range">%1$s – %2$s</string>
     <string name="home_interval_multi_day">%1$s → %2$s</string>
