@@ -18,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.core.app.NotificationCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -29,8 +30,11 @@ import com.br.androideventscheduler.core.alarm.domain.model.AlarmRequest
 import com.br.androideventscheduler.core.alarm.domain.model.AlertPresentationMode
 import com.br.androideventscheduler.core.alarm.domain.scheduler.AlarmScheduler
 import com.br.androideventscheduler.core.alarm.domain.usecase.SnoozeAlarmUseCase
+import com.br.androideventscheduler.core.preferences.domain.ThemeMode
+import com.br.androideventscheduler.core.preferences.domain.ThemePreferenceRepository
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
+import com.br.androideventscheduler.core.preferences.testing.FakeThemePreferenceRepository
 import com.br.androideventscheduler.core.preferences.testing.FakeUserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
@@ -82,6 +86,7 @@ class FullScreenAlarmActivityRobolectricTest {
     private val clock = FakeClock(Instant.parse("2026-11-07T15:00:00Z"), ZoneId.of("America/Sao_Paulo"))
     private val scheduleRepository = mockk<ScheduleRepository>()
     private val settingsRepository = FakeUserSettingsRepository(UserSettings(defaultSnoozeMinutes = 10))
+    private val themeRepository = FakeThemePreferenceRepository()
     private val alarmScheduler = mockk<AlarmScheduler>(relaxed = true)
 
     private val overrides =
@@ -89,6 +94,7 @@ class FullScreenAlarmActivityRobolectricTest {
             single<Clock> { clock }
             single<ScheduleRepository> { scheduleRepository }
             single<UserSettingsRepository> { settingsRepository }
+            single<ThemePreferenceRepository> { themeRepository }
             single<AlarmScheduler> { alarmScheduler }
             single { SnoozeAlarmUseCase(scheduleRepository = get(), alarmScheduler = get(), clock = get()) }
         }
@@ -157,6 +163,38 @@ class FullScreenAlarmActivityRobolectricTest {
 
     private fun postedNotification(scheduleId: String = "item-1"): Notification? =
         shadowOf(notificationManager).getNotification(AlarmIntents.notificationId(scheduleId))
+
+    private fun ActivityScenario<FullScreenAlarmActivity>.hasLightStatusBarIcons(): Boolean {
+        var light = false
+        onActivity { activity ->
+            light = WindowInsetsControllerCompat(activity.window, activity.window.decorView).isAppearanceLightStatusBars
+        }
+        return light
+    }
+
+    @Test
+    fun `given the light theme saved when launched then the status bar uses dark icons`() {
+        themeRepository.mode.value = ThemeMode.LIGHT
+
+        launch().use { scenario ->
+            waitForTag(SemanticsTags.ALARM_FULLSCREEN_TITLE)
+            composeRule.waitUntil(timeoutMillis = WAIT_MILLIS) {
+                shadowOf(Looper.getMainLooper()).idle()
+                scenario.hasLightStatusBarIcons()
+            }
+
+            assertTrue(scenario.hasLightStatusBarIcons())
+        }
+    }
+
+    @Test
+    fun `given no theme choice when launched then the status bar keeps light icons on the dark theme`() {
+        launch().use { scenario ->
+            waitForTag(SemanticsTags.ALARM_FULLSCREEN_TITLE)
+
+            assertFalse(scenario.hasLightStatusBarIcons())
+        }
+    }
 
     @Test
     fun `given the system intent when launched then the event is shown with badge title time location and notes`() {
