@@ -3,7 +3,6 @@ package com.br.androideventscheduler
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import com.br.androideventscheduler.app.AppNavHost
 import com.br.androideventscheduler.app.DeepLinkState
 import com.br.androideventscheduler.app.IncomingFileState
@@ -20,7 +20,8 @@ import com.br.androideventscheduler.core.alarm.data.AlarmIntents
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import org.koin.android.ext.android.inject
 
-class MainActivity : ComponentActivity() {
+// FragmentActivity: exigência do BiometricPrompt (spec 16); o Compose (setContent) funciona igual.
+class MainActivity : FragmentActivity() {
     private val deepLinkState: DeepLinkState by inject()
     private val incomingFileState: IncomingFileState by inject()
 

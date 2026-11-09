@@ -18,6 +18,13 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <!-- Pós-boot (spec 15): reagendar os alarmes após reiniciar o aparelho (o AlarmManager os perde). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Bloqueio do app (spec 16): o BiometricPrompt exige USE_BIOMETRIC mesmo só com a credencial do aparelho.
+         Já injetada pela androidx.biometric; declarada aqui para ficar explícita e documentada. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Spec 16: injetada pela androidx.biometric, mas o app não usa digital (API <= 29 usa o KeyguardManager). Removida. -->
+    <uses-permission
+        android:name="android.permission.USE_FINGERPRINT"
+        tools:node="remove" />
 
     <application
         android:name=".app.RememberMeApplication"

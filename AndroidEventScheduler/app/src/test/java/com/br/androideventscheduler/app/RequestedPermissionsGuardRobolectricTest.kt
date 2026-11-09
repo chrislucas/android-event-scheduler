@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -32,6 +34,8 @@ class RequestedPermissionsGuardRobolectricTest {
             "android.permission.USE_FULL_SCREEN_INTENT",
             // Pós-boot (spec 15)
             "android.permission.RECEIVE_BOOT_COMPLETED",
+            // Bloqueio do app (spec 16): exigida pelo BiometricPrompt; USE_FINGERPRINT é removida no manifest.
+            "android.permission.USE_BIOMETRIC",
             // Injetada pela androidx.core (nível signature; não aparece para o usuário).
             "${context.packageName}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
         )
@@ -53,5 +57,13 @@ class RequestedPermissionsGuardRobolectricTest {
             alwaysRequested + "android.permission.USE_EXACT_ALARM" + "android.permission.SCHEDULE_EXACT_ALARM",
             requestedPermissions(),
         )
+    }
+
+    @Test
+    fun `given the merged manifest when reading permissions then use biometric is present and use fingerprint is removed`() {
+        val permissions = requestedPermissions()
+
+        assertTrue("USE_BIOMETRIC é necessária ao BiometricPrompt", "android.permission.USE_BIOMETRIC" in permissions)
+        assertFalse("USE_FINGERPRINT deve ser removida (o app não usa digital)", "android.permission.USE_FINGERPRINT" in permissions)
     }
 }

@@ -4,7 +4,7 @@
 > Uma permissão sem boa justificativa é removida, desde que a remoção não quebre o app.
 > A regra está no steering (`.kiro/steering/arquitetura.md` §5.6). O teste `RequestedPermissionsGuardRobolectricTest` falha se a lista do APK mudar sem a lista desse teste ser atualizada.
 
-**Estado:** permissões introduzidas pela spec 04 (PR #8) e planejadas para as specs 14 a 17. Revisado em 2026-11-08.
+**Estado:** permissões introduzidas pelas specs 04, 15 e 16; as specs 14 e 17 não adicionaram nenhuma. Revisado na spec 16.
 
 ## 1. Resumo
 
@@ -15,6 +15,8 @@
 | `SCHEDULE_EXACT_ALARM` (`maxSdkVersion=32`) | acesso especial | 12 e 12L | spec 04 | Igual à anterior, nas versões em que `USE_EXACT_ALARM` não existe | O app cai para alarme inexato (`setAndAllowWhileIdle`) |
 | `USE_FULL_SCREEN_INTENT` | normal no 13−; acesso especial no 14+, **restrita pelo Google Play** | 10+ | spec 04 (usada na spec 14) | Mostrar o alerta de **evento** em tela cheia, como um despertador | O app mostra uma notificação de alta prioridade em vez da tela cheia |
 | `RECEIVE_BOOT_COMPLETED` | normal (concedida na instalação) | todas | spec 15 | Reagendar os alarmes após reiniciar o aparelho: o `AlarmManager` perde todos ao desligar | Ver §2.6. Sem ela, os alarmes só voltam quando o usuário abrir o app e salvar cada item de novo |
+| `USE_BIOMETRIC` | normal (concedida na instalação) | 9+ (API 28) | spec 16 | O `BiometricPrompt` (Android 11+) exige a permissão mesmo quando só a credencial do aparelho (PIN, padrão ou senha) é aceita | Ver §2.8. Sem ela o `BiometricPrompt` lança `SecurityException`; sem ela não há como proteger o app |
+| `USE_FINGERPRINT` | **removida** (`tools:node="remove"`) | — | spec 16 | Nenhuma: o app não usa digital | Não é solicitada. Ver §2.8 |
 | `<pacote>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | signature (só o próprio app) | — | `androidx.core` (automática) | Usada pela `ContextCompat.registerReceiver` para proteger receivers dinâmicos não exportados em Android < 13 | Não se aplica: não aparece para o usuário e não dá acesso a nada fora do app |
 
 O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a injeta. Também não declara permissões de armazenamento, localização, contatos, câmera ou microfone.
@@ -97,16 +99,24 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
 - **O que o usuário vê:** nada além do seletor e do share sheet do sistema (e a escolha "Abrir com"); não há diálogo de permissão.
 - **Google Play:** sem restrição de política (nenhuma permissão sensível; o `FileProvider` é o mecanismo recomendado para compartilhar arquivos).
 
+### 2.8 `USE_BIOMETRIC` (mantida) e `USE_FINGERPRINT` (removida), spec 16
+- **Para quê:** a proteção opcional do app (Configurações → Segurança) confirma a credencial do aparelho. No Android 11+ (API 30+) isso usa o `BiometricPrompt` com `DEVICE_CREDENTIAL`, que exige `USE_BIOMETRIC`. No Android 7 a 10 (API 24–29) usa `KeyguardManager.createConfirmDeviceCredentialIntent`, que não exige permissão.
+- **Origem:** a `androidx.biometric` (1.1.0) injeta as duas no merge do manifest. Declaramos `USE_BIOMETRIC` explicitamente, com comentário, para ela não depender de uma biblioteca.
+- **`USE_FINGERPRINT`:** permissão antiga da API `FingerprintManager`. O app não usa digital nem rosto (biometria está fora do escopo, R7), então é removida com `tools:node="remove"`. O `RequestedPermissionsGuardRobolectricTest` trava a ausência dela e a presença de `USE_BIOMETRIC`.
+- **Como é pedida:** é uma permissão normal, concedida na instalação; não há diálogo.
+- **Se ausente/negada:** não se aplica a negar. Sem a declaração, o `BiometricPrompt` falharia e o usuário não conseguiria ligar a proteção.
+- **O que a proteção é:** controle de acesso à tela, não criptografia dos dados em repouso.
+- **Google Play:** sem restrição de política.
+
 ## 3. Permissões planejadas pelas próximas specs
 
 | Permissão | Spec | Justificativa | Observação |
 |---|---|---|---|
-| `USE_BIOMETRIC` | 16 | O `BiometricPrompt` do Android 11+ exige essa permissão mesmo quando só a credencial do aparelho (PIN, padrão ou senha) é aceita | Injetada pela `androidx.biometric`; não aparece para o usuário |
-| `USE_FINGERPRINT` | 16 | **Nenhuma**: o app não usa digital, e no Android ≤ 10 usa o `KeyguardManager` | Injetada pela `androidx.biometric`. **Remover** com `tools:node="remove"` e cobrir na trava |
+| — | 16 | **Implementada:** `USE_BIOMETRIC` mantida e `USE_FINGERPRINT` removida (ver §2.8) | Nenhuma permissão pendente |
 | — | 14 | **Implementada, sem permissão nova:** a tela cheia usa `setShowWhenLocked`/`setTurnScreenOn` e `FLAG_KEEP_SCREEN_ON`, que **não** exigem permissão (ver §2.4) | `WAKE_LOCK` e `DISABLE_KEYGUARD` **não** foram adicionadas |
 | — | 17 | **Implementada, sem permissão nova:** exportar e importar usam o seletor do sistema (SAF) e o `FileProvider` (ver §2.7) | `READ/WRITE_EXTERNAL_STORAGE` **não** foram adicionadas |
 
-Cada uma dessas specs deve atualizar este documento e a lista do `RequestedPermissionsGuardRobolectricTest` no mesmo PR.
+Specs futuras devem atualizar este documento e a lista do `RequestedPermissionsGuardRobolectricTest` no mesmo PR.
 
 ## 4. Avaliadas e não usadas
 
@@ -129,6 +139,9 @@ Cada uma dessas specs deve atualizar este documento e a lista do `RequestedPermi
 5. Descrever a mudança no PR, na seção "Permissões".
 
 ## 6. Fontes
+
+- [Mostrar um prompt de autenticação biométrica (`BiometricPrompt`, `DEVICE_CREDENTIAL`)](https://developer.android.com/identity/sign-in/biometric-auth)
+- [`KeyguardManager.createConfirmDeviceCredentialIntent`](https://developer.android.com/reference/android/app/KeyguardManager#createConfirmDeviceCredentialIntent(java.lang.CharSequence,%20java.lang.CharSequence))
 
 - [Elemento `<receiver>` do manifest (`android:exported`, `android:directBootAware`)](https://developer.android.com/guide/topics/manifest/receiver-element)
 - [Android 14: alarmes exatos negados por padrão (`SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM`)](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms)
