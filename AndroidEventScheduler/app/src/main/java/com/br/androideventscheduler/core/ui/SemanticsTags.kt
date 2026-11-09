@@ -64,6 +64,7 @@ object SemanticsTags {
     const val HOME_SCHEDULE_LIST = "home_schedule_list"
     const val HOME_SCHEDULE_ITEM_PREFIX = "home_schedule_item_"
     const val HOME_EMPTY_DAY = "home_empty_day"
+    const val HOME_EMPTY_DAY_HINT = "home_empty_day_hint"
     const val HOME_QUICK_ADD_BAR = "home_quick_add_bar"
     const val HOME_MONTH_PICKER_SHEET = "home_month_picker_sheet"
     const val HOME_MONTH_OPTION_PREFIX = "home_month_option_"

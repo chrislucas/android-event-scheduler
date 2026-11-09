@@ -240,6 +240,7 @@ private fun HomeBody(
                 visibleMonth = content.visibleMonth,
                 cells = content.cells,
                 onDayClick = { date -> onEvent(HomeUiEvent.OnDayClicked(date)) },
+                onDayDoubleTap = { date -> onEvent(HomeUiEvent.OnDayDoubleTapped(date)) },
                 onPreviousMonth = { onEvent(HomeUiEvent.OnPreviousMonthClicked) },
                 onNextMonth = { onEvent(HomeUiEvent.OnNextMonthClicked) },
             )

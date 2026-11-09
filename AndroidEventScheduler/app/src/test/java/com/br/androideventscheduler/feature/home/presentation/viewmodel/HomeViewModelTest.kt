@@ -637,5 +637,57 @@ class HomeViewModelTest {
             assertNull(viewModel.content().selectedDaySticker)
         }
 
+    // region toque duplo (spec 18)
+
+    @Test
+    fun `given a day when double tapped then it is selected and the upsert effect carries that day`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            val effects = mutableListOf<HomeUiEffect>()
+            val collectJob = launch { viewModel.uiEffect.toList(effects) }
+            val target = today.plusDays(3)
+
+            viewModel.onEvent(HomeUiEvent.OnDayDoubleTapped(target))
+            runCurrent()
+
+            assertEquals(target, viewModel.content().selectedDate)
+            assertEquals(listOf<HomeUiEffect>(HomeUiEffect.NavigateToUpsert(target.toEpochDay())), effects)
+            collectJob.cancel()
+        }
+
+    @Test
+    fun `given a day from the next month when double tapped then the visible month changes and the effect carries that day`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            val effects = mutableListOf<HomeUiEffect>()
+            val collectJob = launch { viewModel.uiEffect.toList(effects) }
+            val target = LocalDate.of(2026, 12, 3)
+
+            viewModel.onEvent(HomeUiEvent.OnDayDoubleTapped(target))
+            runCurrent()
+
+            assertEquals(YearMonth.of(2026, 12), viewModel.content().visibleMonth)
+            assertEquals(target, viewModel.content().selectedDate)
+            assertEquals(listOf<HomeUiEffect>(HomeUiEffect.NavigateToUpsert(target.toEpochDay())), effects)
+            collectJob.cancel()
+        }
+
+    @Test
+    fun `given a day when single clicked then no effect is emitted`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            val effects = mutableListOf<HomeUiEffect>()
+            val collectJob = launch { viewModel.uiEffect.toList(effects) }
+
+            viewModel.onEvent(HomeUiEvent.OnDayClicked(today.plusDays(3)))
+            runCurrent()
+
+            assertEquals(emptyList<HomeUiEffect>(), effects)
+            collectJob.cancel()
+        }
+
     // endregion
 }

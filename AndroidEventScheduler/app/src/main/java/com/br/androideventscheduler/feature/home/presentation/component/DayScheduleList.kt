@@ -1,6 +1,8 @@
 package com.br.androideventscheduler.feature.home.presentation.component
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,12 +45,24 @@ internal fun LazyListScope.dayScheduleItems(
                 modifier = Modifier.fillMaxWidth().testTag(SemanticsTags.HOME_EMPTY_DAY),
                 contentAlignment = Alignment.TopCenter,
             ) {
-                Text(
-                    text = stringResource(R.string.home_empty_day),
+                Column(
                     modifier = Modifier.padding(24.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_empty_day),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    // Descoberta do atalho do toque duplo (spec 18, R5.1).
+                    Text(
+                        text = stringResource(R.string.home_empty_day_hint),
+                        modifier = Modifier.testTag(SemanticsTags.HOME_EMPTY_DAY_HINT),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     } else {

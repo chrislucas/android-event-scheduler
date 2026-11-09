@@ -62,7 +62,12 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 // Home (spec 05)
                 homeEntry(
                     onNavigateToSearch = { backStack.add(Search) },
-                    onNavigateToUpsert = { dayEpoch -> backStack.add(UpsertSchedule(initialDateEpochDay = dayEpoch)) },
+                    // Toque duplo / adição rápida (spec 18): não empilhar duas criações (R6.1).
+                    onNavigateToUpsert = { dayEpoch ->
+                        if (backStack.lastOrNull() !is UpsertSchedule) {
+                            backStack.add(UpsertSchedule(initialDateEpochDay = dayEpoch))
+                        }
+                    },
                     onNavigateToDetail = { scheduleId -> backStack.add(ScheduleDetail(scheduleId)) },
                     // Gaveta (spec 06)
                     onNavigateToSettings = { backStack.add(Settings) },

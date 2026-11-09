@@ -109,10 +109,6 @@ internal class HomeViewModel(
 
     fun onEvent(event: HomeUiEvent) {
         when (event) {
-            is HomeUiEvent.OnDayClicked -> {
-                selectDate(event.date)
-            }
-
             HomeUiEvent.OnPreviousMonthClicked -> {
                 moveToMonth(visibleMonth().minusMonths(1))
             }
@@ -160,6 +156,25 @@ internal class HomeViewModel(
 
             is HomeUiEvent.DayStickerEvent -> {
                 onDayStickerEvent(event)
+            }
+
+            is HomeUiEvent.DayCellEvent -> {
+                onDayCellEvent(event)
+            }
+        }
+    }
+
+    /** Toques na célula do dia (spec 05 e spec 18). */
+    private fun onDayCellEvent(event: HomeUiEvent.DayCellEvent) {
+        when (event) {
+            is HomeUiEvent.OnDayClicked -> {
+                selectDate(event.date)
+            }
+
+            is HomeUiEvent.OnDayDoubleTapped -> {
+                // R3.1: selecionar muda o mês visível quando o dia é de um mês vizinho.
+                selectDate(event.date)
+                sendEffect(HomeUiEffect.NavigateToUpsert(event.date.toEpochDay()))
             }
         }
     }
