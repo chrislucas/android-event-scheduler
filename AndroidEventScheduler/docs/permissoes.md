@@ -90,7 +90,11 @@ O app **não** declara `INTERNET`: é 100% offline, e nenhuma biblioteca atual a
   - `android:exported="false"`: nenhum app consegue abrir a URI por conta própria;
   - `android:grantUriPermissions="true"`: o app concede **leitura por URI** (`FLAG_GRANT_READ_URI_PERMISSION`) apenas ao destinatário escolhido, e a concessão vale só para aquele arquivo;
   - `res/xml/file_paths.xml` expõe **somente** `cacheDir/exports/` (`<cache-path path="exports/">`); o banco, o DataStore e o resto do `filesDir`/`cacheDir` ficam inalcançáveis. Os arquivos anteriores são apagados a cada nova exportação.
-- **O que o usuário vê:** nada além do seletor e do share sheet do sistema; não há diálogo de permissão.
+- **Receber arquivos (`intent-filter` na `MainActivity`):** `ACTION_VIEW` (`content://`, `application/json`) e `ACTION_SEND` (`application/json`) permitem "Abrir com" / "Compartilhar com" o RememberMe, por exemplo num anexo de e-mail. Como a `MainActivity` já é `exported="true"` (é a launcher), qualquer app pode enviar esses intents, então eles são tratados como **não confiáveis**:
+  - o filtro de `VIEW` aceita só `content://` e **não** declara `BROWSABLE` (um link da web não abre a importação);
+  - o código revalida ação, MIME exato `application/json` e esquema `content://` (nunca `file://`), lê só a URI (em `data` ou `EXTRA_STREAM`, este com tipo verificado) e **não repassa** o intent;
+  - a URI recebida só é lida com o limite de 5 MB e a validação completa do arquivo, e **nada é gravado sem a confirmação** do usuário na pré-visualização.
+- **O que o usuário vê:** nada além do seletor e do share sheet do sistema (e a escolha "Abrir com"); não há diálogo de permissão.
 - **Google Play:** sem restrição de política (nenhuma permissão sensível; o `FileProvider` é o mecanismo recomendado para compartilhar arquivos).
 
 ## 3. Permissões planejadas pelas próximas specs

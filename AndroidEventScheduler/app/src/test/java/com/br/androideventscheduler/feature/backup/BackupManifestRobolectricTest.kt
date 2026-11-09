@@ -1,9 +1,12 @@
 package com.br.androideventscheduler.feature.backup
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.test.core.app.ApplicationProvider
+import com.br.androideventscheduler.MainActivity
 import com.br.androideventscheduler.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -65,5 +68,49 @@ class BackupManifestRobolectricTest {
                 .toSet()
 
         assertEquals(emptySet<String>(), requested intersect storagePermissions)
+    }
+
+    private fun mainActivityHandles(intent: Intent): Boolean =
+        context.packageManager
+            .queryIntentActivities(intent.setPackage(context.packageName), 0)
+            .any { it.activityInfo.name == MainActivity::class.java.name }
+
+    private val jsonContentUri: Uri = Uri.parse("content://com.example.mail/attachments/agenda.json")
+
+    @Test
+    fun `given a view of a json content uri when resolving then the main activity handles it`() {
+        val intent = Intent(Intent.ACTION_VIEW).setDataAndType(jsonContentUri, "application/json").addCategory(Intent.CATEGORY_DEFAULT)
+
+        assertTrue(mainActivityHandles(intent))
+    }
+
+    @Test
+    fun `given a send of json when resolving then the main activity handles it`() {
+        val intent = Intent(Intent.ACTION_SEND).setType("application/json").addCategory(Intent.CATEGORY_DEFAULT)
+
+        assertTrue(mainActivityHandles(intent))
+    }
+
+    @Test
+    fun `given other mime types or schemes when resolving then the main activity does not handle the view`() {
+        fun view(
+            uri: String,
+            type: String,
+        ) = Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(uri), type).addCategory(Intent.CATEGORY_DEFAULT)
+
+        assertFalse(mainActivityHandles(view("content://com.example.mail/a.txt", "text/plain")))
+        assertFalse(mainActivityHandles(view("file:///sdcard/agenda.json", "application/json")))
+        assertFalse(mainActivityHandles(view("https://example.com/agenda.json", "application/json")))
+    }
+
+    @Test
+    fun `given a browsable view when resolving then the web cannot open the import`() {
+        val intent =
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType(jsonContentUri, "application/json")
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .addCategory(Intent.CATEGORY_BROWSABLE)
+
+        assertFalse(mainActivityHandles(intent))
     }
 }

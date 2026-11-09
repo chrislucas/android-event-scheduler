@@ -14,19 +14,25 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.br.androideventscheduler.app.AppNavHost
 import com.br.androideventscheduler.app.DeepLinkState
+import com.br.androideventscheduler.app.IncomingFileState
+import com.br.androideventscheduler.app.incomingAgendaFileUri
 import com.br.androideventscheduler.core.alarm.data.AlarmIntents
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val deepLinkState: DeepLinkState by inject()
+    private val incomingFileState: IncomingFileState by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // SplashScreen API: precisa vir antes de super.onCreate para trocar o tema de partida pelo principal.
         installSplashScreen()
         super.onCreate(savedInstanceState)
         // Só no primeiro nascimento: após rotação/recriação o intent original voltaria e reabriria o detalhe.
-        if (savedInstanceState == null) registerDeepLink(intent)
+        if (savedInstanceState == null) {
+            registerDeepLink(intent)
+            registerIncomingFile(intent)
+        }
         // Tema escuro fixo: barras do sistema sempre com ícones claros, independente do modo do sistema.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -48,11 +54,21 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         registerDeepLink(intent)
+        registerIncomingFile(intent)
     }
 
     /** Toque na notificação traz o id do agendamento; aberturas pelo histórico de recentes repetiriam um id antigo. */
     private fun registerDeepLink(intent: Intent?) {
         val launchedFromHistory = intent?.flags?.and(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
         if (!launchedFromHistory) deepLinkState.set(intent?.getStringExtra(AlarmIntents.EXTRA_SCHEDULE_ID))
+    }
+
+    /**
+     * Arquivo de agenda recebido por `VIEW`/`SEND` (spec 17). O intent é de origem não confiável: só a URI validada por
+     * [incomingAgendaFileUri] é guardada; reaberturas pelo histórico de recentes não repetem o arquivo antigo.
+     */
+    private fun registerIncomingFile(intent: Intent?) {
+        val launchedFromHistory = intent?.flags?.and(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+        if (!launchedFromHistory) incomingFileState.set(intent?.incomingAgendaFileUri())
     }
 }

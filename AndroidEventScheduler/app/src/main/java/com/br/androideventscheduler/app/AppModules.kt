@@ -43,4 +43,5 @@ val appModules: List<Module> =
         alarmFeatureModule,
         // Importar/exportar (spec 17)
         backupModule,
+        incomingFileModule,
     )

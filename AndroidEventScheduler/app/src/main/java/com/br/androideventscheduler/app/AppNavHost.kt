@@ -34,6 +34,8 @@ fun AppNavHost(modifier: Modifier = Modifier) {
     val backStack = rememberNavBackStack(Splash)
     // Deep link da notificação (spec 04): abre o detalhe sobre a Home assim que a Splash termina.
     DeepLinkEffect(backStack = backStack, deepLinkState = koinInject())
+    // Arquivo de agenda recebido de outro app (spec 17): abre a pré-visualização da importação.
+    IncomingFileEffect(backStack = backStack, incomingFileState = koinInject())
 
     NavDisplay(
         backStack = backStack,
