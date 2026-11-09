@@ -298,8 +298,11 @@ private fun previewContent(
         ).block()
 
 @Composable
-private fun PreviewHost(uiState: UpsertScheduleUiState) {
-    AndroidEventSchedulerTheme {
+private fun PreviewHost(
+    uiState: UpsertScheduleUiState,
+    darkTheme: Boolean = true,
+) {
+    AndroidEventSchedulerTheme(darkTheme = darkTheme) {
         UpsertScheduleContent(uiState = uiState, snackbarHostState = remember { SnackbarHostState() }, onEvent = {})
     }
 }
@@ -308,6 +311,12 @@ private fun PreviewHost(uiState: UpsertScheduleUiState) {
 @Composable
 private fun UpsertScheduleContentNewReminderPreview() {
     PreviewHost(previewContent())
+}
+
+@Preview(name = "Lembrete novo (claro)", showBackground = true)
+@Composable
+private fun UpsertScheduleContentNewReminderLightPreview() {
+    PreviewHost(previewContent(), darkTheme = false)
 }
 
 @Preview(name = "Evento novo", showBackground = true)

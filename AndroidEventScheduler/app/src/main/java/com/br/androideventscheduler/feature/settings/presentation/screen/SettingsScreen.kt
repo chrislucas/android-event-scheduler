@@ -265,6 +265,14 @@ private fun SettingsContentPreview() {
     AndroidEventSchedulerTheme { SettingsContent(uiState = previewContent, onEvent = {}) }
 }
 
+@Preview(name = "Padrão (claro)", showBackground = true)
+@Composable
+private fun SettingsContentLightPreview() {
+    AndroidEventSchedulerTheme(darkTheme = false) {
+        SettingsContent(uiState = previewContent.copy(themeMode = ThemeMode.LIGHT), onEvent = {})
+    }
+}
+
 @Preview(name = "E-mail inválido", showBackground = true)
 @Composable
 private fun SettingsContentEmailErrorPreview() {

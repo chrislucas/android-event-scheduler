@@ -305,6 +305,12 @@ private fun FullScreenAlarmContentSimplePreview() {
     AndroidEventSchedulerTheme { FullScreenAlarmContent(uiState = previewContent, onEvent = {}) }
 }
 
+@Preview(name = "Evento simples (claro)", showBackground = true)
+@Composable
+private fun FullScreenAlarmContentSimpleLightPreview() {
+    AndroidEventSchedulerTheme(darkTheme = false) { FullScreenAlarmContent(uiState = previewContent, onEvent = {}) }
+}
+
 @Preview(name = "Com local e notas", showBackground = true)
 @Composable
 private fun FullScreenAlarmContentDetailsPreview() {

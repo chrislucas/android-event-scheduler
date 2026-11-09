@@ -371,6 +371,14 @@ private fun ScheduleDetailContentMultiDayPreview() {
     }
 }
 
+@Preview(name = "Evento multi-dia (claro)", showBackground = true)
+@Composable
+private fun ScheduleDetailContentMultiDayLightPreview() {
+    AndroidEventSchedulerTheme(darkTheme = false) {
+        ScheduleDetailContent(uiState = ScheduleDetailUiState.Content(previewSchedule), onEvent = {})
+    }
+}
+
 @Preview(name = "Lembrete", showBackground = true)
 @Composable
 private fun ScheduleDetailContentReminderPreview() {
