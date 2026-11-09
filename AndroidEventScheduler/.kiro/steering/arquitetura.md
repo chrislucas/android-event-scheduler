@@ -27,7 +27,7 @@ inclusion: always
 
 | Camada | Tecnologia |
 |---|---|
-| UI | Jetpack Compose + Material 3 (tema escuro fixo) |
+| UI | Jetpack Compose + Material 3 (tema claro e escuro, escolha persistida; padrão escuro) |
 | DI | **Koin** |
 | Inicialização | **Jetpack App Startup** (`androidx.startup`) iniciando o Koin antes de `Application.onCreate`, receivers e activities |
 | Database | Room (+ KSP), schema exportado, sem migração destrutiva |
