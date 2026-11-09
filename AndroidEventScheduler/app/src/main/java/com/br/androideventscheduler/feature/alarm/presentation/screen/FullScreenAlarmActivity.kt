@@ -9,13 +9,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.br.androideventscheduler.core.alarm.data.AlarmIntents
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.designsystem.isDark
+import com.br.androideventscheduler.core.preferences.domain.ThemePreferenceRepository
+import com.br.androideventscheduler.core.ui.theme.SystemThemeEffects
+import org.koin.android.ext.android.inject
 
 // Sem preview: Activity (ponto de entrada do sistema); as previews estão em FullScreenAlarmScreen.kt.
 
@@ -25,6 +31,8 @@ import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
  * bloqueio e liga a tela sem exigir nenhuma permissão extra. Não é exportada: só o sistema a abre, via `PendingIntent`.
  */
 class FullScreenAlarmActivity : ComponentActivity() {
+    private val themePreferenceRepository: ThemePreferenceRepository by inject()
+
     private var scheduleId: String? by mutableStateOf(null)
 
     /** Sobe a cada `onNewIntent`: faz a tela recarregar o item mesmo quando o id é o mesmo. */
@@ -40,12 +48,19 @@ class FullScreenAlarmActivity : ComponentActivity() {
             return
         }
         scheduleId = requestedScheduleId
+        // Borda a borda desde o primeiro quadro (ícones claros, o padrão escuro); o SystemThemeEffects ajusta ao tema.
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
         setContent {
-            AndroidEventSchedulerTheme {
+            // Mesmo tema do app (spec 19). Sem Splash aqui: até o valor chegar (poucos ms) a janela mostra o fundo escuro
+            // do tema XML e nada é composto.
+            val themeMode by themePreferenceRepository.observe().collectAsStateWithLifecycle(initialValue = null)
+            val resolvedMode = themeMode ?: return@setContent
+            val darkTheme = resolvedMode.isDark(systemInDarkTheme = isSystemInDarkTheme())
+            AndroidEventSchedulerTheme(darkTheme = darkTheme) {
+                SystemThemeEffects(darkTheme = darkTheme)
                 scheduleId?.let { currentId ->
                     FullScreenAlarmScreen(scheduleId = currentId, reloadSignal = reloadSignal, onClose = ::closeScreen)
                 }
