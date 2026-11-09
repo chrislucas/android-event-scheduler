@@ -84,15 +84,15 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 | 05.t6 | 04.t7 | `NotificationPermissionEffect` |
 | 06.t1 | 05 (módulo `HomeModule`) | repositório próprio da Home |
 | 06.t3 | 03.t3, 05.t3 | `UserSettingsRepository` + pipeline do Home; o filtro por calendário entra em `HomeViewModel.buildContent` |
-| 06 (gaveta) | 05 (`homeEntry`) | a 05 saiu **sem** `onNavigateToSettings`: a 06 acrescenta o evento/efeito `NavigateToSettings` e o parâmetro no `homeEntry` |
+| 06 (gaveta) | 05 (`homeEntry`) | a 05 saiu **sem** `onNavigateToSettings`: a 06 acrescenta o evento/efeito `NavigateToSettings` e o parâmetro no `homeEntry` ✅ |
 | 07.t1 | 04.t2 | `SaveScheduleUseCase` chama `ScheduleNextAlarmUseCase` |
 | 07.t4 | 03.t3, 01.t6 | padrão de lembrete + `getById`/`upsert` |
 | 07.t5 | 01.t7 | rótulos de alerta/repetição |
 | 08.t2–t5 | 07.t3–t7 | estado, VM e tela do formulário |
 | 08.t6 (integração) | 04.t2, 01.t6 | alarme + `observeOccurrences` |
 | 09.t1 | 00 (tema), 01 (`StickerEmoji`/`EventColorOption`) | diálogos em `core.ui` — pode começar cedo |
-| 09.t2 | 07.t4–t5 (e 08 por conflito) | `TitleRow` e VM do formulário |
-| 09.t3–t5 | **06.t1** | `HomePreferencesRepository` nasce na 06 |
+| 09.t2 | 07.t4–t5 (e 08 por conflito) | `TitleRow` e VM do formulário. Eventos novos (cor/emoji) entram como **família** própria em `UpsertScheduleUiEvent` (ex.: `AppearanceEvent`), com handler exaustivo; não crescer o `onEvent` (steering `arquitetura.md`, UiEvent) |
+| 09.t3–t5 | **06.t1** | `HomePreferencesRepository` nasce na 06 (`feature/home/domain/repository`; fake em `feature/home/testing/FakeHomePreferencesRepository`). O `HomeViewModel` agrupa as fontes da tela em `HomeChrome` e delega a gaveta a `onDrawerEvent`: a 09 segue o mesmo padrão |
 | 10.t1 | 01.t6 | `observeById` |
 | 10.t2–t3 | 01.t7, 03.t3, **StringProvider** (ver §4) | mapper e e-mail da conta |
 | 11.t2–t3 | 04.t2–t3, 10.t3 | `ScheduleNextAlarmUseCase`, `AlarmScheduler.cancel` |
@@ -110,7 +110,7 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 | 17.t9 | 04.t8 | mesmo padrão do `DeepLinkState` (`IncomingFileState`) |
 | 16.t3, 16.t8 | 03.t2–t5 | `UserSettings` e tela de Configurações |
 | 16.t7 | 04.t8, 17.t9 | gate só consome deep link e arquivo recebido quando desbloqueado |
-| 16.t9 | 12.t4, 14.t3, 17.t7 | `suppressNextLock()` no share sheet e no SAF; ocultar local/notas no alarme |
+| 16.t9 | 12.t4, 14.t3, 17.t7 | `suppressNextLock()` no share sheet (ponto marcado em `ScheduleDetailScreen`, tratamento de `ShareText`) e no SAF; ocultar local/notas no alarme |
 
 ## 4. Artefatos compartilhados: quem cria
 
@@ -150,7 +150,7 @@ Com mais de um executor, em **ondas**; dentro de cada onda as specs tocam pacote
 | C | 03 ✅ | 01.t1 pronta (de preferência 01 mergeada) |
 | D | 04 ∥ 10 ∥ 13 ✅ | 03 mergeada (10 e 13 não precisam de 04) |
 | E | 05 ∥ 07 ∥ 11 ∥ 14 ∥ 15 ✅ | 04 mergeada (11 também exige 10) |
-| F | 06 ∥ 08 ∥ 12 | 05 / 07 / 10(+11) respectivamente |
+| F | 06 ∥ 08 ∥ 12 ✅ | 05 / 07 / 10(+11) respectivamente |
 | G | 09 ∥ 17 | 09: 06 e 08 mergeadas · 17: 03, 04 e 10 mergeadas (pode adiantar para a onda E/F) |
 | H | 16 | 17 mergeada (e 12, 14) |
 
@@ -185,13 +185,13 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 03 | **concluída e mergeada** | 2026-11-07 | `feat/03-configuracoes` / PR [#5](https://github.com/chrislucas/android-event-scheduler/pull/5) | ViewModels passam a usar o dispatcher `main` (Splash ajustada); `TestRememberMeApplication` recarrega módulos a cada teste; efeitos Toast × Snackbar |
 | 04 | **concluída e mergeada** | 2026-11-07 | `feat/04-alarmes-notificacoes` / PR [#8](https://github.com/chrislucas/android-event-scheduler/pull/8) | sem placeholder de `ScheduleDetail` (a entry vem da spec 10); `ScheduleNotifier`/canais via App Startup próprio; `NotificationPermissionEffect` só `rememberSaveable`; verificação Koin com `extraTypes` do framework |
 | 05 | **concluída e mergeada** | 2026-11-08 | `feat/05-home-calendario` / PR [#12](https://github.com/chrislucas/android-event-scheduler/pull/12) | mês visível derivado do dia selecionado (só `selectedDate` no `SavedStateHandle`); corpo numa única `LazyColumn` (grade + agenda); evento `OnRetryClicked`; `homeEntry` sem `onNavigateToSettings` (fica para a 06); testes de tela com `-w411dp-h891dp`; "hoje" não vira à meia-noite com a tela aberta |
-| 06 | pendente | | | |
+| 06 | **concluída e mergeada** | 2026-11-08 | `feat/06-home-gaveta-filtros` / PR [#18](https://github.com/chrislucas/android-event-scheduler/pull/18) | gaveta sincronizada nos dois sentidos pelo `currentValue` do `DrawerState` (sem laço; o gesto de borda também atualiza o estado); `BackHandler` fecha a gaveta; folha sempre composta (vazia em Loading abria sobre a Home); `homeEntry`/`HomeScreen` ganharam `onNavigateToSettings` obrigatório; dois DataStores no mesmo arquivo num `TestScope` falham ("multiple DataStores active"); três commits unidos para compilar isolados. Gestos, voltar preditivo e TalkBack não verificados em aparelho |
 | 07 | **concluída e mergeada** | 2026-11-08 | `feat/07-criar-editar-agendamento` / PR [#13](https://github.com/chrislucas/android-event-scheduler/pull/13) | rota inteira por `parametersOf` (Koin não resolve dois nulos por tipo); seletores inline (calendário, hora, listas de rádio); `DatePicker` em UTC convertido para a data local; ponta a ponta criar → Home (`CreateScheduleShowsOnHomeRobolectricTest`) adicionado na sincronização |
-| 08 | pendente | | | |
+| 08 | **concluída e mergeada** | 2026-11-08 | `feat/08-recorrencia` / PR [#17](https://github.com/chrislucas/android-event-scheduler/pull/17) | diálogo de repetição com rascunho local (`RecurrenceDraft`), sem UseCase; diálogo fora da `LazyColumn`; eventos do Upsert agrupados em famílias `sealed` (`FieldEvent`, `ScheduleTimeEvent`, `RecurrenceEvent`) para sair do limite do detekt sem `@Suppress`; ponta a ponta com série diária na Home + alarme. Alvo de toque dos dias < 48 dp em telas < 360 dp; teclado numérico e TalkBack não verificados em aparelho |
 | 09 | pendente | | | |
 | 10 | **concluída e mergeada** | 2026-11-07 | `feat/10-detalhes-agendamento` / PR [#7](https://github.com/chrislucas/android-event-scheduler/pull/7) | `StringProvider` nasceu em `core.common` e os formatadores de `core.ui.format` ganharam overloads com ele (mapper testável na JVM); placeholder de **Upsert** no `AppNavHost` (removido na 07); `CalendarSource.label` em `core.ui.format`; saídas Home/pesquisa/notificação → Detail ficam para 04/05/13 |
 | 11 | **concluída e mergeada** | 2026-11-08 | `feat/11-duplicar-excluir` / PR [#10](https://github.com/chrislucas/android-event-scheduler/pull/10) | `showSnackbar` em `rememberCoroutineScope` (suspende até sumir); sufixo `" (Cópia)"` com aspas no XML; `ScheduleDetailUi.isRecurring`; ponta a ponta Home → detalhe → excluir (`DeleteScheduleFromHomeRobolectricTest`) adicionado na sincronização |
-| 12 | pendente | | | |
+| 12 | **concluída e mergeada** | 2026-11-08 | `feat/12-compartilhar` / PR [#16](https://github.com/chrislucas/android-event-scheduler/pull/16) | `ScheduleShareTextBuilder` com `StringProvider`; disparo único do chooser no tratamento de `ShareText` em `ScheduleDetailScreen` (comentário marca onde a 16 chama `suppressNextLock()`); o chooser exige o contexto da `Activity` (`NEW_TASK` com o da aplicação); erro via Toast. Dois commits que não compilam isolados (`5034289`, `211c464`) ficaram na `main`: ver [`docs/decisoes/commits-compilaveis-e-git-bisect.md`](../../docs/decisoes/commits-compilaveis-e-git-bisect.md). Share sheet real não verificado em aparelho |
 | 13 | **concluída e mergeada** | 2026-11-07 | `feat/13-pesquisa` / PR [#6](https://github.com/chrislucas/android-event-scheduler/pull/6) | `Resources`/`SavedStateHandle` como `extraTypes` no `KoinModulesVerificationTest`; rótulo do calendário mapeado dentro do `SearchResultMapper` (trocar pela função da spec 10); Home → Search → Detail só verificável após 05/10 |
 | 14 | **concluída e mergeada** | 2026-11-08 | `feat/14-alarme-tela-cheia-adiar` / PR [#14](https://github.com/chrislucas/android-event-scheduler/pull/14) | sem permissão nova (`setShowWhenLocked`/`setTurnScreenOn`); opções de adiamento de `UserSettings.ALLOWED_SNOOZE_MINUTES`; testes de degradação da 04 passaram a desinstalar a atividade do `PackageManager` simulado; o adiamento não é persistido; `notificationId = hashCode()` pode colidir. Tela sobre o bloqueio não verificada em aparelho |
 | 15 | **concluída e mergeada** | 2026-11-08 | `feat/15-restauracao-pos-boot` / PR [#11](https://github.com/chrislucas/android-event-scheduler/pull/11) | receiver com `exported="false"` (o sistema ainda entrega); sem `LOCKED_BOOT_COMPLETED`/`directBootAware`; `RECEIVE_BOOT_COMPLETED` em `docs/permissoes.md` §2.6; o adiamento da 14 se perde no reboot; guia [`docs/testes-pos-boot-adb.md`](../../docs/testes-pos-boot-adb.md). Teste em aparelho não executado |
@@ -210,6 +210,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-08 | Onda F concluída (06, 08, 12). Novas regras de processo: **todo commit compila** (`fluxo-de-trabalho.md` §1.1, checado com `git rebase --exec` antes do PR) e **eventos de UI em famílias `sealed`** em telas grandes (`arquitetura.md`, UiEvent). A 09 deve acrescentar uma família no Upsert e seguir o padrão `HomeChrome`/`onDrawerEvent` na Home. Ordem inalterada; próxima onda: **09 ∥ 17** | O #16 entrou com dois commits que não compilam isolados (membro novo de `sealed` antes do ramo no `when` exaustivo); a regra pegou o mesmo padrão em três commits do #18, corrigidos antes do merge. O `onEvent` do Upsert passou do limite do detekt na 08 e ia piorar na 09 |
 | 2026-11-08 | Onda E concluída (05, 07, 11, 14, 15) e status de 03, 04, 10 e 13 atualizados para mergeada. Novas dependências: a **06** acrescenta `onNavigateToSettings` ao `homeEntry`; a **12** insere Compartilhar em `detailActions(...)`. M4 aponta para `docs/testes-pos-boot-adb.md`. Ordem inalterada; próxima onda: **06 ∥ 08 ∥ 12** | Lições da onda E: (1) placeholders vizinhos apagados por duas specs exigem remoção completa no rebase; (2) a junção de blocos de agregação perde a linha em branco (ktlint `spacing-between-declarations-with-comments`); (3) testes de tela precisam de tela alta no Robolectric (`-w411dp-h891dp`, formulário `-h2400dp`); (4) `adb shell am broadcast` de `BOOT_COMPLETED` exige root; (5) cada sincronização ganhou um teste ponta a ponta com a `MainActivity` cobrindo a integração que a spec isolada não alcançava |
 | 2026-11-08 | Regra de permissões (`arquitetura.md` §5.6) e `docs/permissoes.md`. Specs **14, 15, 16 e 17** ganharam o passo de documentar/travar permissões; a 16 deve remover `USE_FINGERPRINT` injetada pela `androidx.biometric`. Ordem inalterada | Revisão das permissões após a spec 04 (`USE_EXACT_ALARM` restrita pelo Google Play) |
 | 2026-11-07 | Spec 03 concluída. **Todas** as specs com ViewModel passam a injetar o dispatcher `main` e os testes de integração de tela seguem o padrão de drenar o looper (steering §5.1/§5.2). Ordem inalterada; próxima onda paralela: **04 ∥ 10 ∥ 13** | Toast fora da main e `single`s com arquivos de testes anteriores |
