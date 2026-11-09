@@ -39,6 +39,7 @@ Aplicativo Android **100% offline** para organizar a rotina pessoal com **Evento
 - **Detalhes** com Duplicar, Editar, Compartilhar (share sheet nativo) e Excluir (com confirmação).
 - **Pesquisa** reativa por título, notas e local (sem diferenciar acentos/maiúsculas), com filtro Todos / Eventos / Lembretes.
 - **Configurações**: conta ativa, antecedência padrão, adiamento padrão e alerta em tela cheia.
+- **Tema claro e escuro** (ou seguir o sistema), escolhido em Configurações e lembrado entre aberturas do app.
 - **Proteção com o bloqueio do celular** (PIN, padrão ou senha), opcional, com tempo para pedir de novo.
 - **Importar e exportar a agenda** em arquivo JSON, compartilhando por e-mail ou qualquer app compatível, ou salvando no seletor de arquivos.
 
@@ -155,7 +156,7 @@ Salvar agendamento ─► SaveScheduleUseCase ─► Room
 
 ## Specs de desenvolvimento
 
-O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.kiro/specs/README.md): 19 specs (`00-fundacao-projeto` … `18-toque-duplo-criar-agendamento`), cada uma com `requirements.md`, `design.md`, `tasks.md` e `prompt.md` para execução. Ordem e dependências estão no README das specs. O que define uma spec bem implementada está em [`criterios-de-aceite.md`](AndroidEventScheduler/.kiro/specs/criterios-de-aceite.md).
+O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.kiro/specs/README.md): 20 specs (`00-fundacao-projeto` … `19-tema-claro-escuro`), cada uma com `requirements.md`, `design.md`, `tasks.md` e `prompt.md` para execução. Ordem e dependências estão no README das specs. O que define uma spec bem implementada está em [`criterios-de-aceite.md`](AndroidEventScheduler/.kiro/specs/criterios-de-aceite.md).
 
 | # | Spec | # | Spec |
 |---|---|---|---|
@@ -170,6 +171,7 @@ O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.k
 | | | 16 | Autenticação com o bloqueio do dispositivo |
 | | | 17 | Importar e exportar a agenda |
 | | | 18 | Toque duplo numa data cria evento ou lembrete |
+| | | 19 | Tema claro e escuro persistente |
 
 ## Como executar
 
@@ -192,6 +194,7 @@ O app pede só o necessário para lembrar no horário certo — notificações, 
 
 - [`docs/decisoes/mvi-viewmodel-abstrata.md`](AndroidEventScheduler/docs/decisoes/mvi-viewmodel-abstrata.md) — proposta (em avaliação) de uma `MviViewModel` abstrata: migração, vantagens, desvantagens, alternativas e matriz de decisão.
 - [`docs/decisoes/commits-compilaveis-e-git-bisect.md`](AndroidEventScheduler/docs/decisoes/commits-compilaveis-e-git-bisect.md) — regra "todo commit compila": o caso do PR #16, como verificar cada commit antes do PR e como usar o `git bisect` no projeto.
+- [`docs/decisoes/persistencia-do-tema-datastore-vs-sharedpreferences.md`](AndroidEventScheduler/docs/decisoes/persistencia-do-tema-datastore-vs-sharedpreferences.md) — onde guardar a escolha de tema: Preferences DataStore × SharedPreferences (e por que não Proto DataStore, Room ou `UiModeManager`), com vantagens, desvantagens e a recomendação.
 - [`docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md`](AndroidEventScheduler/docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md) — por que a grade usa um detector de toque duplo próprio: `combinedClickable`/`detectTapGestures` atrasam o toque simples em 300 ms (medido), a solução com `pointerInput` passivo e o que ela trata a mais (deslize, dia de mês vizinho, TalkBack).
 
 ## Qualidade de código e CI
@@ -209,7 +212,7 @@ Funcional e em evolução, desenvolvido spec a spec (ordem, dependências e stat
 |---|---|
 | **Implementadas na `main`** | 00–15, 17 e 18: fundação, núcleo de agendamentos, Splash, Configurações, alarmes e notificações, Home (calendário, gaveta, filtros, cor e emoji, toque duplo), criar e editar, recorrência, detalhes, duplicar, excluir, compartilhar, pesquisa, alarme em tela cheia com Adiar, restauração pós-boot e importar/exportar |
 | **Em branch intermediária** | 16, autenticação com o bloqueio do dispositivo: em `integracao/16-autenticacao-dispositivo`, ainda fora da `main` |
-| **Especificada, não implementada** | 19, tema claro e escuro persistente (spec no PR #29) |
+| **Especificada, não implementada** | 19, tema claro e escuro persistente ([`19-tema-claro-escuro`](AndroidEventScheduler/.kiro/specs/19-tema-claro-escuro/requirements.md)) |
 
 - **Testes:** 858 testes unitários e de UI (JUnit + Robolectric/Compose UI Test) na `main`, com ktlint, detekt e compilação verdes na CI a cada PR.
 - **Não verificado em aparelho:** os comportamentos que dependem do sistema (alarme exato real, tela cheia sobre o bloqueio, reinício do aparelho, TalkBack) estão listados em cada PR; o roteiro de pós-boot está em [`docs/testes-pos-boot-adb.md`](AndroidEventScheduler/docs/testes-pos-boot-adb.md).
