@@ -1,5 +1,6 @@
 package com.br.androideventscheduler
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -36,6 +37,7 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import java.time.LocalDate
 
 /**
  * Ponta a ponta da spec 16 com a `MainActivity` e o grafo real, trocando só o autenticador (diálogo do sistema) por um
@@ -65,6 +67,18 @@ class AppLockGateRobolectricTest {
         composeRule.waitUntil(timeoutMillis = 10_000) {
             shadowOf(Looper.getMainLooper()).idle()
             condition()
+        }
+    }
+
+    /** Espera o share sheet (`ACTION_CHOOSER`), ignorando outras Activities iniciadas antes (ex.: pedido de permissão). */
+    private fun waitUntilChooserStarted(application: Application) {
+        var chooserStarted = false
+        waitUntilWithMainLooper {
+            while (!chooserStarted) {
+                val started = shadowOf(application).nextStartedActivity ?: break
+                chooserStarted = started.action == Intent.ACTION_CHOOSER
+            }
+            chooserStarted
         }
     }
 
@@ -288,6 +302,61 @@ class AppLockGateRobolectricTest {
             waitUntilWithMainLooper { harness.authenticator.calls == 1 }
 
             assertEquals(false, harness.repository.settings.value.appLockEnabled)
+        }
+    }
+
+    @Test
+    fun `given the share sheet is opened from the detail when the app returns then it does not lock`() {
+        install(
+            settings = UserSettings(appLockEnabled = true, appLockTimeout = AppLockTimeout.IMMEDIATE),
+            authResult = AuthResult.Success,
+        )
+        val repository = GlobalContext.get().get<ScheduleRepository>()
+        runBlocking { repository.upsert(scheduleItem(id = "to-share", title = "Reunião", startDate = LocalDate.now())) }
+        val itemTag = SemanticsTags.HOME_SCHEDULE_ITEM_PREFIX + "to-share"
+        val application = ApplicationProvider.getApplicationContext<Application>()
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitUntilWithMainLooper { hasNode(itemTag) }
+            composeRule.onNodeWithTag(itemTag).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.DETAIL_SHARE_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.DETAIL_SHARE_BUTTON).performClick()
+            waitUntilChooserStarted(application)
+
+            harness.backgroundFor(millis = 5_000L)
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(AppLockState.Unlocked, harness.controller.lockState.value)
+            assertEquals(false, hasNode(SemanticsTags.LOCK_SCREEN))
+
+            // A supressão vale para uma volta só: a próxima ida ao segundo plano bloqueia.
+            harness.backgroundFor(millis = 5_000L)
+            assertEquals(AppLockState.Locked, harness.controller.lockState.value)
+        }
+    }
+
+    @Test
+    fun `given the export share sheet is opened from the backup screen when the app returns then it does not lock`() {
+        install(
+            settings = UserSettings(appLockEnabled = true, appLockTimeout = AppLockTimeout.IMMEDIATE),
+            authResult = AuthResult.Success,
+        )
+        runBlocking { GlobalContext.get().get<ScheduleRepository>().upsert(scheduleItem(id = "to-export", title = "Reunião")) }
+        val application = ApplicationProvider.getApplicationContext<Application>()
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_MENU_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.HOME_MENU_BUTTON).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_DRAWER_SETTINGS_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.HOME_DRAWER_SETTINGS_BUTTON).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.SETTINGS_BACKUP_ITEM) }
+            composeRule.onNodeWithTag(SemanticsTags.SETTINGS_BACKUP_ITEM).performScrollTo().performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.BACKUP_EXPORT_SHARE_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.BACKUP_EXPORT_SHARE_BUTTON).performClick()
+            waitUntilChooserStarted(application)
+
+            harness.backgroundFor(millis = 5_000L)
+
+            assertEquals(AppLockState.Unlocked, harness.controller.lockState.value)
         }
     }
 

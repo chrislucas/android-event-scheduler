@@ -87,6 +87,37 @@ class FullScreenAlarmViewModelTest {
             assertEquals(15, viewModel.content().minutesUntilStart)
         }
 
+    // Bloqueio do app (spec 16)
+    @Test
+    fun `given app lock on when view model starts then location and notes are hidden but title and time are kept`() =
+        runTest(mainRule.dispatcher) {
+            val detailed = upcomingEvent.copy(location = "Sala 3", notes = "Levar o notebook")
+            coEvery { scheduleRepository.getById("item-1") } returns detailed
+            settingsRepository.settings.value = UserSettings(appLockEnabled = true)
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            val content = viewModel.content()
+            assertNull(content.location)
+            assertNull(content.notes)
+            assertEquals("Reunião", content.title)
+            assertEquals(mapper.map(detailed, UserSettings.DEFAULT_SNOOZE_MINUTES).timeText, content.timeText)
+        }
+
+    @Test
+    fun `given app lock off when view model starts then location and notes are shown`() =
+        runTest(mainRule.dispatcher) {
+            val detailed = upcomingEvent.copy(location = "Sala 3", notes = "Levar o notebook")
+            coEvery { scheduleRepository.getById("item-1") } returns detailed
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertEquals("Sala 3", viewModel.content().location)
+            assertEquals("Levar o notebook", viewModel.content().notes)
+        }
+
     @Test
     fun `given default snooze of five in settings when view model starts then the five minute chip is selected`() =
         runTest(mainRule.dispatcher) {

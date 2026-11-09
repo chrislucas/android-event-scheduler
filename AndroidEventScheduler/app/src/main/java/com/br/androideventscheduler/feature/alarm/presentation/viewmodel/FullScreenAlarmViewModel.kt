@@ -69,8 +69,11 @@ internal class FullScreenAlarmViewModel(
                     sendEffect(FullScreenAlarmUiEffect.CloseScreen(cancelNotification = true))
                     return@launch
                 }
-                val snoozeMinutes = runCatching { userSettingsRepository.current().defaultSnoozeMinutes }
-                _uiState.value = mapper.map(schedule, snoozeMinutes.getOrDefault(UserSettings.DEFAULT_SNOOZE_MINUTES))
+                val settings = runCatching { userSettingsRepository.current() }.getOrNull()
+                val content = mapper.map(schedule, settings?.defaultSnoozeMinutes ?: UserSettings.DEFAULT_SNOOZE_MINUTES)
+                // Spec 16: a tela aparece sobre o bloqueio do sistema, sem autenticação. Com a proteção do app ligada (ou sem
+                // conseguir saber), só título e horário: local e notas ficam ocultos.
+                _uiState.value = if (settings?.appLockEnabled == false) content else content.copy(location = null, notes = null)
             }
     }
 
