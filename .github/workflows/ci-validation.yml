@@ -4,9 +4,13 @@ name: CI Validation
 # Análise estática (ktlint + detekt), testes unitários e compilação. NÃO gera artefato publicável.
 #
 # Uma execução por push/PR:
-# - branches de integração (main): pelo evento push;
-# - branches de trabalho: pelo PR aberto contra uma delas (testa o resultado do merge).
-#   Ter as duas no push faria cada commit de um PR rodar duas vezes.
+# - main: pelo evento push;
+# - branches de trabalho: pelo PR aberto contra a main ou contra uma branch intermediária
+#   (integracao/** ou epic/**, que recebem uma feature inteira antes do PR final para a main).
+#   O PR testa o resultado do merge. Ter as branches de trabalho no push faria cada commit de
+#   um PR rodar duas vezes.
+# Alterado à mão depois do bootstrap: o script gera a mesma lista para push e pull_request; aqui
+# o pull_request tem também as branches intermediárias. Ao regenerar a fundação, manter este bloco.
 on:
   push:
     branches:
@@ -14,6 +18,8 @@ on:
   pull_request:
     branches:
       - main
+      - 'integracao/**'
+      - 'epic/**'
   workflow_dispatch:
 
 concurrency:
