@@ -1,7 +1,7 @@
 package com.br.androideventscheduler.core.preferences.domain
 
-import com.br.androideventscheduler.core.security.domain.AppLockTimeout
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import com.br.androideventscheduler.core.security.domain.AppLockTimeout
 
 /** Preferências do usuário, compartilhadas por Configurações, criação de itens, alarmes e Home. */
 data class UserSettings(

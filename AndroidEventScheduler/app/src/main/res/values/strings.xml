@@ -364,4 +364,17 @@
     <string name="backup_importing">Importando os agendamentos</string>
     <string name="backup_share_no_app">Nenhum app disponível para compartilhar</string>
     <string name="backup_picker_unavailable">Não há um seletor de arquivos disponível neste aparelho</string>
+
+    <!-- Bloqueio do app (spec 16) -->
+    <string name="lock_title">RememberMe bloqueado</string>
+    <string name="lock_message">Confirme o bloqueio de tela do celular para continuar</string>
+    <string name="lock_unlock_button">Desbloquear</string>
+    <string name="lock_unlock_description">Desbloquear o RememberMe com o bloqueio de tela do celular</string>
+    <string name="lock_authenticating">Aguardando a confirmação do bloqueio de tela</string>
+    <string name="lock_locked_out">Muitas tentativas. Tente novamente mais tarde.</string>
+    <string name="lock_not_available">O bloqueio de tela do celular não está disponível. Configure um PIN, padrão ou senha no Android.</string>
+    <string name="lock_error">Não foi possível confirmar o bloqueio de tela. Tente novamente.</string>
+    <string name="lock_prompt_title">Desbloquear o RememberMe</string>
+    <string name="lock_prompt_subtitle">Confirme o bloqueio de tela do celular</string>
+    <string name="lock_disabled_device_insecure">O bloqueio de tela do celular foi removido; a proteção do app foi desativada</string>
 </resources>

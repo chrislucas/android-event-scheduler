@@ -20,11 +20,12 @@ class CredentialLauncherRegistry {
     private var pending: CancellableContinuationHolder? = null
 
     fun attach(activity: ComponentActivity) {
-        launcher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val holder = pending
-            pending = null
-            holder?.resume(if (result.resultCode == Activity.RESULT_OK) AuthResult.Success else AuthResult.Canceled)
-        }
+        launcher =
+            activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                val holder = pending
+                pending = null
+                holder?.resume(if (result.resultCode == Activity.RESULT_OK) AuthResult.Success else AuthResult.Canceled)
+            }
         activity.lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onDestroy(owner: LifecycleOwner) {

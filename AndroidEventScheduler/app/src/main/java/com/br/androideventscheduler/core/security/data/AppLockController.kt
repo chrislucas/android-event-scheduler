@@ -81,9 +81,7 @@ class AppLockController(
         latestSettings = settings
         when {
             !settings.appLockEnabled -> _lockState.value = AppLockState.Unlocked
-
             isFirstRead && !deviceSecurity.isDeviceSecure() -> disableBecauseDeviceInsecure(settings)
-
             isFirstRead -> _lockState.value = AppLockState.Locked
         }
     }

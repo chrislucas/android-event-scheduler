@@ -19,9 +19,7 @@ class AppLockControllerTest {
     private var now = 1_000L
     private var deviceSecure = true
 
-    private fun TestScope.controller(
-        repository: FakeUserSettingsRepository,
-    ): AppLockController =
+    private fun TestScope.controller(repository: FakeUserSettingsRepository): AppLockController =
         AppLockController(
             settingsRepository = repository,
             deviceSecurity = { deviceSecure },

@@ -9,6 +9,7 @@ import com.br.androideventscheduler.core.preferences.di.preferencesModule
 import com.br.androideventscheduler.core.schedule.di.scheduleCoreModule
 import com.br.androideventscheduler.core.security.di.securityModule
 import com.br.androideventscheduler.feature.alarm.di.alarmFeatureModule
+import com.br.androideventscheduler.feature.auth.di.authModule
 import com.br.androideventscheduler.feature.backup.di.backupModule
 import com.br.androideventscheduler.feature.detail.di.detailModule
 import com.br.androideventscheduler.feature.home.di.homeModule
@@ -45,7 +46,7 @@ val appModules: List<Module> =
         // Importar/exportar (spec 17)
         backupModule,
         incomingFileModule,
-
         // Bloqueio do app (spec 16)
         securityModule,
+        authModule,
     )
