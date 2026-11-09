@@ -13,9 +13,8 @@ sealed interface HomeUiEvent {
     /** Adesivo do dia selecionado (spec 09). */
     sealed interface DayStickerEvent : HomeUiEvent
 
-    data class OnDayClicked(
-        val date: LocalDate,
-    ) : HomeUiEvent
+    /** Toques na célula do dia: seleção (spec 05) e toque duplo/ação de acessibilidade para criar (spec 18). */
+    sealed interface DayCellEvent : HomeUiEvent
 
     data object OnPreviousMonthClicked : HomeUiEvent
 
@@ -61,4 +60,12 @@ sealed interface HomeUiEvent {
     data class OnDayStickerSelected(
         val emoji: String?,
     ) : DayStickerEvent
+
+    data class OnDayClicked(
+        val date: LocalDate,
+    ) : DayCellEvent
+
+    data class OnDayDoubleTapped(
+        val date: LocalDate,
+    ) : DayCellEvent
 }
