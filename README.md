@@ -169,6 +169,7 @@ O app pede só o necessário para lembrar no horário certo — notificações, 
 
 - [`docs/decisoes/mvi-viewmodel-abstrata.md`](AndroidEventScheduler/docs/decisoes/mvi-viewmodel-abstrata.md) — proposta (em avaliação) de uma `MviViewModel` abstrata: migração, vantagens, desvantagens, alternativas e matriz de decisão.
 - [`docs/decisoes/commits-compilaveis-e-git-bisect.md`](AndroidEventScheduler/docs/decisoes/commits-compilaveis-e-git-bisect.md) — regra "todo commit compila": o caso do PR #16, como verificar cada commit antes do PR e como usar o `git bisect` no projeto.
+- [`docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md`](AndroidEventScheduler/docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md) — por que a grade usa um detector de toque duplo próprio: `combinedClickable`/`detectTapGestures` atrasam o toque simples em 300 ms (medido), a solução com `pointerInput` passivo e o que ela trata a mais (deslize, dia de mês vizinho, TalkBack).
 
 ## Qualidade de código e CI
 

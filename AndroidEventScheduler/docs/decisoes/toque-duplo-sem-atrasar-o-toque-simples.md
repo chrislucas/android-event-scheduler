@@ -24,6 +24,16 @@ Efeito na Home: o usuário toca num dia e a seleção (anel no dia, cabeçalho e
 
 Esse atraso vem do contrato dessas APIs, não de um bug: o `onClick` só pode ser decidido depois do intervalo. Não há parâmetro que o desligue.
 
+**Medido neste projeto** (Compose `ui-test` 1.9.5 no Robolectric, relógio de teste com `autoAdvance = false`): um toque único numa caixa de 48 dp, avançando o relógio de 10 em 10 ms até o callback do toque simples disparar.
+
+| Modificador | `doubleTapTimeoutMillis` | Toque simples dispara após |
+|---|---|---|
+| `clickable(onClick)`, o que a grade usa | 300 ms | **0 ms** (no próprio quadro) |
+| `combinedClickable(onClick, onDoubleClick)` | 300 ms | **300 ms** |
+| `pointerInput { detectTapGestures(onTap, onDoubleTap) }` | 300 ms | **300 ms** |
+
+A sonda foi um teste temporário e não ficou no repositório: medir o comportamento do framework não é responsabilidade do app. O que fica coberto pelos testes do projeto é a nossa garantia, ou seja, a seleção logo após um único clique, sem avançar o relógio.
+
 Há ainda dois problemas que as APIs prontas não resolvem sozinhas:
 
 1. **Deslizar para trocar de mês** (spec 05, R1.5) não pode contar como toque, mesmo que o dedo termine dentro de uma célula (R2.5).
@@ -60,7 +70,7 @@ O preço é código próprio a manter. Ele é pequeno, isolado em `feature.home`
 
 - A sensação do gesto com o intervalo real do sistema, em aparelho.
 - TalkBack lendo e executando a ação personalizada.
-- A medida do atraso das APIs prontas não foi refeita neste projeto; o comportamento descrito na seção 2 é o contrato documentado delas. O que os testes deste projeto provam é que a nossa solução seleciona o dia **sem avançar o relógio** após um único clique.
+- O atraso das APIs prontas foi medido no Robolectric (seção 2), não em aparelho. Em aparelho o valor é o `doubleTapTimeout` do sistema (300 ms por padrão; o usuário pode mudá-lo nas opções de acessibilidade).
 
 ## Referências
 
