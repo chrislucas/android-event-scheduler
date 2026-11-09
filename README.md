@@ -212,7 +212,7 @@ Funcional e em evolução, desenvolvido spec a spec (ordem, dependências e stat
 |---|---|
 | **Implementadas na `main`** | 00–15, 17 e 18: fundação, núcleo de agendamentos, Splash, Configurações, alarmes e notificações, Home (calendário, gaveta, filtros, cor e emoji, toque duplo), criar e editar, recorrência, detalhes, duplicar, excluir, compartilhar, pesquisa, alarme em tela cheia com Adiar, restauração pós-boot e importar/exportar |
 | **Em branch intermediária** | 16, autenticação com o bloqueio do dispositivo: em `integracao/16-autenticacao-dispositivo`, ainda fora da `main` |
-| **Especificada, não implementada** | 19, tema claro e escuro persistente (spec no PR #29) |
+| **Especificada, não implementada** | 19, tema claro e escuro persistente ([`19-tema-claro-escuro`](AndroidEventScheduler/.kiro/specs/19-tema-claro-escuro/requirements.md)) |
 
 - **Testes:** 858 testes unitários e de UI (JUnit + Robolectric/Compose UI Test) na `main`, com ktlint, detekt e compilação verdes na CI a cada PR.
 - **Não verificado em aparelho:** os comportamentos que dependem do sistema (alarme exato real, tela cheia sobre o bloqueio, reinício do aparelho, TalkBack) estão listados em cada PR; o roteiro de pós-boot está em [`docs/testes-pos-boot-adb.md`](AndroidEventScheduler/docs/testes-pos-boot-adb.md).
