@@ -1,8 +1,8 @@
 # 16 — Autenticação com o bloqueio do dispositivo — Tarefas
 
 - [x] 1. Dependências: `androidx.biometric:biometric` — no manifest, manter `USE_BIOMETRIC` (exigida pelo `BiometricPrompt` mesmo só com `DEVICE_CREDENTIAL`) e **remover `USE_FINGERPRINT`** com `tools:node="remove"`; documentar em `docs/permissoes.md` e atualizar `RequestedPermissionsGuardRobolectricTest`. Dependência: `androidx.biometric:biometric` (estável atual; 1.1.0 em nov/2026 — reavaliar 1.4.0 quando estável), `androidx.lifecycle:lifecycle-process`, `androidx.fragment` (via biometric). `MainActivity` passa a estender `FragmentActivity`.
-- [ ] 2. Domain (TDD): `AppLockTimeout`, `AppLockPolicy` + `AppLockPolicyTest`; `AuthResult` e `DeviceCredentialAuthenticator` (R2.2, R2.4, R5.3).
-- [ ] 3. `UserSettings` + `UserSettingsRepositoryImpl`: `appLockEnabled`/`appLockTimeout` com padrões e round-trip testado (R6.1).
+- [x] 2. Domain (TDD): `AppLockTimeout`, `AppLockPolicy` + `AppLockPolicyTest`; `AuthResult` e `DeviceCredentialAuthenticator` (R2.2, R2.4, R5.3).
+- [x] 3. `UserSettings` + `UserSettingsRepositoryImpl`: `appLockEnabled`/`appLockTimeout` com padrões e round-trip testado (R6.1).
 - [ ] 4. Data (TDD): `DeviceSecurityChecker` e `AppLockController` (ProcessLifecycleOwner, relógio monotônico injetado, estados `Pending`/`Locked`/`Unlocked`, `suppressNextLock`, desativação por dispositivo inseguro) + `AppLockControllerTest` (R2, R3.6, R6.2).
 - [ ] 5. Data: `BiometricPromptAuthenticator` (API 30+), `KeyguardIntentAuthenticator` (API 24–29) com `CredentialLauncherRegistry`; `SecurityModule` com o único `if` de versão; mapeamento de erros testado (R5).
 - [ ] 6. feature.auth: contrato sealed, `LockViewModel` + testes, `LockScreen`/`LockContent` com previews, strings e tags (R3).
