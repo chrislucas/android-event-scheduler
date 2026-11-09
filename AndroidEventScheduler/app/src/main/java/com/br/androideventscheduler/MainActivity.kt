@@ -18,17 +18,21 @@ import com.br.androideventscheduler.app.IncomingFileState
 import com.br.androideventscheduler.app.incomingAgendaFileUri
 import com.br.androideventscheduler.core.alarm.data.AlarmIntents
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.security.data.CredentialLauncherRegistry
 import org.koin.android.ext.android.inject
 
 // FragmentActivity: exigência do BiometricPrompt (spec 16); o Compose (setContent) funciona igual.
 class MainActivity : FragmentActivity() {
     private val deepLinkState: DeepLinkState by inject()
     private val incomingFileState: IncomingFileState by inject()
+    private val credentialLauncherRegistry: CredentialLauncherRegistry by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // SplashScreen API: precisa vir antes de super.onCreate para trocar o tema de partida pelo principal.
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        // Confirmação de credencial em API 24–29 (Activity Result): precisa ser registrada antes de STARTED (spec 16).
+        credentialLauncherRegistry.attach(this)
         // Só no primeiro nascimento: após rotação/recriação o intent original voltaria e reabriria o detalhe.
         if (savedInstanceState == null) {
             registerDeepLink(intent)
