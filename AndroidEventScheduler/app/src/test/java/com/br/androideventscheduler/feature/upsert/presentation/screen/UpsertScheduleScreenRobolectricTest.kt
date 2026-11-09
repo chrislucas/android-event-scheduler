@@ -28,7 +28,9 @@ import androidx.test.core.app.ApplicationProvider
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
+import com.br.androideventscheduler.core.schedule.domain.model.EventColorOption
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
+import com.br.androideventscheduler.core.schedule.domain.model.StickerEmoji
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import com.br.androideventscheduler.core.ui.SemanticsTags
@@ -47,6 +49,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowAlarmManager
+import org.robolectric.shadows.ShadowDialog
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.TimeZone
@@ -361,6 +364,127 @@ class UpsertScheduleScreenRobolectricTest {
         waitUntilWithMainLooper { backCalls > 0 }
 
         assertTrue(runBlocking { repository.getAll() }.isEmpty())
+    }
+
+    // endregion
+
+    // region cor e adesivo (spec 09)
+
+    @Test
+    fun `given new schedule when opening then the sticker and color buttons describe the defaults and have the button role`() {
+        showScreen()
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_STICKER_BUTTON)
+            .assertContentDescriptionEquals("Selecionar emoji ou adesivo")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_COLOR_BUTTON)
+            .assertContentDescriptionEquals("Cor selecionada: Azul claro. Toque para alterar")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+    }
+
+    @Test
+    fun `given the sticker button when choosing an emoji then the dialog closes and the description names it`() {
+        showScreen()
+
+        click(SemanticsTags.UPSERT_STICKER_BUTTON)
+        composeRule.onNodeWithTag(SemanticsTags.STICKER_PICKER_DIALOG).assertExists()
+        click(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.ROCKET.name)
+
+        assertEquals(0, tagCount(SemanticsTags.STICKER_PICKER_DIALOG))
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_STICKER_BUTTON)
+            .assertContentDescriptionEquals("Adesivo selecionado: 🚀. Toque para alterar")
+    }
+
+    @Test
+    fun `given a chosen sticker when removing it then the button goes back to the default description`() {
+        showScreen()
+        click(SemanticsTags.UPSERT_STICKER_BUTTON)
+        click(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.STAR.name)
+
+        click(SemanticsTags.UPSERT_STICKER_BUTTON)
+        click(SemanticsTags.STICKER_CLEAR_BUTTON)
+
+        composeRule.onNodeWithTag(SemanticsTags.UPSERT_STICKER_BUTTON).assertContentDescriptionEquals("Selecionar emoji ou adesivo")
+    }
+
+    @Test
+    fun `given the color button when choosing a color then the dialog closes and the description names it`() {
+        showScreen()
+
+        click(SemanticsTags.UPSERT_COLOR_BUTTON)
+        composeRule.onNodeWithTag(SemanticsTags.COLOR_PICKER_DIALOG).assertExists()
+        click(SemanticsTags.COLOR_OPTION_PREFIX + EventColorOption.CORAL.name)
+
+        assertEquals(0, tagCount(SemanticsTags.COLOR_PICKER_DIALOG))
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_COLOR_BUTTON)
+            .assertContentDescriptionEquals("Cor selecionada: Coral. Toque para alterar")
+    }
+
+    @Test
+    fun `given color and sticker chosen when saving then the stored item carries both`() {
+        showScreen()
+        typeTitle("Treino de judô")
+        click(SemanticsTags.UPSERT_STICKER_BUTTON)
+        click(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.WORKOUT.name)
+        click(SemanticsTags.UPSERT_COLOR_BUTTON)
+        click(SemanticsTags.COLOR_OPTION_PREFIX + EventColorOption.PURPLE.name)
+
+        click(SemanticsTags.UPSERT_SAVE_BUTTON)
+        waitUntilWithMainLooper { backCalls > 0 }
+
+        val stored = runBlocking { repository.getAll() }.single()
+        assertEquals(EventColorOption.PURPLE.hex, stored.colorHex)
+        assertEquals(StickerEmoji.WORKOUT.emoji, stored.stickerEmoji)
+    }
+
+    @Test
+    fun `given stored item with color and sticker when editing then the buttons come filled and the selection is preselected`() {
+        runBlocking {
+            repository.upsert(
+                scheduleItem(id = "stored-2", title = "Estudo", startDate = routeDate)
+                    .copy(colorHex = EventColorOption.INDIGO.hex, stickerEmoji = StickerEmoji.STUDY.emoji),
+            )
+        }
+        showScreen(scheduleId = "stored-2", initialDate = null)
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_STICKER_BUTTON)
+            .assertContentDescriptionEquals("Adesivo selecionado: 📚. Toque para alterar")
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_COLOR_BUTTON)
+            .assertContentDescriptionEquals("Cor selecionada: Índigo. Toque para alterar")
+        click(SemanticsTags.UPSERT_COLOR_BUTTON)
+        composeRule.onNodeWithTag(SemanticsTags.COLOR_OPTION_PREFIX + EventColorOption.INDIGO.name).assertIsSelected()
+    }
+
+    @Test
+    fun `given stored item with a hex outside the catalog when editing then the button shows the default color`() {
+        runBlocking {
+            repository.upsert(scheduleItem(id = "stored-3", title = "Antigo", startDate = routeDate).copy(colorHex = 0xFF123456))
+        }
+        showScreen(scheduleId = "stored-3", initialDate = null)
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_COLOR_BUTTON)
+            .assertContentDescriptionEquals("Cor selecionada: Azul claro. Toque para alterar")
+    }
+
+    @Test
+    fun `given the color dialog open when dismissing it then the color is unchanged`() {
+        showScreen()
+        click(SemanticsTags.UPSERT_COLOR_BUTTON)
+
+        composeRule.runOnUiThread { checkNotNull(ShadowDialog.getLatestDialog()).onBackPressed() }
+        composeRule.waitForIdle()
+
+        assertEquals(0, tagCount(SemanticsTags.COLOR_PICKER_DIALOG))
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_COLOR_BUTTON)
+            .assertContentDescriptionEquals("Cor selecionada: Azul claro. Toque para alterar")
     }
 
     // endregion

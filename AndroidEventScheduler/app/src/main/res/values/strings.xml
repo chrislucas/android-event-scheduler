@@ -264,4 +264,30 @@
     <string name="home_drawer_filter_hidden">Oculto</string>
     <string name="home_drawer_settings">Configurações</string>
     <string name="home_drawer_settings_description">Abrir configurações do aplicativo</string>
+
+    <!-- Seletor de cor e emoji (spec 09) -->
+    <string name="sticker_label_smile">Rosto sorridente</string>
+    <string name="sticker_label_study">Livros de estudo</string>
+    <string name="sticker_label_code">Computador e programação</string>
+    <string name="sticker_label_rocket">Foguete</string>
+    <string name="sticker_label_star">Estrela</string>
+    <string name="sticker_label_party">Comemoração</string>
+    <string name="sticker_label_workout">Treino</string>
+    <string name="sticker_label_coffee">Pausa para café</string>
+    <string name="color_label_light_blue">Azul claro</string>
+    <string name="color_label_indigo">Índigo</string>
+    <string name="color_label_teal">Verde-azulado</string>
+    <string name="color_label_olive_green">Verde oliva</string>
+    <string name="color_label_purple">Roxo</string>
+    <string name="color_label_coral">Coral</string>
+    <string name="sticker_picker_title">Escolher adesivo</string>
+    <string name="sticker_picker_description">Diálogo para escolher um emoji ou adesivo</string>
+    <string name="sticker_clear_button">Remover adesivo</string>
+    <string name="color_picker_title">Escolher cor</string>
+    <string name="color_picker_description">Diálogo para escolher a cor do agendamento</string>
+    <string name="upsert_sticker_button_empty">Selecionar emoji ou adesivo</string>
+    <string name="upsert_sticker_button_selected">Adesivo selecionado: %1$s. Toque para alterar</string>
+    <string name="upsert_color_button">Cor selecionada: %1$s. Toque para alterar</string>
+    <string name="home_day_sticker_empty">Adesivo do dia</string>
+    <string name="home_day_sticker_selected">Adesivo do dia: %1$s. Toque para alterar</string>
 </resources>

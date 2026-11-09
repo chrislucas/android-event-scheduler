@@ -12,11 +12,13 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -30,6 +32,7 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.preferences.testing.FakeUserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
+import com.br.androideventscheduler.core.schedule.domain.model.StickerEmoji
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import com.br.androideventscheduler.core.testing.FakeClock
 import com.br.androideventscheduler.core.ui.SemanticsTags
@@ -47,6 +50,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -78,6 +82,7 @@ class HomeScreenRobolectricTest {
 
     private val repository = FakeHomeScheduleRepository()
     private val registry = RecordingRegistry()
+    private val homePreferences = FakeHomePreferencesRepository()
 
     // FakeClock: 2026-11-07. Dispatcher Unconfined: o estado derivado reage na hora, sem drenar looper.
     private fun createViewModel(items: List<ScheduleItem> = emptyList()): HomeViewModel {
@@ -85,7 +90,7 @@ class HomeScreenRobolectricTest {
         return HomeViewModel(
             scheduleRepository = repository,
             userSettingsRepository = FakeUserSettingsRepository(),
-            homePreferencesRepository = FakeHomePreferencesRepository(),
+            homePreferencesRepository = homePreferences,
             monthGridBuilder = MonthGridBuilder(),
             clock = FakeClock(),
             savedStateHandle = SavedStateHandle(),
@@ -345,4 +350,86 @@ class HomeScreenRobolectricTest {
 
         assertEquals(HomeUiEvent.OnMonthPicked(YearMonth.of(2026, 2)), events.last())
     }
+
+    // region adesivo do dia (spec 09)
+
+    @Test
+    fun `given the day header when rendered then the sticker button sits beside it with the default description`() {
+        setScreen(createViewModel())
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(SemanticsTags.HOME_DAY_HEADER).assertIsDisplayed()
+        composeRule
+            .onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON)
+            .assertIsDisplayed()
+            .assertContentDescriptionEquals("Adesivo do dia")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+    }
+
+    @Test
+    fun `given the sticker button when choosing an emoji then it is saved for the day and the description names it`() {
+        setScreen(createViewModel())
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON).performClick()
+        composeRule.onNodeWithTag(SemanticsTags.STICKER_PICKER_DIALOG).assertExists()
+        composeRule.onNodeWithTag(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.PARTY.name).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onAllNodesWithTag(SemanticsTags.STICKER_PICKER_DIALOG).assertCountEquals(0)
+        composeRule
+            .onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON)
+            .assertContentDescriptionEquals("Adesivo do dia: 🎉. Toque para alterar")
+        assertEquals(mapOf(LocalDate.of(2026, 11, 7).toEpochDay() to "🎉"), homePreferences.daySticker.value)
+    }
+
+    @Test
+    fun `given a sticker on one day when selecting another day then each day shows its own sticker`() {
+        val today = LocalDate.of(2026, 11, 7)
+        homePreferences.daySticker.value = mapOf(today.toEpochDay() to "🎉")
+        setScreen(createViewModel())
+        composeRule.waitForIdle()
+        composeRule
+            .onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON)
+            .assertContentDescriptionEquals("Adesivo do dia: 🎉. Toque para alterar")
+
+        composeRule.onNodeWithTag(cellTag(today.plusDays(1))).performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON).assertContentDescriptionEquals("Adesivo do dia")
+
+        composeRule.onNodeWithTag(cellTag(today)).performClick()
+        composeRule.waitForIdle()
+        composeRule
+            .onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON)
+            .assertContentDescriptionEquals("Adesivo do dia: 🎉. Toque para alterar")
+    }
+
+    @Test
+    fun `given a day sticker when removing it from the dialog then the button goes back to the default description`() {
+        homePreferences.daySticker.value = mapOf(LocalDate.of(2026, 11, 7).toEpochDay() to "☕")
+        setScreen(createViewModel())
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON).performClick()
+        composeRule.onNodeWithTag(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.COFFEE.name).assertIsSelected()
+        composeRule.onNodeWithTag(SemanticsTags.STICKER_CLEAR_BUTTON).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(SemanticsTags.HOME_DAY_STICKER_BUTTON).assertContentDescriptionEquals("Adesivo do dia")
+        assertEquals(emptyMap<Long, String>(), homePreferences.daySticker.value)
+    }
+
+    @Test
+    fun `given the picker visible in the state when dismissed then the dismissed event is sent`() {
+        setStatelessContent(previewContent(daySticker = "🎉", isDayStickerPickerVisible = true))
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.PARTY.name).assertIsSelected()
+        composeRule.runOnUiThread { checkNotNull(ShadowDialog.getLatestDialog()).onBackPressed() }
+        composeRule.waitForIdle()
+
+        assertEquals(HomeUiEvent.OnDayStickerPickerDismissed, events.last())
+    }
+
+    // endregion
 }

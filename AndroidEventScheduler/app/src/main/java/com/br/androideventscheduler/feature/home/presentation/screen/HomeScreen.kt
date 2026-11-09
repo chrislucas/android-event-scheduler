@@ -43,6 +43,7 @@ import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.permissions.NotificationPermissionEffect
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.core.ui.component.StickerPickerDialog
 import com.br.androideventscheduler.feature.home.presentation.component.CalendarDrawerSheet
 import com.br.androideventscheduler.feature.home.presentation.component.MonthGridSection
 import com.br.androideventscheduler.feature.home.presentation.component.MonthPickerSheetContent
@@ -105,6 +106,13 @@ internal fun HomeContent(
     }
     if (content?.isMonthPickerVisible == true) {
         MonthPickerSheet(content = content, onEvent = onEvent)
+    }
+    if (content?.isDayStickerPickerVisible == true) {
+        StickerPickerDialog(
+            selectedEmoji = content.selectedDaySticker,
+            onStickerSelected = { onEvent(HomeUiEvent.OnDayStickerSelected(it)) },
+            onDismiss = { onEvent(HomeUiEvent.OnDayStickerPickerDismissed) },
+        )
     }
 }
 
@@ -238,8 +246,10 @@ private fun HomeBody(
         }
         dayScheduleItems(
             selectedDate = content.selectedDate,
+            daySticker = content.selectedDaySticker,
             schedules = content.daySchedules,
             accountEmail = content.accountEmail,
+            onDayStickerClick = { onEvent(HomeUiEvent.OnDayStickerClicked) },
             onScheduleClick = { scheduleId -> onEvent(HomeUiEvent.OnScheduleClicked(scheduleId)) },
         )
     }
@@ -310,6 +320,20 @@ private fun HomeContentLoadingPreview() {
 @Composable
 private fun HomeContentErrorPreview() {
     AndroidEventSchedulerTheme { HomeContent(uiState = HomeUiState.Error(R.string.home_error_generic), onEvent = {}) }
+}
+
+@Preview(showBackground = true, name = "Com adesivo do dia")
+@Composable
+private fun HomeContentDayStickerPreview() {
+    AndroidEventSchedulerTheme { HomeContent(uiState = previewContent(daySticker = "🎉"), onEvent = {}) }
+}
+
+@Preview(showBackground = true, name = "Seletor do adesivo do dia")
+@Composable
+private fun HomeContentDayStickerPickerPreview() {
+    AndroidEventSchedulerTheme {
+        HomeContent(uiState = previewContent(daySticker = "🎉", isDayStickerPickerVisible = true), onEvent = {})
+    }
 }
 
 @Preview(showBackground = true, name = "Gaveta aberta")

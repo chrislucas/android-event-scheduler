@@ -37,11 +37,14 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.navigation.UpsertSchedule
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
+import com.br.androideventscheduler.core.schedule.domain.model.EventColorOption
 import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.core.ui.component.ColorPickerDialog
+import com.br.androideventscheduler.core.ui.component.StickerPickerDialog
 import com.br.androideventscheduler.core.ui.format.toDisplayLabel
 import com.br.androideventscheduler.feature.upsert.presentation.component.CalendarSourceRow
 import com.br.androideventscheduler.feature.upsert.presentation.component.DateTimeSection
@@ -212,7 +215,11 @@ private fun UpsertForm(
             TitleRow(
                 title = content.title,
                 isError = content.titleError,
+                stickerEmoji = content.stickerEmoji,
+                colorHex = content.colorHex,
                 onTitleChange = { onEvent(UpsertScheduleUiEvent.OnTitleChanged(it)) },
+                onStickerClick = { onEvent(UpsertScheduleUiEvent.OnStickerButtonClicked) },
+                onColorClick = { onEvent(UpsertScheduleUiEvent.OnColorButtonClicked) },
             )
         }
         item { DateTimeSection(state = sectionState, actions = sectionActions) }
@@ -251,6 +258,20 @@ private fun UpsertForm(
             startDate = content.startDate,
             onConfirm = { onEvent(UpsertScheduleUiEvent.OnRecurrencePatternConfirmed(it)) },
             onDismiss = { onEvent(UpsertScheduleUiEvent.OnRecurrenceDialogDismissed) },
+        )
+    }
+    if (content.isStickerPickerVisible) {
+        StickerPickerDialog(
+            selectedEmoji = content.stickerEmoji,
+            onStickerSelected = { onEvent(UpsertScheduleUiEvent.OnStickerSelected(it)) },
+            onDismiss = { onEvent(UpsertScheduleUiEvent.OnStickerPickerDismissed) },
+        )
+    }
+    if (content.isColorPickerVisible) {
+        ColorPickerDialog(
+            selectedColorHex = content.colorHex,
+            onColorSelected = { onEvent(UpsertScheduleUiEvent.OnColorSelected(it)) },
+            onDismiss = { onEvent(UpsertScheduleUiEvent.OnColorPickerDismissed) },
         )
     }
 }
@@ -345,6 +366,24 @@ private fun UpsertScheduleContentEditPreview() {
 @Composable
 private fun UpsertScheduleContentRecurrenceDialogPreview() {
     PreviewHost(previewContent { copy(isRecurrenceDialogVisible = true) })
+}
+
+@Preview(name = "Com adesivo e cor", showBackground = true)
+@Composable
+private fun UpsertScheduleContentAppearancePreview() {
+    PreviewHost(previewContent { copy(stickerEmoji = "🚀", colorHex = EventColorOption.CORAL.hex) })
+}
+
+@Preview(name = "Seletor de adesivo aberto", showBackground = true)
+@Composable
+private fun UpsertScheduleContentStickerPickerPreview() {
+    PreviewHost(previewContent { copy(stickerEmoji = "🚀", isStickerPickerVisible = true) })
+}
+
+@Preview(name = "Seletor de cor aberto", showBackground = true)
+@Composable
+private fun UpsertScheduleContentColorPickerPreview() {
+    PreviewHost(previewContent { copy(isColorPickerVisible = true) })
 }
 
 @Preview(name = "Carregando", showBackground = true)

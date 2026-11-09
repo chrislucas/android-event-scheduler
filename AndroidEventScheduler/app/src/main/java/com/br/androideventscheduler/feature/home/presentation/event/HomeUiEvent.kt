@@ -5,6 +5,14 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 sealed interface HomeUiEvent {
+    // Famílias: o ViewModel despacha por família e cada uma tem o seu `when` exaustivo (detekt `CyclomaticComplexMethod`).
+
+    /** Gaveta lateral: abrir/fechar, filtros de calendário e atalho de Configurações (spec 06). */
+    sealed interface DrawerEvent : HomeUiEvent
+
+    /** Adesivo do dia selecionado (spec 09). */
+    sealed interface DayStickerEvent : HomeUiEvent
+
     data class OnDayClicked(
         val date: LocalDate,
     ) : HomeUiEvent
@@ -35,13 +43,22 @@ sealed interface HomeUiEvent {
 
     data object OnRetryClicked : HomeUiEvent
 
-    data object OnMenuClicked : HomeUiEvent
+    data object OnMenuClicked : DrawerEvent
 
-    data object OnDrawerDismissed : HomeUiEvent
+    data object OnDrawerDismissed : DrawerEvent
 
     data class OnCalendarSourceToggled(
         val source: CalendarSource,
-    ) : HomeUiEvent
+    ) : DrawerEvent
 
-    data object OnSettingsClicked : HomeUiEvent
+    data object OnSettingsClicked : DrawerEvent
+
+    data object OnDayStickerClicked : DayStickerEvent
+
+    data object OnDayStickerPickerDismissed : DayStickerEvent
+
+    /** `null` remove o adesivo do dia selecionado. */
+    data class OnDayStickerSelected(
+        val emoji: String?,
+    ) : DayStickerEvent
 }

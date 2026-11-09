@@ -22,6 +22,9 @@ sealed class HomeUiState {
         val isDrawerOpen: Boolean = false,
         /** Calendários visíveis na grade e na lista (todos, por padrão). */
         val enabledSources: Set<CalendarSource> = CalendarSource.entries.toSet(),
+        /** Adesivo do dia selecionado (spec 09); `null` quando não há. */
+        val selectedDaySticker: String? = null,
+        val isDayStickerPickerVisible: Boolean = false,
     ) : HomeUiState()
 
     data class Error(

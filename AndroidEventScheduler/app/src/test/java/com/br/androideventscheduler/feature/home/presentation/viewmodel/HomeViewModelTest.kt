@@ -23,9 +23,11 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -525,4 +527,115 @@ class HomeViewModelTest {
             assertEquals(listOf<HomeUiEffect>(HomeUiEffect.NavigateToSettings), effects)
             collectJob.cancel()
         }
+
+    // region adesivo do dia (spec 09)
+
+    @Test
+    fun `given a sticker saved for today when loading then the content carries it and other days have none`() =
+        runTest {
+            homePreferences.daySticker.value = mapOf(today.toEpochDay() to "🎉")
+            val viewModel = createViewModel()
+            runCurrent()
+
+            assertEquals("🎉", viewModel.content().selectedDaySticker)
+
+            viewModel.onEvent(HomeUiEvent.OnDayClicked(today.plusDays(1)))
+            runCurrent()
+
+            assertNull(viewModel.content().selectedDaySticker)
+        }
+
+    @Test
+    fun `given stickers on two days when switching the selected day then it observes the sticker of the new day`() =
+        runTest {
+            val tomorrow = today.plusDays(1)
+            homePreferences.daySticker.value = mapOf(today.toEpochDay() to "🎉", tomorrow.toEpochDay() to "☕")
+            val viewModel = createViewModel()
+            runCurrent()
+
+            viewModel.onEvent(HomeUiEvent.OnDayClicked(tomorrow))
+            runCurrent()
+
+            assertEquals("☕", viewModel.content().selectedDaySticker)
+        }
+
+    @Test
+    fun `given the day header when the sticker is clicked then the picker opens and dismissing closes it`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            assertFalse(viewModel.content().isDayStickerPickerVisible)
+
+            viewModel.onEvent(HomeUiEvent.OnDayStickerClicked)
+            runCurrent()
+            assertTrue(viewModel.content().isDayStickerPickerVisible)
+
+            viewModel.onEvent(HomeUiEvent.OnDayStickerPickerDismissed)
+            runCurrent()
+            assertFalse(viewModel.content().isDayStickerPickerVisible)
+            assertTrue(homePreferences.dayStickerWrites.isEmpty())
+        }
+
+    @Test
+    fun `given the picker open when selecting an emoji then it persists for the selected day and closes`() =
+        runTest {
+            val viewModel = createViewModel()
+            runCurrent()
+            viewModel.onEvent(HomeUiEvent.OnDayClicked(today.plusDays(2)))
+            viewModel.onEvent(HomeUiEvent.OnDayStickerClicked)
+            runCurrent()
+
+            viewModel.onEvent(HomeUiEvent.OnDayStickerSelected("🚀"))
+            runCurrent()
+
+            assertEquals(listOf<Pair<Long, String?>>(today.plusDays(2).toEpochDay() to "🚀"), homePreferences.dayStickerWrites)
+            assertEquals("🚀", viewModel.content().selectedDaySticker)
+            assertFalse(viewModel.content().isDayStickerPickerVisible)
+        }
+
+    @Test
+    fun `given a day sticker when removing it then null is persisted and the content has none`() =
+        runTest {
+            homePreferences.daySticker.value = mapOf(today.toEpochDay() to "🎉")
+            val viewModel = createViewModel()
+            runCurrent()
+
+            viewModel.onEvent(HomeUiEvent.OnDayStickerSelected(null))
+            runCurrent()
+
+            assertEquals(listOf<Pair<Long, String?>>(today.toEpochDay() to null), homePreferences.dayStickerWrites)
+            assertNull(viewModel.content().selectedDaySticker)
+        }
+
+    @Test
+    fun `given the picker saved as open when the view model is recreated then it is restored open`() =
+        runTest {
+            val savedStateHandle = SavedStateHandle()
+            val first = createViewModel(savedStateHandle)
+            runCurrent()
+            first.onEvent(HomeUiEvent.OnDayStickerClicked)
+            runCurrent()
+
+            val second = createViewModel(savedStateHandle)
+            runCurrent()
+
+            assertTrue(second.content().isDayStickerPickerVisible)
+        }
+
+    @Test
+    fun `given a failing write when selecting a sticker then the picker closes and the screen keeps working`() =
+        runTest {
+            homePreferences.writeFailure = IOException("disco cheio")
+            val viewModel = createViewModel()
+            runCurrent()
+            viewModel.onEvent(HomeUiEvent.OnDayStickerClicked)
+
+            viewModel.onEvent(HomeUiEvent.OnDayStickerSelected("🎉"))
+            runCurrent()
+
+            assertFalse(viewModel.content().isDayStickerPickerVisible)
+            assertNull(viewModel.content().selectedDaySticker)
+        }
+
+    // endregion
 }

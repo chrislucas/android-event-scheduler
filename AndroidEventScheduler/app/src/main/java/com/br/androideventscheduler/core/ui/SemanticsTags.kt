@@ -128,4 +128,21 @@ object SemanticsTags {
     const val HOME_DRAWER_SHEET = "home_drawer_sheet"
     const val HOME_DRAWER_FILTER_PREFIX = "home_drawer_filter_"
     const val HOME_DRAWER_SETTINGS_BUTTON = "home_drawer_settings_button"
+
+    // Seletor de cor e emoji (spec 09)
+    const val STICKER_PICKER_DIALOG = "sticker_picker_dialog"
+    const val STICKER_OPTION_PREFIX = "sticker_option_"
+    const val STICKER_CLEAR_BUTTON = "sticker_clear_button"
+    const val COLOR_PICKER_DIALOG = "color_picker_dialog"
+    const val COLOR_OPTION_PREFIX = "color_option_"
+    const val COLOR_OPTION_CHECK_PREFIX = "color_option_check_"
+    const val UPSERT_STICKER_BUTTON = "upsert_sticker_button"
+    const val UPSERT_COLOR_BUTTON = "upsert_color_button"
+    const val HOME_DAY_STICKER_BUTTON = "home_day_sticker_button"
+
+    /** `home_day_indicator_<epochDay>_<colorHex>`: a cor desenhada vai na tag (pixels ilegíveis no Robolectric). */
+    const val HOME_DAY_INDICATOR_PREFIX = "home_day_indicator_"
+
+    /** `home_schedule_color_bar_<id>_<colorHex>`. */
+    const val HOME_SCHEDULE_COLOR_BAR_PREFIX = "home_schedule_color_bar_"
 }
