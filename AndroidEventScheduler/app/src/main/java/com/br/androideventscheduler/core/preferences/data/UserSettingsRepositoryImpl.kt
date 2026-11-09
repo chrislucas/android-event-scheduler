@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.domain.UserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import com.br.androideventscheduler.core.security.domain.AppLockTimeout
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,6 +32,8 @@ internal class UserSettingsRepositoryImpl(
             preferences[Keys.DEFAULT_REMINDER_MINUTES] = settings.defaultReminderOffset.minutes ?: NO_REMINDER_MINUTES
             preferences[Keys.DEFAULT_SNOOZE_MINUTES] = settings.defaultSnoozeMinutes
             preferences[Keys.FULL_SCREEN_EVENT_ALERT] = settings.fullScreenEventAlertEnabled
+            preferences[Keys.APP_LOCK_ENABLED] = settings.appLockEnabled
+            preferences[Keys.APP_LOCK_TIMEOUT] = settings.appLockTimeout.name
         }
     }
 
@@ -43,6 +46,9 @@ internal class UserSettingsRepositoryImpl(
                 this[Keys.DEFAULT_SNOOZE_MINUTES]?.takeIf { it in UserSettings.ALLOWED_SNOOZE_MINUTES }
                     ?: defaults.defaultSnoozeMinutes,
             fullScreenEventAlertEnabled = this[Keys.FULL_SCREEN_EVENT_ALERT] ?: defaults.fullScreenEventAlertEnabled,
+            appLockEnabled = this[Keys.APP_LOCK_ENABLED] ?: defaults.appLockEnabled,
+            appLockTimeout =
+                AppLockTimeout.entries.firstOrNull { it.name == this[Keys.APP_LOCK_TIMEOUT] } ?: defaults.appLockTimeout,
         )
     }
 
@@ -55,6 +61,8 @@ internal class UserSettingsRepositoryImpl(
         val DEFAULT_REMINDER_MINUTES = intPreferencesKey("default_reminder_minutes")
         val DEFAULT_SNOOZE_MINUTES = intPreferencesKey("default_snooze_minutes")
         val FULL_SCREEN_EVENT_ALERT = booleanPreferencesKey("full_screen_event_alert")
+        val APP_LOCK_ENABLED = booleanPreferencesKey("app_lock_enabled")
+        val APP_LOCK_TIMEOUT = stringPreferencesKey("app_lock_timeout")
     }
 
     private companion object {
