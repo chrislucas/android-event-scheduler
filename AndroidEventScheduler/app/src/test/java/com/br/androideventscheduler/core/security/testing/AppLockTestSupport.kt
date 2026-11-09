@@ -8,6 +8,7 @@ import com.br.androideventscheduler.core.preferences.testing.FakeUserSettingsRep
 import com.br.androideventscheduler.core.security.data.AppLockController
 import com.br.androideventscheduler.core.security.domain.AuthResult
 import com.br.androideventscheduler.core.security.domain.DeviceCredentialAuthenticator
+import com.br.androideventscheduler.core.security.domain.DeviceSecurityChecker
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,10 +67,11 @@ class AppLockTestHarness(
         module {
             single<UserSettingsRepository> { repository }
             single<DeviceCredentialAuthenticator> { authenticator }
+            single<DeviceSecurityChecker> { DeviceSecurityChecker { deviceSecure } }
             single {
                 AppLockController(
                     settingsRepository = repository,
-                    deviceSecurity = { deviceSecure },
+                    deviceSecurity = get(),
                     elapsedRealtime = { nowMillis },
                     applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
                 )

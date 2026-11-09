@@ -15,4 +15,13 @@ internal sealed interface SettingsUiEffect {
     data class ShowError(
         @StringRes val messageRes: Int,
     ) : SettingsUiEffect
+
+    /** Família de efeitos da seção Segurança (spec 16). */
+    sealed interface AppLockEffect : SettingsUiEffect {
+        /** A tela chama o autenticador com a Activity e devolve `AppLockEvent.OnAuthResult`. */
+        data object RequestAuthentication : AppLockEffect
+
+        /** Abre `Settings.ACTION_SECURITY_SETTINGS`. */
+        data object OpenSecuritySettings : AppLockEffect
+    }
 }

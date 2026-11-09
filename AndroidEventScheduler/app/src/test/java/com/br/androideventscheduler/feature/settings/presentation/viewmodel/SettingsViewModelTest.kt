@@ -4,14 +4,20 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.testing.FakeUserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import com.br.androideventscheduler.core.security.data.AppLockController
+import com.br.androideventscheduler.core.security.domain.AppLockTimeout
+import com.br.androideventscheduler.core.security.domain.AuthResult
 import com.br.androideventscheduler.core.testing.MainDispatcherRule
 import com.br.androideventscheduler.feature.settings.presentation.effect.SettingsUiEffect
 import com.br.androideventscheduler.feature.settings.presentation.event.SettingsUiEvent
 import com.br.androideventscheduler.feature.settings.presentation.state.SettingsUiState
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -31,8 +37,19 @@ class SettingsViewModelTest {
             fullScreenEventAlertEnabled = false,
         )
 
+    private val appLockController = mockk<AppLockController>(relaxed = true)
+    private var deviceSecure = true
+
+    private fun newViewModel(repository: FakeUserSettingsRepository) =
+        SettingsViewModel(
+            userSettingsRepository = repository,
+            appLockController = appLockController,
+            deviceSecurity = { deviceSecure },
+            dispatcher = mainRule.dispatcher,
+        )
+
     private fun TestScope.createLoadedViewModel(repository: FakeUserSettingsRepository): SettingsViewModel {
-        val viewModel = SettingsViewModel(repository, mainRule.dispatcher)
+        val viewModel = newViewModel(repository)
         advanceUntilIdle()
         return viewModel
     }
@@ -42,7 +59,7 @@ class SettingsViewModelTest {
     @Test
     fun `given saved settings when view model starts then it loads them into the draft`() =
         runTest(mainRule.dispatcher) {
-            val viewModel = SettingsViewModel(FakeUserSettingsRepository(savedSettings), mainRule.dispatcher)
+            val viewModel = newViewModel(FakeUserSettingsRepository(savedSettings))
             assertEquals(SettingsUiState.Loading, viewModel.uiState.value)
 
             advanceUntilIdle()
@@ -181,5 +198,161 @@ class SettingsViewModelTest {
 
             assertEquals(listOf<SettingsUiEffect>(SettingsUiEffect.NavigateToBackup), effects)
             collectJob.cancel()
+        }
+
+    // Segurança (spec 16)
+    private fun TestScope.collect(viewModel: SettingsViewModel): List<SettingsUiEffect> {
+        val effects = mutableListOf<SettingsUiEffect>()
+        backgroundScope.launch { viewModel.uiEffect.collect { effects += it } }
+        runCurrent()
+        return effects
+    }
+
+    @Test
+    fun `given protection off when toggling the switch then authentication is requested and nothing is saved yet`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository()
+            val viewModel = createLoadedViewModel(repository)
+            val effects = collect(viewModel)
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnToggled(enabled = true))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(listOf<SettingsUiEffect>(SettingsUiEffect.AppLockEffect.RequestAuthentication), effects)
+            assertEquals(0, repository.saveCalls)
+            assertEquals(false, viewModel.content().draft.appLockEnabled)
+            verify(exactly = 1) { appLockController.suppressNextLock() }
+        }
+
+    @Test
+    fun `given authentication requested to enable when it succeeds then the preference is saved and the app is unlocked`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository()
+            val viewModel = createLoadedViewModel(repository)
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnToggled(enabled = true))
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnAuthResult(AuthResult.Success))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(true, repository.settings.value.appLockEnabled)
+            assertEquals(true, viewModel.content().draft.appLockEnabled)
+            verify(exactly = 1) { appLockController.unlock() }
+        }
+
+    @Test
+    fun `given authentication requested to disable when it succeeds then the preference is turned off`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository(UserSettings(appLockEnabled = true))
+            val viewModel = createLoadedViewModel(repository)
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnToggled(enabled = false))
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnAuthResult(AuthResult.Success))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(false, repository.settings.value.appLockEnabled)
+            assertEquals(false, viewModel.content().draft.appLockEnabled)
+        }
+
+    @Test
+    fun `given authentication requested when it is canceled then nothing is saved and the switch stays as it was`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository()
+            val viewModel = createLoadedViewModel(repository)
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnToggled(enabled = true))
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnAuthResult(AuthResult.Canceled))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(0, repository.saveCalls)
+            assertEquals(false, viewModel.content().draft.appLockEnabled)
+        }
+
+    @Test
+    fun `given authentication requested when it fails then nothing is saved and an error is shown`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository()
+            val viewModel = createLoadedViewModel(repository)
+            val effects = collect(viewModel)
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnToggled(enabled = true))
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnAuthResult(AuthResult.LockedOut))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(0, repository.saveCalls)
+            assertTrue(SettingsUiEffect.ShowError(R.string.lock_locked_out) in effects)
+        }
+
+    @Test
+    fun `given an authentication result without a request when it succeeds then nothing is saved`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository()
+            val viewModel = createLoadedViewModel(repository)
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnAuthResult(AuthResult.Success))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(0, repository.saveCalls)
+        }
+
+    @Test
+    fun `given a device without a secure screen lock when loaded then it is flagged and toggling requests nothing`() =
+        runTest(mainRule.dispatcher) {
+            deviceSecure = false
+            val viewModel = createLoadedViewModel(FakeUserSettingsRepository())
+            val effects = collect(viewModel)
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnToggled(enabled = true))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(false, viewModel.content().isDeviceSecure)
+            assertTrue(effects.isEmpty())
+        }
+
+    @Test
+    fun `given the user configured a lock in the system settings when the screen resumes then the device becomes secure`() =
+        runTest(mainRule.dispatcher) {
+            deviceSecure = false
+            val viewModel = createLoadedViewModel(FakeUserSettingsRepository())
+
+            deviceSecure = true
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnScreenResumed)
+
+            assertEquals(true, viewModel.content().isDeviceSecure)
+        }
+
+    @Test
+    fun `given the security shortcut when clicked then the open security settings effect is emitted`() =
+        runTest(mainRule.dispatcher) {
+            val viewModel = createLoadedViewModel(FakeUserSettingsRepository())
+            val effects = collect(viewModel)
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnOpenSecuritySettingsClicked)
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(listOf<SettingsUiEffect>(SettingsUiEffect.AppLockEffect.OpenSecuritySettings), effects)
+        }
+
+    @Test
+    fun `given a timeout option when selected then it is saved without touching other unsaved edits`() =
+        runTest(mainRule.dispatcher) {
+            val repository = FakeUserSettingsRepository(savedSettings)
+            val viewModel = createLoadedViewModel(repository)
+            viewModel.onEvent(SettingsUiEvent.OnEmailChanged("rascunho@exemplo.com"))
+
+            viewModel.onEvent(SettingsUiEvent.AppLockEvent.OnTimeoutSelected(AppLockTimeout.FIVE_MINUTES))
+            advanceUntilIdle()
+            runCurrent()
+
+            assertEquals(savedSettings.copy(appLockTimeout = AppLockTimeout.FIVE_MINUTES), repository.settings.value)
+            assertEquals("rascunho@exemplo.com", viewModel.content().draft.activeAccountEmail)
+            assertEquals(AppLockTimeout.FIVE_MINUTES, viewModel.content().draft.appLockTimeout)
         }
 }

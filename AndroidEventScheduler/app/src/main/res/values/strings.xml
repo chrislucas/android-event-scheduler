@@ -377,4 +377,16 @@
     <string name="lock_prompt_title">Desbloquear o RememberMe</string>
     <string name="lock_prompt_subtitle">Confirme o bloqueio de tela do celular</string>
     <string name="lock_disabled_device_insecure">O bloqueio de tela do celular foi removido; a proteção do app foi desativada</string>
+    <string name="settings_security_section">Segurança</string>
+    <string name="settings_app_lock_label">Bloquear o app com o bloqueio de tela</string>
+    <string name="settings_app_lock_supporting">Protege a abertura do app com o PIN, padrão ou senha do celular</string>
+    <string name="settings_app_lock_disclaimer">É um controle de acesso à tela, não criptografa os dados guardados no aparelho.</string>
+    <string name="settings_app_lock_insecure_hint">Configure um PIN, padrão ou senha no Android para usar este recurso</string>
+    <string name="settings_app_lock_open_security">Abrir configurações de segurança</string>
+    <string name="settings_app_lock_timeout_title">Pedir novamente após</string>
+    <string name="settings_app_lock_timeout_immediate">Imediatamente</string>
+    <string name="settings_app_lock_timeout_one_minute">1 minuto</string>
+    <string name="settings_app_lock_timeout_five_minutes">5 minutos</string>
+    <string name="settings_app_lock_prompt_title">Confirmar a alteração da proteção</string>
+    <string name="settings_app_lock_open_settings_error">Não foi possível abrir as configurações de segurança</string>
 </resources>

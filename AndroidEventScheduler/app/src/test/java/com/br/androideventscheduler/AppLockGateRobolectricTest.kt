@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.br.androideventscheduler.app.DeepLinkState
@@ -246,6 +247,45 @@ class AppLockGateRobolectricTest {
 
         ActivityScenario.launch(MainActivity::class.java).use {
             waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_CALENDAR_GRID) }
+
+            assertEquals(false, harness.repository.settings.value.appLockEnabled)
+        }
+    }
+
+    @Test
+    fun `given protection off when enabling it in settings then the credential is asked before saving and the app stays unlocked`() {
+        install(settings = UserSettings(appLockEnabled = false), authResult = AuthResult.Success)
+
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_MENU_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.HOME_MENU_BUTTON).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_DRAWER_SETTINGS_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.HOME_DRAWER_SETTINGS_BUTTON).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.SETTINGS_APP_LOCK_SWITCH) }
+
+            composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_SWITCH).performScrollTo().performClick()
+            waitUntilWithMainLooper { harness.repository.settings.value.appLockEnabled }
+
+            assertEquals(1, harness.authenticator.calls)
+            assertEquals(AppLockState.Unlocked, harness.controller.lockState.value)
+            waitUntilWithMainLooper { hasNode(SemanticsTags.SETTINGS_APP_LOCK_TIMEOUT_OPTION_PREFIX + AppLockTimeout.ONE_MINUTE.name) }
+            scenario.onActivity { activity -> assertTrue(activity.window.isSecure()) }
+        }
+    }
+
+    @Test
+    fun `given protection off when the credential is canceled in settings then the preference stays off`() {
+        install(settings = UserSettings(appLockEnabled = false), authResult = AuthResult.Canceled)
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_MENU_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.HOME_MENU_BUTTON).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.HOME_DRAWER_SETTINGS_BUTTON) }
+            composeRule.onNodeWithTag(SemanticsTags.HOME_DRAWER_SETTINGS_BUTTON).performClick()
+            waitUntilWithMainLooper { hasNode(SemanticsTags.SETTINGS_APP_LOCK_SWITCH) }
+
+            composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_SWITCH).performScrollTo().performClick()
+            waitUntilWithMainLooper { harness.authenticator.calls == 1 }
 
             assertEquals(false, harness.repository.settings.value.appLockEnabled)
         }
