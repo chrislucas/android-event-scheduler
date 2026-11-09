@@ -4,6 +4,29 @@ Aplicativo Android **100% offline** para organizar a rotina pessoal com **Evento
 
 > O projeto nasceu de um design para Kotlin Multiplatform (`desenvolvimento_remember_me.pdf`) e foi adaptado para **somente Android**. O desenvolvimento é guiado por specs em `AndroidEventScheduler/.kiro/specs/`.
 
+## Capturas de tela
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="AndroidEventScheduler/docs/media/home-calendario.png" width="260" alt="Home: calendário de novembro de 2026 com o dia 9 selecionado, indicadores coloridos nos dias com compromissos, adesivo de festa no cabeçalho do dia e o evento 'Teste E2E do aplicativo Remember Me' na agenda; barra 'Adicionar agendamento' no rodapé" />
+    </td>
+    <td align="center" width="33%">
+      <img src="AndroidEventScheduler/docs/media/gaveta-calendarios.png" width="260" alt="Gaveta lateral 'Calendários' com os três calendários marcados (conta pessoal, Family e Meus lembretes), cada um com sua cor, e o atalho Configurações" />
+    </td>
+    <td align="center" width="33%">
+      <img src="AndroidEventScheduler/docs/media/configuracoes.png" width="260" alt="Configurações: e-mail da conta ativa, alerta padrão dos novos agendamentos (15 minutos antes), tempo para adiar o alarme (10 minutos), alerta em tela cheia ligado e o item Importar e exportar agenda" />
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><b>Calendário e agenda do dia</b></td>
+    <td align="center"><b>Filtro de calendários</b></td>
+    <td align="center"><b>Configurações</b></td>
+  </tr>
+</table>
+
+**Vídeo de demonstração:** [assistir ao uso do app em aparelho](AndroidEventScheduler/docs/media/rememberme-demo.mp4) (MP4, 2 min 34 s, 1,3 MB, sem áudio; o e-mail da conta aparece desfocado).
+
 ## Funcionalidades
 
 - **Calendário mensal** com indicadores coloridos por dia, troca de mês por deslize/botões e seletor rápido de mês e ano.
@@ -180,4 +203,13 @@ O app pede só o necessário para lembrar no horário certo — notificações, 
 
 ## Status
 
-Em construção: as specs foram escritas e a implementação segue a ordem do README das specs. A fundação de qualidade (build-logic, detekt, ktlint, CI) já está pronta; o código do app ainda é o template inicial.
+Funcional e em evolução, desenvolvido spec a spec (ordem, dependências e status detalhado em [`ordem-de-execucao.md`](AndroidEventScheduler/.kiro/specs/ordem-de-execucao.md)).
+
+| Situação | Specs |
+|---|---|
+| **Implementadas na `main`** | 00–15, 17 e 18: fundação, núcleo de agendamentos, Splash, Configurações, alarmes e notificações, Home (calendário, gaveta, filtros, cor e emoji, toque duplo), criar e editar, recorrência, detalhes, duplicar, excluir, compartilhar, pesquisa, alarme em tela cheia com Adiar, restauração pós-boot e importar/exportar |
+| **Em branch intermediária** | 16, autenticação com o bloqueio do dispositivo: em `integracao/16-autenticacao-dispositivo`, ainda fora da `main` |
+| **Especificada, não implementada** | 19, tema claro e escuro persistente (spec no PR #29) |
+
+- **Testes:** 858 testes unitários e de UI (JUnit + Robolectric/Compose UI Test) na `main`, com ktlint, detekt e compilação verdes na CI a cada PR.
+- **Não verificado em aparelho:** os comportamentos que dependem do sistema (alarme exato real, tela cheia sobre o bloqueio, reinício do aparelho, TalkBack) estão listados em cada PR; o roteiro de pós-boot está em [`docs/testes-pos-boot-adb.md`](AndroidEventScheduler/docs/testes-pos-boot-adb.md).
