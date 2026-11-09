@@ -7,7 +7,7 @@ Aplicativo Android **100% offline** para organizar a rotina pessoal com **Evento
 ## Funcionalidades
 
 - **Calendário mensal** com indicadores coloridos por dia, troca de mês por deslize/botões e seletor rápido de mês e ano.
-- **Agenda do dia** com os compromissos do dia selecionado, adesivo (emoji) por dia e adição rápida.
+- **Agenda do dia** com os compromissos do dia selecionado, adesivo (emoji) por dia e adição rápida; **toque duplo num dia** abre a criação de evento ou lembrete naquela data.
 - **Eventos e Lembretes**: título, dia inteiro, início e fim, local, notas, cor e emoji, com seletores de data e hora inline e atalhos rápidos ("Amanhã", "Daqui a 1 hora"…).
 - **Recorrência**: não repetir, diariamente ou semanalmente (dias à escolha) com limite opcional de ocorrências.
 - **Alertas**: antecedência configurável; Lembretes geram notificação e Eventos podem abrir **alarme em tela cheia** com **Adiar** (5/10/15 min) e **Dispensar**.
@@ -132,7 +132,7 @@ Salvar agendamento ─► SaveScheduleUseCase ─► Room
 
 ## Specs de desenvolvimento
 
-O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.kiro/specs/README.md): 18 specs (`00-fundacao-projeto` … `17-importar-exportar-agenda`), cada uma com `requirements.md`, `design.md`, `tasks.md` e `prompt.md` para execução. Ordem e dependências estão no README das specs.
+O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.kiro/specs/README.md): 19 specs (`00-fundacao-projeto` … `18-toque-duplo-criar-agendamento`), cada uma com `requirements.md`, `design.md`, `tasks.md` e `prompt.md` para execução. Ordem e dependências estão no README das specs. O que define uma spec bem implementada está em [`criterios-de-aceite.md`](AndroidEventScheduler/.kiro/specs/criterios-de-aceite.md).
 
 | # | Spec | # | Spec |
 |---|---|---|---|
@@ -146,6 +146,7 @@ O plano está em [`AndroidEventScheduler/.kiro/specs/`](AndroidEventScheduler/.k
 | 07 | Criar e editar | 15 | Restauração pós-boot |
 | | | 16 | Autenticação com o bloqueio do dispositivo |
 | | | 17 | Importar e exportar a agenda |
+| | | 18 | Toque duplo numa data cria evento ou lembrete |
 
 ## Como executar
 
