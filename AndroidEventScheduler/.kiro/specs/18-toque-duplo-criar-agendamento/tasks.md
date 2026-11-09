@@ -5,7 +5,7 @@
 - [x] 3. `MonthGridSection`: `pointerInput` passivo + detector (ignora gestos acima do `touchSlop`, R2.5), ação de acessibilidade personalizada, parâmetro `onDayDoubleTap` e todos os call sites/previews no mesmo commit; `HomeScreen` repassa `OnDayDoubleTapped`; strings `home_day_add_action` (R1.1, R2.1, R4).
 - [x] 4. Dica no estado vazio (`home_empty_day_hint`, `HOME_EMPTY_DAY_HINT`) com preview (R5.1).
 - [x] 5. Guarda no `AppNavHost` contra criação duplicada (R6.1).
-- [ ] 6. Acréscimos no `HomeScreenRobolectricTest` e ponta a ponta `DoubleTapDayCreatesScheduleRobolectricTest` (R1.2–R1.5, R2.1, R4.1, R6.1).
+- [x] 6. Acréscimos no `HomeScreenRobolectricTest` e ponta a ponta `DoubleTapDayCreatesScheduleRobolectricTest` (R1.2–R1.5, R2.1, R4.1, R6.1).
 - [ ] 7. Verificação final conforme [`criterios-de-aceite.md`](../criterios-de-aceite.md), incluindo a checagem por commit.
 
 ## Critérios de aceite

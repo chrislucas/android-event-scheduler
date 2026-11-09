@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
@@ -17,11 +18,13 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performCustomAccessibilityActionWithLabel
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -429,6 +432,101 @@ class HomeScreenRobolectricTest {
         composeRule.waitForIdle()
 
         assertEquals(HomeUiEvent.OnDayStickerPickerDismissed, events.last())
+    }
+
+    // endregion
+
+    // region toque duplo (spec 18)
+
+    @Test
+    fun `given a cell when double clicked then the upsert navigation is requested with that day`() {
+        val upserts = mutableListOf<Long>()
+        val target = LocalDate.of(2026, 11, 10)
+        setScreen(createViewModel(), onUpsert = { upserts += it })
+
+        composeRule.onNodeWithTag(cellTag(target)).performTouchInput { doubleClick() }
+        composeRule.waitForIdle()
+
+        assertEquals(listOf(target.toEpochDay()), upserts)
+        composeRule.onNodeWithTag(cellTag(target)).assertIsSelected()
+    }
+
+    @Test
+    fun `given a cell when clicked once then it is selected right away and no creation is requested`() {
+        val upserts = mutableListOf<Long>()
+        val target = LocalDate.of(2026, 11, 10)
+        setScreen(createViewModel(), onUpsert = { upserts += it })
+
+        composeRule.onNodeWithTag(cellTag(target)).performClick()
+
+        // Sem avançar o relógio: a seleção não espera o intervalo de toque duplo (R2.1).
+        composeRule.onNodeWithTag(cellTag(target)).assertIsSelected()
+        composeRule.waitForIdle()
+        assertEquals(emptyList<Long>(), upserts)
+    }
+
+    @Test
+    fun `given two clicks on different cells when done quickly then no creation is requested`() {
+        val upserts = mutableListOf<Long>()
+        val first = LocalDate.of(2026, 11, 10)
+        val second = LocalDate.of(2026, 11, 11)
+        setScreen(createViewModel(), onUpsert = { upserts += it })
+
+        composeRule.onNodeWithTag(cellTag(first)).performClick()
+        composeRule.onNodeWithTag(cellTag(second)).performClick()
+        composeRule.waitForIdle()
+
+        assertEquals(emptyList<Long>(), upserts)
+        composeRule.onNodeWithTag(cellTag(second)).assertIsSelected()
+    }
+
+    @Test
+    fun `given two horizontal swipes starting and ending on the same cell when done then no creation is requested`() {
+        val upserts = mutableListOf<Long>()
+        val target = LocalDate.of(2026, 11, 10)
+        setScreen(createViewModel(), onUpsert = { upserts += it })
+
+        composeRule.onNodeWithTag(cellTag(target)).performTouchInput { swipeLeft() }
+        composeRule.onNodeWithTag(cellTag(target)).performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+
+        assertEquals(emptyList<Long>(), upserts)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `given the add accessibility action on a cell when performed then the upsert navigation is requested with that day`() {
+        val upserts = mutableListOf<Long>()
+        val target = LocalDate.of(2026, 11, 5)
+        setScreen(createViewModel(), onUpsert = { upserts += it })
+
+        composeRule
+            .onNodeWithTag(cellTag(target))
+            .performCustomAccessibilityActionWithLabel("Adicionar agendamento em 5 de novembro")
+        composeRule.waitForIdle()
+
+        assertEquals(listOf(target.toEpochDay()), upserts)
+    }
+
+    @Test
+    fun `given a neighbor month day when double clicked then the month switches and creation is requested`() {
+        val upserts = mutableListOf<Long>()
+        val target = LocalDate.of(2026, 12, 2)
+        setScreen(createViewModel(), onUpsert = { upserts += it })
+
+        composeRule.onNodeWithTag(cellTag(target)).performTouchInput { doubleClick() }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(SemanticsTags.HOME_MONTH_HEADER).assertTextEquals("dezembro 2026")
+        assertEquals(listOf(target.toEpochDay()), upserts)
+    }
+
+    @Test
+    fun `given a day without schedules when rendered then the double tap hint is shown`() {
+        setScreen(createViewModel())
+
+        composeRule.onNodeWithTag(SemanticsTags.HOME_EMPTY_DAY_HINT).assertIsDisplayed()
+        composeRule.onNodeWithTag(SemanticsTags.HOME_EMPTY_DAY_HINT).assertTextEquals(context.getString(R.string.home_empty_day_hint))
     }
 
     // endregion
