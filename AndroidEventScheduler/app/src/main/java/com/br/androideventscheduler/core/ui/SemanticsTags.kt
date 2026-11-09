@@ -167,4 +167,15 @@ object SemanticsTags {
     const val BACKUP_IMPORT_STRATEGY_OPTION_PREFIX = "backup_import_strategy_option_"
     const val BACKUP_IMPORT_CONFIRM_BUTTON = "backup_import_confirm_button"
     const val BACKUP_IMPORT_CANCEL_BUTTON = "backup_import_cancel_button"
+
+    // Bloqueio do app (spec 16)
+    const val LOCK_SCREEN = "lock_screen"
+    const val LOCK_UNLOCK_BUTTON = "lock_unlock_button"
+    const val LOCK_STATUS_MESSAGE = "lock_status_message"
+    const val LOCK_PROGRESS = "lock_progress"
+    const val SETTINGS_APP_LOCK_SWITCH = "settings_app_lock_switch"
+    const val SETTINGS_APP_LOCK_DISCLAIMER = "settings_app_lock_disclaimer"
+    const val SETTINGS_APP_LOCK_INSECURE_HINT = "settings_app_lock_insecure_hint"
+    const val SETTINGS_APP_LOCK_OPEN_SECURITY_BUTTON = "settings_app_lock_open_security_button"
+    const val SETTINGS_APP_LOCK_TIMEOUT_OPTION_PREFIX = "settings_app_lock_timeout_option_"
 }

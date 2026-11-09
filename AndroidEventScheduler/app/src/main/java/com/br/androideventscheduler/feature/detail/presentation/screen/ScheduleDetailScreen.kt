@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
+import com.br.androideventscheduler.core.security.data.AppLockController
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.detail.presentation.component.DeleteConfirmationDialog
@@ -64,6 +65,7 @@ import com.br.androideventscheduler.feature.detail.presentation.state.ScheduleDe
 import com.br.androideventscheduler.feature.detail.presentation.state.ScheduleDetailUiState
 import com.br.androideventscheduler.feature.detail.presentation.viewmodel.ScheduleDetailViewModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -78,6 +80,7 @@ internal fun ScheduleDetailScreen(
     onEdit: (String) -> Unit,
     onOpenCopy: (String) -> Unit,
     viewModel: ScheduleDetailViewModel = koinViewModel { parametersOf(scheduleId) },
+    appLockController: AppLockController = koinInject(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -115,8 +118,9 @@ internal fun ScheduleDetailScreen(
                 }
             }
 
-            // Ponto único de disparo do share sheet (a spec 16 chamará `suppressNextLock()` aqui, antes do Intent).
+            // Ponto único de disparo do share sheet: o app vai a segundo plano, e isso não pode bloquear na volta (spec 16).
             is ScheduleDetailUiEffect.ShareText -> {
+                appLockController.suppressNextLock()
                 if (!launchShareChooser(context, effect.subject, effect.body)) {
                     Toast.makeText(context, context.getString(R.string.share_error), Toast.LENGTH_SHORT).show()
                 }

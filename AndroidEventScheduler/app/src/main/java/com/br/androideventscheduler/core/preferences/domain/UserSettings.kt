@@ -1,6 +1,7 @@
 package com.br.androideventscheduler.core.preferences.domain
 
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import com.br.androideventscheduler.core.security.domain.AppLockTimeout
 
 /** Preferências do usuário, compartilhadas por Configurações, criação de itens, alarmes e Home. */
 data class UserSettings(
@@ -8,6 +9,9 @@ data class UserSettings(
     val defaultReminderOffset: ReminderOffset = ReminderOffset.DEFAULT,
     val defaultSnoozeMinutes: Int = DEFAULT_SNOOZE_MINUTES,
     val fullScreenEventAlertEnabled: Boolean = true,
+    // Bloqueio do app (spec 16)
+    val appLockEnabled: Boolean = false,
+    val appLockTimeout: AppLockTimeout = AppLockTimeout.DEFAULT,
 ) {
     /** Valida e normaliza (e-mail com `trim`). Falha com [SettingsValidationError]. */
     fun validate(): Result<UserSettings> {

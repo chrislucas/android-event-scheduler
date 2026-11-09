@@ -7,10 +7,14 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -22,6 +26,7 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import com.br.androideventscheduler.core.security.domain.AppLockTimeout
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.settings.presentation.event.SettingsUiEvent
 import com.br.androideventscheduler.feature.settings.presentation.state.SettingsUiState
@@ -34,7 +39,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(qualifiers = "pt-rBR")
+@Config(qualifiers = "pt-rBR-w411dp-h891dp")
 class SettingsScreenRobolectricTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -145,5 +150,75 @@ class SettingsScreenRobolectricTest {
 
         assertEquals(SettingsUiEvent.OnBackupClicked, events.last())
         composeRule.onNodeWithText(context.getString(R.string.settings_backup_item)).assertIsDisplayed()
+    }
+
+    // Segurança (spec 16)
+    @Test
+    fun `given default settings when rendered then the app lock switch is off with the access control notice`() {
+        setContent(SettingsUiState.Content(draft = UserSettings()))
+
+        composeRule
+            .onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_SWITCH)
+            .performScrollTo()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+            .assertIsOff()
+            .assertIsEnabled()
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_DISCLAIMER).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Bloquear o app com o bloqueio de tela").assertIsDisplayed()
+        composeRule
+            .onNodeWithTag(
+                SemanticsTags.SETTINGS_APP_LOCK_TIMEOUT_OPTION_PREFIX + AppLockTimeout.ONE_MINUTE.name,
+            ).assertDoesNotExist()
+    }
+
+    @Test
+    fun `given the switch when clicked then it emits the toggle event`() {
+        setContent(SettingsUiState.Content(draft = UserSettings()))
+
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_SWITCH).performScrollTo().performClick()
+
+        assertEquals(SettingsUiEvent.AppLockEvent.OnToggled(enabled = true), events.last())
+    }
+
+    @Test
+    fun `given protection on when rendered then the three timeout options show the selected one and emit the selection`() {
+        setContent(SettingsUiState.Content(draft = UserSettings(appLockEnabled = true, appLockTimeout = AppLockTimeout.ONE_MINUTE)))
+
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_SWITCH).performScrollTo().assertIsOn()
+        composeRule.onNodeWithText("Imediatamente").performScrollTo().assertIsDisplayed()
+        composeRule
+            .onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_TIMEOUT_OPTION_PREFIX + AppLockTimeout.FIVE_MINUTES.name)
+            .assertTextContains("5 minutos")
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_TIMEOUT_OPTION_PREFIX + AppLockTimeout.ONE_MINUTE.name).assertIsSelected()
+
+        composeRule
+            .onNodeWithTag(
+                SemanticsTags.SETTINGS_APP_LOCK_TIMEOUT_OPTION_PREFIX + AppLockTimeout.FIVE_MINUTES.name,
+            ).performScrollTo()
+            .performClick()
+
+        assertEquals(SettingsUiEvent.AppLockEvent.OnTimeoutSelected(AppLockTimeout.FIVE_MINUTES), events.last())
+    }
+
+    @Test
+    fun `given a device without a secure screen lock when rendered then the switch is disabled and the shortcut opens security settings`() {
+        setContent(SettingsUiState.Content(draft = UserSettings(), isDeviceSecure = false))
+
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_SWITCH).performScrollTo().assertIsNotEnabled()
+        composeRule
+            .onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_INSECURE_HINT)
+            .performScrollTo()
+            .assertTextEquals("Configure um PIN, padrão ou senha no Android para usar este recurso")
+        composeRule.onNodeWithText("Abrir configurações de segurança").performScrollTo().performClick()
+
+        assertEquals(SettingsUiEvent.AppLockEvent.OnOpenSecuritySettingsClicked, events.last())
+    }
+
+    @Test
+    fun `given a device with a secure screen lock when rendered then the insecure hint and shortcut are absent`() {
+        setContent(SettingsUiState.Content(draft = UserSettings(), isDeviceSecure = true))
+
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_INSECURE_HINT).assertDoesNotExist()
+        composeRule.onNodeWithTag(SemanticsTags.SETTINGS_APP_LOCK_OPEN_SECURITY_BUTTON).assertDoesNotExist()
     }
 }

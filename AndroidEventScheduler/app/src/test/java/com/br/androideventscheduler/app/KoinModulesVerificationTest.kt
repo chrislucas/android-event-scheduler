@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
+import com.br.androideventscheduler.core.security.di.securityModule
+import com.br.androideventscheduler.feature.auth.di.authModule
 import com.br.androideventscheduler.feature.backup.di.backupModule
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -50,5 +52,12 @@ class KoinModulesVerificationTest {
     fun `given the backup feature when listing the aggregated modules then its modules are registered`() {
         assertTrue(backupModule in appModules)
         assertTrue(incomingFileModule in appModules)
+    }
+
+    // Bloqueio do app (spec 16)
+    @Test
+    fun `given the app lock feature when listing the aggregated modules then its modules are registered`() {
+        assertTrue(securityModule in appModules)
+        assertTrue(authModule in appModules)
     }
 }

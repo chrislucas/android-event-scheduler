@@ -12,6 +12,8 @@ val settingsModule =
         viewModel {
             SettingsViewModel(
                 userSettingsRepository = get(),
+                appLockController = get(),
+                deviceSecurity = get(),
                 dispatcher = get(named(DispatcherNames.MAIN)),
             )
         }

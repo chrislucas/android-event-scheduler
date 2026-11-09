@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.navigation.AgendaBackup
+import com.br.androideventscheduler.core.security.data.AppLockController
 import com.br.androideventscheduler.core.ui.CollectEffects
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.backup.domain.model.ImportStrategy
@@ -45,16 +46,21 @@ import com.br.androideventscheduler.feature.backup.presentation.effect.BackupUiE
 import com.br.androideventscheduler.feature.backup.presentation.event.BackupUiEvent
 import com.br.androideventscheduler.feature.backup.presentation.state.BackupUiState
 import com.br.androideventscheduler.feature.backup.presentation.viewmodel.BackupViewModel
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 private val SCREEN_HORIZONTAL_PADDING = 16.dp
 
 /**
- * Ponto ÚNICO de disparo de UI externa ao app (share sheet e seletores de arquivo do sistema). A spec 16
- * (autenticação) chamará `suppressNextLock()` aqui, antes de [action], para que o app não bloqueie ao voltar.
+ * Ponto ÚNICO de disparo de UI externa ao app (share sheet e seletores de arquivo do sistema). Chama
+ * `suppressNextLock()` antes de [action] para que o app não bloqueie ao voltar (spec 16).
  */
-private inline fun launchExternalUi(action: () -> Unit) {
+private inline fun launchExternalUi(
+    appLockController: AppLockController,
+    action: () -> Unit,
+) {
+    appLockController.suppressNextLock()
     action()
 }
 
@@ -64,6 +70,7 @@ internal fun BackupScreen(
     pendingImportUri: String?,
     onBack: () -> Unit,
     viewModel: BackupViewModel = koinViewModel { parametersOf(AgendaBackup(pendingImportUri)) },
+    appLockController: AppLockController = koinInject(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -79,7 +86,7 @@ internal fun BackupScreen(
     CollectEffects(viewModel.uiEffect) { effect ->
         when (effect) {
             is BackupUiEffect.ShareFile -> {
-                launchExternalUi {
+                launchExternalUi(appLockController) {
                     if (!launchShareFileChooser(context, effect.uri, effect.subject, effect.body)) {
                         Toast.makeText(context, context.getString(R.string.backup_share_no_app), Toast.LENGTH_SHORT).show()
                     }
@@ -87,7 +94,7 @@ internal fun BackupScreen(
             }
 
             is BackupUiEffect.LaunchCreateDocument -> {
-                launchExternalUi {
+                launchExternalUi(appLockController) {
                     try {
                         createDocumentLauncher.launch(effect.suggestedName)
                     } catch (_: ActivityNotFoundException) {
@@ -99,7 +106,7 @@ internal fun BackupScreen(
             }
 
             BackupUiEffect.LaunchOpenDocument -> {
-                launchExternalUi {
+                launchExternalUi(appLockController) {
                     try {
                         // "*/*" como alternativa: alguns provedores marcam .json como application/octet-stream.
                         openDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE, "*/*"))

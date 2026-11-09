@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import com.br.androideventscheduler.core.datastore.createAppPreferencesDataStore
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import com.br.androideventscheduler.core.security.domain.AppLockTimeout
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -40,11 +41,22 @@ class UserSettingsRepositoryImplTest {
                     defaultReminderOffset = ReminderOffset.ONE_HOUR,
                     defaultSnoozeMinutes = 5,
                     fullScreenEventAlertEnabled = false,
+                    appLockEnabled = true,
+                    appLockTimeout = AppLockTimeout.FIVE_MINUTES,
                 )
 
             repository.save(saved)
 
             assertEquals(saved, repository.current())
+        }
+
+    @Test
+    fun `given nothing saved when reading then app lock is off with one minute timeout`() =
+        runTest {
+            val settings = UserSettingsRepositoryImpl(dataStoreAt(newPreferencesFile())).current()
+
+            assertEquals(false, settings.appLockEnabled)
+            assertEquals(AppLockTimeout.ONE_MINUTE, settings.appLockTimeout)
         }
 
     @Test

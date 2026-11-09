@@ -10,5 +10,7 @@ internal sealed class SettingsUiState {
         val draft: UserSettings,
         val isSaving: Boolean = false,
         val emailError: Boolean = false,
+        // Segurança (spec 16): relido ao voltar à tela, pois o usuário pode configurar um PIN e retornar.
+        val isDeviceSecure: Boolean = true,
     ) : SettingsUiState()
 }
