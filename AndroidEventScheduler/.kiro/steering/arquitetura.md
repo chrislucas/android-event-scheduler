@@ -48,7 +48,7 @@ Pacote base: `com.br.androideventscheduler`, com três áreas de topo: `app` (co
 ```
 com.br.androideventscheduler/
 ├── app/                        # único lugar que conhece todas as features
-│   ├── RememberMeApplication.kt, KoinInitializer.kt, AppModules.kt
+│   ├── KoinInitializer.kt, AppModules.kt  # sem Application própria: o Koin vem do App Startup
 │   ├── AppNavHost.kt           # NavDisplay; agrega os entryProviders das features
 │   └── DeepLinkState.kt
 ├── MainActivity.kt

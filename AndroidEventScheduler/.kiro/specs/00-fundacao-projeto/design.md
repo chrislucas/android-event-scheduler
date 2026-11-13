@@ -4,7 +4,7 @@
 ```
 com.br.androideventscheduler/
 ├── app/
-│   ├── RememberMeApplication.kt        # Application vazia (Koin vem do App Startup)
+│   ├── RememberMeApplication.kt        # Application vazia (Koin vem do App Startup); removida depois — o manifest usa a Application padrão
 │   ├── KoinInitializer.kt              # Initializer<KoinApplication>: startKoin { androidContext; modules(appModules) }
 │   ├── AppModules.kt                   # val appModules = listOf(coreModules..., featureModules...)
 │   └── AppNavHost.kt                   # NavDisplay + entryProvider agregando as features
