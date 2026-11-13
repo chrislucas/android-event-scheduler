@@ -47,6 +47,7 @@ Copie o checklist para o corpo do PR, na seção "Critérios gerais".
 - [ ] Regras puras com TDD (teste antes do código, como nas tasks).
 - [ ] Testes de tela Robolectric com tela alta: `@Config(qualifiers = "pt-rBR-w411dp-h891dp")`, e `h2400dp` para formulários longos. O padrão do Robolectric (320×470 dp) esconde itens da `LazyColumn`.
 - [ ] Integração com grafo real drena o looper dentro do `waitUntil` (`shadowOf(Looper.getMainLooper()).idle()`). Flow do Room é coletado em `backgroundScope` + `Channel`.
+- [ ] Teste com Activity real (`MainActivity`, `FullScreenAlarmActivity`) **nunca** assere logo após abrir a tela: a primeira verificação é `waitUntilWithMainLooper { hasNode(TAG) }` (`core/testing/ComposeWaits.kt`), e o tempo de `delay`s do app é avançado com `idleFor(CONSTANTE_DO_APP)` (steering `arquitetura.md` §5.2.1; caso da Splash instável nos PRs #31, #33 e #34).
 - [ ] **Pelo menos um teste ponta a ponta com a `MainActivity`** cobrindo a integração da spec com o app real (Splash → Home → …). Foi assim que as sincronizações das ondas E–G pegaram o que a spec isolada não alcançava.
 - [ ] Nenhum teste existente foi enfraquecido para passar. Se um teste teve de mudar, o PR explica por quê (caso dos testes de degradação da spec 04 ajustados na spec 14).
 - [ ] Testes determinísticos: nada depende de `now()` sem `FakeClock`, nem de ordem entre testes. Rodam verdes duas vezes seguidas.
