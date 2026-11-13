@@ -29,10 +29,11 @@ Cada pasta abaixo contém: `requirements.md` (o quê), `design.md` (como), `task
 | 17 | `17-importar-exportar-agenda` | 01, 03, 04, 10 (`StringProvider`) |
 | 18 | `18-toque-duplo-criar-agendamento` | 05, 07 (rota com data inicial); 06 e 09 por conflito no `HomeViewModel` |
 | 19 | `19-tema-claro-escuro` | 00 (tema), 02 (SplashScreen), 03 (Configurações e DataStore único), 14 (`FullScreenAlarmActivity`); conflita com a 16 em `MainActivity` e Configurações |
+| 20 | `20-alerta-cinco-minutos` | 01 (`ReminderOffset`), 03, 04, 07, 10, 17 (formato do arquivo de agenda) |
 
 **Ordem de execução recomendada, dependências por task, ondas de paralelização e status de cada spec: [`ordem-de-execucao.md`](./ordem-de-execucao.md)** (atualizar ao concluir cada spec).
 
-Ordem linear resumida: 00 → 02 → 01 → 03 → 04 → 05 → 07 → 10 → 11 → 12 → 14 → 15 → 08 → 06 → 09 → 13 → 17 → 16 → 18 → 19 (18 e 19 não dependem da 16; a 19 conflita com ela em `MainActivity` e Configurações).
+Ordem linear resumida: 00 → 02 → 01 → 03 → 04 → 05 → 07 → 10 → 11 → 12 → 14 → 15 → 08 → 06 → 09 → 13 → 17 → 16 → 18 → 19 → 20 (18, 19 e 20 não dependem da 16; a 19 conflita com ela em `MainActivity` e Configurações).
 
 Paralelização (ver `steering/fluxo-de-trabalho.md` §3 e as ondas em `ordem-de-execucao.md` §5): specs de correntes diferentes tocam pacotes distintos e só colidem de forma trivial (`AppModules`, `AppNavHost`, `strings.xml`, `SemanticsTags.kt`); specs da mesma corrente (05→06, 07→08→09, 10→11→12) são sequenciais.
 
@@ -48,7 +49,7 @@ Paralelização (ver `steering/fluxo-de-trabalho.md` §3 e as ondas em `ordem-de
 | Features `home`, `schedule` (tudo junto), `search`, `settings` importando `feature.schedule` | Dados compartilhados sobem para `core` (`core.schedule`, `core.alarm`, `core.preferences`); features separadas: `splash`, `home`, `upsert`, `detail`, `search`, `settings`, `alarm` — **nenhuma importa outra** |
 | `CalendarSource.displayName` com e-mail fixo | Enum só com `id`/cor; o rótulo da conta pessoal vem da configuração (e-mail ativo) na camada de apresentação |
 | Recorrência com `remainingOccurrences` decrementado e item "andando" no banco | Item guarda `startDate` da série + `occurrenceLimit`; ocorrências são **calculadas** pelo `RecurrenceEngine` (puro). Nada é reescrito no disparo do alarme; o histórico e o mês exibem as ocorrências corretamente |
-| Alarme "15 min antes" fixo | Antecedência vem de `ReminderOffset` (padrão da configuração, 15 min) |
+| Alarme "15 min antes" fixo | Antecedência vem de `ReminderOffset` (5, 10, 15, 30 min ou 1 hora; padrão da configuração, 15 min) |
 | `AlarmRequest` carrega título/notas/local | `AlarmRequest` leva só `scheduleId` + horário + modo; o receiver lê o item atualizado do banco ao disparar |
 | `BootCompletedReceiver` com `LOCKED_BOOT_COMPLETED` e `directBootAware` | Só `BOOT_COMPLETED` (+ atualização do app, mudança de fuso/hora e permissão de alarme exato): o Room fica em armazenamento protegido por credencial e não abre antes do desbloqueio |
 | `RescheduleAllAlarmsUseCase` avança e regrava itens recorrentes | Reagenda com `ScheduleNextAlarmUseCase`; não regrava o banco |
