@@ -54,7 +54,7 @@ class BootCompletedReceiverRobolectricTest {
         unloadKoinModules(overrides)
     }
 
-    private fun receive(intent: Intent?) {
+    private fun receive(intent: Intent) {
         // `setPendingResult` é @hide: o sistema o chama antes de `onReceive`; aqui via reflexão para `goAsync()` devolver o mock.
         BroadcastReceiver::class.java
             .getDeclaredMethod("setPendingResult", BroadcastReceiver.PendingResult::class.java)
@@ -115,13 +115,6 @@ class BootCompletedReceiverRobolectricTest {
     @Test
     fun `given an intent without action when received then it is ignored`() {
         receive(Intent())
-
-        coVerify(exactly = 0) { rescheduleAllAlarms() }
-    }
-
-    @Test
-    fun `given a null intent when received then it is ignored`() {
-        receive(null)
 
         coVerify(exactly = 0) { rescheduleAllAlarms() }
     }

@@ -27,14 +27,14 @@ class BootCompletedReceiver :
     KoinComponent {
     override fun onReceive(
         context: Context,
-        intent: Intent?,
+        intent: Intent,
     ) {
-        if (intent?.action !in SUPPORTED_ACTIONS) return
+        if (intent.action !in SUPPORTED_ACTIONS) return
         val pendingResult = goAsync()
         CoroutineScope(SupervisorJob() + get<CoroutineDispatcher>(named(DispatcherNames.IO))).launch {
             try {
                 get<RescheduleAllAlarmsUseCase>()()
-                    .onSuccess { summary -> Log.i(TAG, "Alarms rescheduled by ${intent?.action}: $summary") }
+                    .onSuccess { summary -> Log.i(TAG, "Alarms rescheduled by ${intent.action}: $summary") }
                     .onFailure { failure -> Log.w(TAG, "Failed to reschedule alarms", failure) }
             } catch (
                 @Suppress("TooGenericExceptionCaught") failure: Exception,
@@ -42,7 +42,7 @@ class BootCompletedReceiver :
                 // Falha ao resolver o use case no Koin: registra e libera o PendingResult em finally.
                 Log.w(TAG, "Failed to start the reschedule", failure)
             } finally {
-                pendingResult?.finish()
+                pendingResult.finish()
             }
         }
     }

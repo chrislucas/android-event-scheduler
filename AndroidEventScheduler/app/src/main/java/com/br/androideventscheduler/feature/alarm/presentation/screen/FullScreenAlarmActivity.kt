@@ -82,7 +82,7 @@ class FullScreenAlarmActivity : ComponentActivity() {
         outState.putString(STATE_SCHEDULE_ID, scheduleId)
     }
 
-    private fun scheduleIdOf(intent: Intent?): String? = intent?.getStringExtra(AlarmIntents.EXTRA_SCHEDULE_ID)?.takeIf { it.isNotBlank() }
+    private fun scheduleIdOf(intent: Intent): String? = intent.getStringExtra(AlarmIntents.EXTRA_SCHEDULE_ID)?.takeIf { it.isNotBlank() }
 
     /**
      * `setShowWhenLocked`/`setTurnScreenOn` existem a partir do API 27 (sem permissão); antes, os flags de janela
