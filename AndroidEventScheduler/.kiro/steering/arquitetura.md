@@ -330,6 +330,24 @@ Regras complementares:
 - Permissões restritas pelo Google Play (`USE_EXACT_ALARM`, `USE_FULL_SCREEN_INTENT`…) exigem justificativa de função principal **e** comportamento de degradação testado quando negadas.
 - Cada permissão tem um comentário de uma linha no `AndroidManifest.xml`, e o `RequestedPermissionsGuardRobolectricTest` (lista exata do manifest mesclado) é atualizado no mesmo PR.
 
+### 5.7 Erros simples proibidos (não podem se repetir)
+
+Erros pequenos já escaparam para a `main` e foram corrigidos em lote. **Não reintroduza nenhum deles**: o review do PR recusa esses erros, e os marcados com *(lint)* também reprovam o `:app:lintDebug`, que roda na CI.
+
+- **Recursos em Compose vêm do Compose, nunca do `Context`** *(lint: `LocalContextGetResourceValueCall`, `LocalContextResourcesRead`)*:
+  - texto fixo → `stringResource(R.string.x)` / `pluralStringResource`, também quando o texto é usado dentro de um efeito (`CollectEffects`, `LaunchedEffect`, `onClick`): resolva-o na composição (`val msg = stringResource(R.string.x)`) e use `msg` no lambda;
+  - id dinâmico vindo de um efeito (`effect.messageRes`) → `val resources = LocalResources.current` na composição e `resources.getString(effect.messageRes)` no lambda;
+  - formatadores que pedem `StringProvider` → `rememberResourcesStringProvider()` (`core.ui.format`).
+  - Proibido em Composable: `context.getString(...)`, `context.resources.getQuantityString(...)` e `LocalContext.current.resources`. `LocalContext.current` continua valendo para o que precisa mesmo de `Context`: `Toast`, `Intent`, `startActivity`, `ContextCompat.checkSelfPermission`.
+- **Nada de `?.`, `?:` ou `!!` sobre valor que não é nulo.** O tipo declara a verdade: se o framework garante não nulo, o parâmetro é não nulo (`onReceive(context: Context, intent: Intent)`, `onNewIntent(intent: Intent)`, `goAsync()` dentro do `onReceive`), e não `Intent?` "por garantia". Helper privado que só recebe valores não nulos não declara `T?`. Para `Boolean?`, use `x?.flag == true` em vez de `x?.flag ?: false`. Tipo de plataforma (`T!`) não justifica `?.`; consulte a documentação da API.
+- **Nada de `remember*` que não lembra.** Uma função chamada `rememberX()` usa `remember(chaves) { ... }`; senão, chame-a de `x()`. Não crie objeto novo a cada recomposição dentro de um laço (`forEach`) quando pode criá-lo uma vez fora dele.
+- **Sem recurso morto** *(lint: `UnusedResources`)*: string, cor ou drawable sem uso é removido no mesmo PR que deixa de usá-lo.
+- **Preferir as extensões KTX** *(lint: `UseKtx`)*: `"…".toUri()` em vez de `Uri.parse`, `color.toDrawable()` em vez de `ColorDrawable(color)`, etc.
+- **API nova protegida também na assinatura** *(lint: `InlinedApi`)*: função que só é chamada atrás de `if (SDK_INT >= X)` recebe `@RequiresApi(X)`.
+- **Manifest sem atributo redundante** *(lint: `RedundantLabel`)*: `android:label` da Activity igual ao da `application` não é repetido.
+- **Anotação de recurso em propriedade de construtor com alvo explícito**: `@param:StringRes val messageRes: Int` (sem o `param:` o Kotlin 2.2 avisa que o alvo vai mudar).
+- **Nenhum aviso novo do compilador em `main`.** Rode o build e leia os `w:`; aviso novo é corrigido no mesmo PR.
+
 ## 6. Mapeamento spec → pacotes
 
 | Spec | Pacotes principais |
@@ -356,6 +374,7 @@ Regras complementares:
 - [ ] UI coleta efeitos uma vez (`CollectEffects`); conteúdo stateless `(uiState, onEvent)`.
 - [ ] Todo `@Composable` visual novo tem `@Preview` (seção 5.3, obrigatório) — ou o comentário `// Sem preview: <motivo>` numa das exceções permitidas.
 - [ ] Nenhum texto literal na UI: fixo via `strings.xml`, com variável via resource formatado (`%1$s`) ou `plurals` (5.5); tags e semântica de acessibilidade presentes (5.4).
+- [ ] Nenhum dos erros simples da §5.7: recurso em Compose via `stringResource`/`LocalResources` (nunca `context.getString` nem `LocalContext.current.resources`), nenhum `?.`/`?:`/`!!` sobre valor não nulo, nenhum recurso morto, nenhum aviso novo do compilador; `:app:lintDebug` verde.
 - [ ] Nenhuma permissão nova sem entrada em `docs/permissoes.md`, comentário no manifest e atualização do `RequestedPermissionsGuardRobolectricTest` (5.6).
 - [ ] Testes de UseCases, repositórios, ViewModels e mappers presentes; `given/when/then` em inglês, sem Turbine; módulo Koin novo coberto pelo `KoinModulesVerificationTest`.
 - [ ] Testes com Activity real esperam com `waitUntilWithMainLooper` antes da primeira asserção e avançam `delay`s do app com `idleFor(CONSTANTE)` (§5.2.1).

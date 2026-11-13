@@ -54,7 +54,7 @@ Copie o checklist para o corpo do PR, na seção "Critérios gerais".
 
 ## 6. Qualidade e build
 
-- [ ] `./gradlew ktlintFormat` e depois `./gradlew ktlintCheck detekt testDebugUnitTest :app:assembleDebug --rerun-tasks` → **BUILD SUCCESSFUL, duas vezes**. O PR traz o número total de testes e de falhas.
+- [ ] `./gradlew ktlintFormat` e depois `./gradlew ktlintCheck detekt testDebugUnitTest :app:assembleDebug :app:lintDebug --rerun-tasks` → **BUILD SUCCESSFUL, duas vezes**. O PR traz o número total de testes e de falhas.
 - [ ] Nenhum `@Suppress` novo sem justificativa no código e no PR. Nenhuma regra do detekt desligada para a spec passar.
 - [ ] **Todo commit compila** (`fluxo-de-trabalho.md` §1.1). Rodar da raiz do repositório:
   `git rebase --exec "cd AndroidEventScheduler && ./gradlew :app:compileDebugUnitTestKotlin -q" origin/main`. Commit que falhar é unido ao que o completa **antes** do PR, porque depois do merge o histórico fica (caso do #16; ver `docs/decisoes/commits-compilaveis-e-git-bisect.md`).
@@ -93,7 +93,7 @@ Copie o checklist para o corpo do PR, na seção "Critérios gerais".
 ## Critérios gerais
 (checklist deste documento, marcado; itens não verificados com o motivo)
 ## Verificação
-- ktlintCheck detekt testDebugUnitTest :app:assembleDebug --rerun-tasks: 2× verde, N testes, 0 falhas
+- ktlintCheck detekt testDebugUnitTest :app:assembleDebug :app:lintDebug --rerun-tasks: 2× verde, N testes, 0 falhas
 - Checagem por commit: K commits compilam isoladamente
 ## Desvios do design
 ## Descobertas para a ordem de execução
