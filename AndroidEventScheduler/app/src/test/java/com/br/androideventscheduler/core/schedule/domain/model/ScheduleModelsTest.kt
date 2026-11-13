@@ -52,7 +52,7 @@ class ScheduleModelsTest {
         assertEquals(6, EventColorOption.entries.size)
         assertEquals(8, StickerEmoji.entries.size)
         assertEquals(listOf("personal_account", "family_calendar", "my_reminders"), CalendarSource.entries.map { it.id })
-        assertEquals(listOf(null, 10, 15, 30, 60), ReminderOffset.entries.map { it.minutes })
+        assertEquals(listOf(null, 5, 10, 15, 30, 60), ReminderOffset.entries.map { it.minutes })
     }
 
     @Test

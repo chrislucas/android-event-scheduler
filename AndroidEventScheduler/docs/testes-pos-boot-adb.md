@@ -125,7 +125,7 @@ Confirma que os alarmes reagendados disparam com o aparelho ocioso, porque são 
 ```bash
 adb shell dumpsys battery unplug
 adb shell dumpsys deviceidle force-idle       # entra em Doze
-# aguarde o horário de um alarme próximo (crie um item para daqui a ~3 min com alerta "Sem antecedência" ou ajuste o offset)
+# aguarde o horário de um alarme próximo (crie um item para daqui a ~8 min com alerta "5 minutos antes": o alarme toca em ~3 min)
 adb shell dumpsys deviceidle unforce
 adb shell dumpsys battery reset
 ```

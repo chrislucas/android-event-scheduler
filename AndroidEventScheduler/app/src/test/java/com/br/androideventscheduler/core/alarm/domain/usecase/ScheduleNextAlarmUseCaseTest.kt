@@ -157,6 +157,57 @@ class ScheduleNextAlarmUseCaseTest {
     }
 
     @Test
+    fun `given single future item with five minute offset when scheduling then triggers five minutes before start`() {
+        val result = useCase(item(startDate = LocalDate.of(2026, 11, 8), offset = ReminderOffset.FIVE_MINUTES))
+
+        val expected = millisOf(LocalDate.of(2026, 11, 8), LocalTime.of(9, 55))
+        assertEquals(expected, result)
+        assertEquals(expected, capturedRequest().triggerAtEpochMillis)
+    }
+
+    @Test
+    fun `given all day item with five minute offset when scheduling then triggers at eight fifty five`() {
+        val result =
+            useCase(
+                item(
+                    startDate = LocalDate.of(2026, 11, 8),
+                    startTime = LocalTime.MIDNIGHT,
+                    isAllDay = true,
+                    offset = ReminderOffset.FIVE_MINUTES,
+                ),
+            )
+
+        assertEquals(millisOf(LocalDate.of(2026, 11, 8), LocalTime.of(8, 55)), result)
+    }
+
+    @Test
+    fun `given daily item starting in six minutes with five minute offset when scheduling then triggers today`() {
+        // Agora 12:00; início 12:06 − 5 min = 12:01, ainda hoje (com 15 min seria 11:51, já passado).
+        val result =
+            useCase(
+                item(
+                    startDate = LocalDate.of(2026, 11, 1),
+                    startTime = LocalTime.of(12, 6),
+                    pattern = RecurrencePattern.Daily(),
+                    offset = ReminderOffset.FIVE_MINUTES,
+                ),
+            )
+
+        assertEquals(millisOf(LocalDate.of(2026, 11, 7), LocalTime.of(12, 1)), result)
+    }
+
+    @Test
+    fun `given single item starting in three minutes with five minute offset when scheduling then cancels and returns null`() {
+        // Agora 12:00; início 12:03 − 5 min = 11:58, já passou e não há outra ocorrência.
+        val result =
+            useCase(item(startDate = LocalDate.of(2026, 11, 7), startTime = LocalTime.of(12, 3), offset = ReminderOffset.FIVE_MINUTES))
+
+        assertNull(result)
+        verify { alarmScheduler.cancel("item-1") }
+        verify(exactly = 0) { alarmScheduler.schedule(any()) }
+    }
+
+    @Test
     fun `given event when scheduling then mode is full screen`() {
         useCase(item(startDate = LocalDate.of(2026, 11, 8), type = ScheduleType.EVENT))
 

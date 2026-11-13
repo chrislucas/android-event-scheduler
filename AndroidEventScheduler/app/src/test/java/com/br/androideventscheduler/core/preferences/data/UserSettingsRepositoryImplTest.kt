@@ -2,9 +2,11 @@ package com.br.androideventscheduler.core.preferences.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import com.br.androideventscheduler.core.datastore.createAppPreferencesDataStore
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -55,6 +57,18 @@ class UserSettingsRepositoryImplTest {
             repository.save(UserSettings(defaultReminderOffset = ReminderOffset.NONE))
 
             assertEquals(ReminderOffset.NONE, repository.current().defaultReminderOffset)
+        }
+
+    @Test
+    fun `given five minute default reminder when saving then it is stored as minutes and read back`() =
+        runTest {
+            val dataStore = dataStoreAt(newPreferencesFile())
+            val repository = UserSettingsRepositoryImpl(dataStore)
+
+            repository.save(UserSettings(defaultReminderOffset = ReminderOffset.FIVE_MINUTES))
+
+            assertEquals(5, dataStore.data.first()[intPreferencesKey("default_reminder_minutes")])
+            assertEquals(ReminderOffset.FIVE_MINUTES, repository.current().defaultReminderOffset)
         }
 
     @Test

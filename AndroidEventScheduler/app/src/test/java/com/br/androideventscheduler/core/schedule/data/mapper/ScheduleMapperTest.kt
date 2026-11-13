@@ -70,6 +70,17 @@ class ScheduleMapperTest {
     }
 
     @Test
+    fun `given five minute reminder when mapping then the entity stores five minutes and it round trips`() {
+        val item = fullItem.copy(reminderOffset = ReminderOffset.FIVE_MINUTES)
+
+        val entity = item.toEntity()
+
+        assertEquals(5, entity.reminderMinutes)
+        assertEquals(ReminderOffset.FIVE_MINUTES, entity.toDomain().reminderOffset)
+        assertEquals(item, entity.toDomain())
+    }
+
+    @Test
     fun `given item when mapping to entity then search text is normalized title notes and location`() {
         assertEquals("reuniao de equipe levar notebook sala azul", fullItem.toEntity().searchText)
     }

@@ -91,11 +91,26 @@ class AgendaDtoMapperTest {
     }
 
     @Test
+    fun `given five minute reminder name when mapping then the item keeps the five minute offset`() {
+        assertEquals(ReminderOffset.FIVE_MINUTES, map(dto(reminderOffset = "FIVE_MINUTES"))?.reminderOffset)
+    }
+
+    @Test
+    fun `given item with five minute reminder when mapping to dto and back then the name is stable and it round trips`() {
+        val item = map(dto())!!.copy(reminderOffset = ReminderOffset.FIVE_MINUTES)
+
+        val exported = AgendaDtoMapper.toDto(item)
+
+        assertEquals("FIVE_MINUTES", exported.reminderOffset)
+        assertEquals(item, map(exported))
+    }
+
+    @Test
     fun `given unknown enum names when mapping then the item is null`() {
         assertNull(map(dto(type = "MEETING")))
         assertNull(map(dto(type = "event")))
         assertNull(map(dto(calendarSource = "work_calendar")))
-        assertNull(map(dto(reminderOffset = "FIVE_MINUTES")))
+        assertNull(map(dto(reminderOffset = "TWO_MINUTES")))
         assertNull(map(dto(recurrence = RecurrenceDto(type = "MONTHLY"))))
         assertNull(map(dto(recurrence = RecurrenceDto(type = "WEEKLY", daysOfWeek = listOf("FUNDAY")))))
     }

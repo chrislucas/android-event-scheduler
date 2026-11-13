@@ -11,6 +11,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -90,6 +91,32 @@ class SettingsScreenRobolectricTest {
             .performClick()
 
         assertEquals(SettingsUiEvent.OnReminderSelected(ReminderOffset.ONE_HOUR), events.last())
+    }
+
+    @Test
+    fun `given reminder options when rendered then five minutes sits between no alert and ten minutes and can be chosen`() {
+        setContent(SettingsUiState.Content(draft = UserSettings()))
+
+        val fiveMinutesTag = SemanticsTags.SETTINGS_REMINDER_OPTION_PREFIX + ReminderOffset.FIVE_MINUTES.name
+        composeRule
+            .onNodeWithTag(fiveMinutesTag)
+            .assert(hasText(context.resources.getQuantityString(R.plurals.reminder_minutes_before, 5, 5)))
+        val optionTops =
+            listOf(ReminderOffset.NONE, ReminderOffset.FIVE_MINUTES, ReminderOffset.TEN_MINUTES).map { offset ->
+                composeRule
+                    .onNodeWithTag(SemanticsTags.SETTINGS_REMINDER_OPTION_PREFIX + offset.name)
+                    .fetchSemanticsNode()
+                    .positionInRoot.y
+            }
+        assertTrue("options out of order: $optionTops", optionTops[0] < optionTops[1] && optionTops[1] < optionTops[2])
+
+        composeRule
+            .onNodeWithTag(fiveMinutesTag)
+            .assertIsNotSelected()
+            .performScrollTo()
+            .performClick()
+
+        assertEquals(SettingsUiEvent.OnReminderSelected(ReminderOffset.FIVE_MINUTES), events.last())
     }
 
     @Test

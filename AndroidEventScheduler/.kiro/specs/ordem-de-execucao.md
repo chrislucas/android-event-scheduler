@@ -26,6 +26,7 @@
 | 18 | `16-autenticacao-dispositivo` | 00, 03 (seção Segurança em Configurações); integra 04 (deep link), 12 (share sheet), 14 (ocultar local/notas) e 17 (seletor/arquivo recebido) | **Transversal**: é um gate acima do `AppNavHost` e toca várias telas. Por último, integra tudo de uma vez, sem ramos "se a spec X já existir" |
 | 19 | `18-toque-duplo-criar-agendamento` | 05 (grade), 07 (rota `UpsertSchedule(initialDateEpochDay)`); 06 e 09 por conflito no `HomeViewModel` | Funcionalidade nova pedida após a onda G. Pequena e só na Home; não depende da 16 (pode ser executada antes dela ou em paralelo, em outra worktree). Reaproveita o efeito `NavigateToUpsert` da adição rápida |
 | 20 | `19-tema-claro-escuro` | 00 (tema), 02 (SplashScreen), 03 (Configurações, DataStore único), 14 (`FullScreenAlarmActivity`) | Funcionalidade nova. Mexe na raiz do app (`MainActivity`) e em Configurações, os mesmos arquivos da 16: fazer **antes** de a 16 ir para a `main` e rebasear a `integracao/16-autenticacao-dispositivo` depois, ou depois da 16 se ela entrar primeiro. Nunca as duas em paralelo |
+| 21 | `20-alerta-cinco-minutos` | 01 (`ReminderOffset`), 03 (padrão em Configurações), 04 (alarme), 07 (formulário), 10 (rótulo no detalhe), 17 (arquivo de agenda) | Funcionalidade nova. Só acrescenta um valor ao catálogo `ReminderOffset`; o formulário, Configurações, o alarme e o backup já trabalham com `entries`/`minutes`. Não conflita com nenhuma corrente (nenhum ViewModel muda), então pode rodar a qualquer momento |
 
 **Critérios usados, em ordem de peso:** (1) dependência dura de código; (2) risco técnico (alarmes cedo, para descobrir problemas de plataforma antes de empilhar UI); (3) feedback vertical rápido (criar → listar → abrir → editar antes dos "extras"); (4) conflito de arquivos (specs que editam o mesmo ViewModel ficam em sequência).
 
@@ -51,7 +52,7 @@
                   ├─────────────► 10 ─┴─► 12       (10 exige 01+03; 11 exige 10+04)
                   └─────────────► 13               (exige 01+03)
 ```
-Novas specs: `17` depende de 01, 03, 04 e 10; `16` depende de 00 e 03 e integra 04, 12, 14 e 17; `18` depende de 05 e 07 (e vem depois de 06/09 na corrente Home); `19` depende de 00, 02, 03 e 14 e entra na corrente Configurações/app shell.
+Novas specs: `17` depende de 01, 03, 04 e 10; `16` depende de 00 e 03 e integra 04, 12, 14 e 17; `18` depende de 05 e 07 (e vem depois de 06/09 na corrente Home); `19` depende de 00, 02, 03 e 14 e entra na corrente Configurações/app shell; `20` depende de 01, 03, 04, 07, 10 e 17 e não entra em corrente (só muda o catálogo `ReminderOffset` e testes).
 
 Três **correntes de arquivos** (cada uma edita sempre o mesmo ViewModel/tela → sequenciais dentro da corrente, independentes entre si):
 
@@ -115,6 +116,8 @@ A spec **09 é o ponto de junção**: tasks 1–2 (formulário) exigem 07/08 pro
 | 19.t2 | 03.t1 (`core.datastore`), 06.t1 (padrão de repositório no DataStore único) | `ThemePreferenceRepository` próprio no mesmo arquivo, não campo de `UserSettings` |
 | 19.t5 | 02 (`installSplashScreen`), 14 (`FullScreenAlarmActivity`) | `setKeepOnScreenCondition` até ler o tema; alarme com o mesmo tema |
 | 19.t6 | 03.t4–t5 | seção Aparência fora do `draft` (grava na hora); família `AppearanceEvent` |
+| 20.t1 | 01.t1 (`ReminderOffset`) | valor novo entre `NONE` e `TEN_MINUTES`; o `ordinal` não é persistido |
+| 20.t4 | 17 (`AgendaDtoMapper`, `docs/formato-agenda-json.md`) | formato continua na versão 1; versões anteriores ignoram só os itens com `FIVE_MINUTES` |
 | 16.t3, 16.t8 | 03.t2–t5 | `UserSettings` e tela de Configurações |
 | 16.t7 | 04.t8, 17.t9 | gate só consome deep link e arquivo recebido quando desbloqueado. Caminhos reais: `DeepLinkState` → `DeepLinkEffect` e `MainActivity.registerIncomingFile` → `IncomingFileState` → `IncomingFileEffect`, ambos no `AppNavHost`; o gate só precisa adiar esses dois efeitos enquanto bloqueado |
 | 16.t9 | 12.t4, 14.t3, 17.t7 | `suppressNextLock()` em dois pontos únicos e comentados: tratamento de `ShareText` em `ScheduleDetailScreen` (spec 12) e `launchExternalUi { … }` em `BackupScreen` (spec 17: `ShareFile`, `LaunchCreateDocument`, `LaunchOpenDocument`); ocultar local/notas no alarme (`FullScreenAlarmMapper`/tela da 14) |
@@ -161,7 +164,8 @@ Com mais de um executor, em **ondas**; dentro de cada onda as specs tocam pacote
 | G | 09 ∥ 17 ✅ | 09: 06 e 08 mergeadas · 17: 03, 04 e 10 mergeadas (pode adiantar para a onda E/F) |
 | H | 16 | 17 mergeada (e 12, 14) |
 | I | 18 ✅ | 05, 06, 07 e 09 mergeadas (já estão). Independe da 16: pode rodar em paralelo com ela, em outra worktree; o conflito previsto é só de agregação (`strings.xml`, `SemanticsTags`) e no `AppNavHost` (a 16 envolve o host com o gate; a 18 só altera o lambda `onNavigateToUpsert`) |
-| J | 19 | 00, 02, 03 e 14 mergeadas (já estão). Sequencial com a 16 (mesma corrente); pode rodar em paralelo com specs de outras correntes |
+| J | 19 ✅ | 00, 02, 03 e 14 mergeadas (já estão). Sequencial com a 16 (mesma corrente); pode rodar em paralelo com specs de outras correntes |
+| K | 20 | 01, 03, 04, 07, 10 e 17 mergeadas (já estão). Sem corrente: pode rodar em paralelo com qualquer spec; conflito só se outra spec mexer no catálogo `ReminderOffset` |
 
 **Nunca em paralelo:** specs da mesma corrente (§2) — conflito **não-trivial** (mesmo ViewModel/barra de ações). Em cada onda, rebase mantendo as linhas de agregação de ambos os lados.
 A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback vertical, as ondas priorizam profundidade do grafo.
@@ -207,7 +211,8 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 16 | pendente | | | |
 | 17 | **concluída e mergeada** | 2026-11-08 | `feat/17-importar-exportar-agenda` / PR [#22](https://github.com/chrislucas/android-event-scheduler/pull/22) | `upsertAll` com `@Upsert` em lote (transação do Room; teste com gatilho SQLite prova o tudo-ou-nada); `VIEW` só `content://` e sem `BROWSABLE`; limites do JSON (5 MB, profundidade 16, 1 milhão de nós: `parseToJsonElement` estoura a pilha com aninhamento profundo); arquivo recebido abre sobre qualquer tela exceto a Splash; motivo da recusa inline; testes com `FileProvider` precisam de `resetFileProviderCache()`. E-mail, seletor real e anexo (marco M5) não executados em aparelho |
 | 18 | **concluída e mergeada** | 2026-11-09 | `feat/18-toque-duplo-criar-agendamento` / PR [#26](https://github.com/chrislucas/android-event-scheduler/pull/26) | detector chaveado pela **posição** da célula (0..41) com a data do 1º toque, porque o 1º toque num dia de mês vizinho redesenha a grade (não previsto no design); `reset()` na troca de mês por deslize; `pointerInput` passivo recebeu o soltar como previsto; atraso das APIs prontas medido no Robolectric (`clickable` 0 ms × `combinedClickable`/`detectTapGestures` 300 ms), ver [`docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md`](../../docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md); guarda do `AppNavHost` cobre toque duplo e adição rápida (o `onEdit` do detalhe não passa por ela). Gesto real e TalkBack não verificados em aparelho |
-| 19 | pendente | | | spec criada em 2026-11-09 |
+| 19 | **concluída e mergeada** | 2026-11-09 | `feat/19-tema-claro-escuro` / PR [#31](https://github.com/chrislucas/android-event-scheduler/pull/31) | linha atualizada na spec 20 (o PR #31 não a atualizou); desvios no corpo do PR #31 |
+| 20 | **concluída** (PR aberto) | 2026-11-13 | `feat/20-alerta-cinco-minutos` / PR [#34](https://github.com/chrislucas/android-event-scheduler/pull/34) | sem desvio de produção: só o valor `FIVE_MINUTES` no enum; formulário, Configurações, alarme, Room, DataStore e backup já usavam `entries`/`minutes`/`name`. O `AgendaDtoMapperTest` usava `"FIVE_MINUTES"` como exemplo de nome desconhecido (trocado por `"TWO_MINUTES"`). Ordem das opções na tela testada por `positionInRoot` (o `boundsInRoot` vem recortado fora da área visível). `docs/testes-pos-boot-adb.md` mandava usar "Sem antecedência", opção inexistente que não agendaria alarme: corrigido para "5 minutos antes". `SplashNavigationRobolectricTest` falhou 1 vez em 3 execuções locais (instável, anterior à spec). Notificação real não verificada em aparelho |
 
 ### Como manter este documento
 
@@ -221,6 +226,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-13 | Nova spec **20 (alerta 5 minutos antes)**, posição 21 da §1 e onda K. Só acrescenta `FIVE_MINUTES` ao `ReminderOffset`; sem corrente de arquivos. Status da 19 corrigido em §8 (mergeada no PR #31) | Pedido de nova funcionalidade |
 | 2026-11-09 | Nova spec **19 (tema claro e escuro persistente)**, posição 20 da §1 e onda J; entra na corrente Configurações/app shell (conflita com a 16 em `MainActivity` e Configurações). Decisão de persistência em `docs/decisoes/persistencia-do-tema-datastore-vs-sharedpreferences.md`: Preferences DataStore único, repositório próprio, Splash segura até ler o tema | Pedido de nova funcionalidade |
 | 2026-11-09 | Spec 18 concluída (#26). Qualquer gesto novo na `MonthGridSection` deve considerar que o 1º toque pode trocar o mês e redesenhar a grade; manter o detector por posição. Resta a **16**, na branch intermediária `integracao/16-autenticacao-dispositivo` (PR #24), cujo PR final para a `main` fica com o Christopher | Desvio descoberto pelo teste de tela da 18; a 16 foi separada da `main` a pedido |
 | 2026-11-09 | Nova spec **18 (toque duplo numa data cria evento ou lembrete)**, posição 19 da §1 e onda I; corrente Home passa a 05 → 06 → 09 → 18. Novo documento [`criterios-de-aceite.md`](./criterios-de-aceite.md) com a lista canônica do que define uma spec bem implementada, referenciado pelo README das specs, pelo steering e pela `tasks.md` da 18 | Pedido de nova funcionalidade; consolidar em um lugar os critérios espalhados pelo steering, README e lições das ondas A–G |
