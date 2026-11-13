@@ -85,7 +85,7 @@ Chaves desconhecidas (no cabeçalho ou nos itens) são **ignoradas**, o que perm
 | `notes` | texto | não | Truncado em 4000 caracteres |
 | `colorHex` | texto | não | `#AARRGGBB` (ou `#RRGGBB`, opaco); ausente = cor padrão |
 | `calendarSource` | texto | não | `id` do calendário: `personal_account`, `family_calendar` ou `my_reminders`; ausente = padrão do tipo |
-| `reminderOffset` | enum | não | `NONE`, `TEN_MINUTES`, `FIFTEEN_MINUTES`, `THIRTY_MINUTES` ou `ONE_HOUR`; ausente = `FIFTEEN_MINUTES` |
+| `reminderOffset` | enum | não | `NONE`, `FIVE_MINUTES`, `TEN_MINUTES`, `FIFTEEN_MINUTES`, `THIRTY_MINUTES` ou `ONE_HOUR`; ausente = `FIFTEEN_MINUTES`. `FIVE_MINUTES` entrou na spec 20 (ver [Evolução](#evolução)) |
 | `recurrence` | objeto | não | Ver abaixo; ausente = sem recorrência |
 | `stickerEmoji` | texto ou `null` | não | Até 16 caracteres; vazio ou maior é descartado |
 
@@ -107,3 +107,9 @@ Chaves desconhecidas (no cabeçalho ou nos itens) são **ignoradas**, o que perm
 ## Evolução
 
 Mudanças compatíveis (campo novo opcional) mantêm `version: 1`. Mudanças incompatíveis incrementam `version`; apps antigos recusam o arquivo com a mensagem de versão mais nova.
+
+Valor novo num enum também mantém `version: 1`, porque a validação é **por item** (regra 3 acima): um app antigo que não conhece o valor ignora só os itens que o usam e informa quantos foram ignorados; o resto é importado. Subir a versão faria o app antigo recusar o arquivo inteiro, mesmo sem nenhum item com o valor novo.
+
+| Origem | Mudança | Efeito em versões anteriores do app |
+|---|---|---|
+| spec 20 | `reminderOffset` aceita `FIVE_MINUTES` (alerta 5 minutos antes) | itens com `FIVE_MINUTES` são ignorados e contados como "itens ignorados por dados inválidos"; os demais são importados |
