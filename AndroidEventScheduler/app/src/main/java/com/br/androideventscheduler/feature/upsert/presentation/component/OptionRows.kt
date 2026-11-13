@@ -17,7 +17,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -26,13 +25,12 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.br.androideventscheduler.R
-import com.br.androideventscheduler.core.common.StringProvider
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.ui.SemanticsTags
-import com.br.androideventscheduler.core.ui.format.ResourcesStringProvider
 import com.br.androideventscheduler.core.ui.format.label
+import com.br.androideventscheduler.core.ui.format.rememberResourcesStringProvider
 import com.br.androideventscheduler.core.ui.format.toDisplayLabel
 
 /** Alerta: a linha mostra a antecedência atual; tocar expande a lista de opções (grupo de rádio). */
@@ -42,7 +40,7 @@ internal fun ReminderOffsetRow(
     onSelected: (ReminderOffset) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val strings = rememberStringProvider()
+    val strings = rememberResourcesStringProvider()
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     Column(modifier = modifier.fillMaxWidth()) {
         SettingRow(
@@ -76,7 +74,7 @@ internal fun CalendarSourceRow(
     onSelected: (CalendarSource) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val strings = rememberStringProvider()
+    val strings = rememberResourcesStringProvider()
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     Column(modifier = modifier.fillMaxWidth()) {
         SettingRow(
@@ -101,9 +99,6 @@ internal fun CalendarSourceRow(
         }
     }
 }
-
-@Composable
-private fun rememberStringProvider(): StringProvider = ResourcesStringProvider(LocalContext.current.resources)
 
 @Composable
 private fun <T> OptionGroup(

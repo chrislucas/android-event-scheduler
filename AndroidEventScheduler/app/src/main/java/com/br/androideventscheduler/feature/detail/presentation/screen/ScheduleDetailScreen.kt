@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -81,6 +82,10 @@ internal fun ScheduleDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
+    val copyCreatedMessage = stringResource(R.string.detail_copy_created)
+    val copyOpenActionLabel = stringResource(R.string.detail_copy_open_action)
+    val shareErrorMessage = stringResource(R.string.share_error)
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -100,13 +105,11 @@ internal fun ScheduleDetailScreen(
 
             // O Snackbar espera ser dispensado: roda em outra corrotina para não bloquear os próximos efeitos.
             is ScheduleDetailUiEffect.ShowCopyCreated -> {
-                val message = context.getString(R.string.detail_copy_created)
-                val actionLabel = context.getString(R.string.detail_copy_open_action)
                 coroutineScope.launch {
                     val result =
                         snackbarHostState.showSnackbar(
-                            message = message,
-                            actionLabel = actionLabel,
+                            message = copyCreatedMessage,
+                            actionLabel = copyOpenActionLabel,
                             duration = SnackbarDuration.Long,
                         )
                     if (result == SnackbarResult.ActionPerformed) {
@@ -118,13 +121,13 @@ internal fun ScheduleDetailScreen(
             // Ponto único de disparo do share sheet (a spec 16 chamará `suppressNextLock()` aqui, antes do Intent).
             is ScheduleDetailUiEffect.ShareText -> {
                 if (!launchShareChooser(context, effect.subject, effect.body)) {
-                    Toast.makeText(context, context.getString(R.string.share_error), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, shareErrorMessage, Toast.LENGTH_SHORT).show()
                 }
             }
 
             // Toast (e não Snackbar): a tela fecha logo em seguida e um Snackbar sumiria junto com ela.
             is ScheduleDetailUiEffect.ShowMessage -> {
-                Toast.makeText(context, context.getString(effect.messageRes), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, resources.getString(effect.messageRes), Toast.LENGTH_SHORT).show()
             }
         }
     }

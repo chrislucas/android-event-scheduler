@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -33,8 +33,8 @@ import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleOccurrence
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.ui.SemanticsTags
-import com.br.androideventscheduler.core.ui.format.ResourcesStringProvider
 import com.br.androideventscheduler.core.ui.format.label
+import com.br.androideventscheduler.core.ui.format.rememberResourcesStringProvider
 import com.br.androideventscheduler.core.ui.format.shortDateTimeLabel
 import com.br.androideventscheduler.core.ui.format.toTimeLabel
 import java.time.LocalDate
@@ -52,8 +52,7 @@ internal fun ScheduleListItem(
     modifier: Modifier = Modifier,
 ) {
     val item = occurrence.item
-    val resources = LocalContext.current.resources
-    val calendarLabel = item.calendarSource.label(personalAccountLabel = accountEmail, strings = ResourcesStringProvider(resources))
+    val calendarLabel = item.calendarSource.label(personalAccountLabel = accountEmail, strings = rememberResourcesStringProvider())
     Row(
         modifier =
             modifier
@@ -96,7 +95,7 @@ internal fun ScheduleListItem(
 /** `Todo o dia`, `22:00 – 23:30`, `22:00` (sem fim, lembretes) ou `qui., 5 de nov., 22:00 → sex., 6 de nov., 01:00`. */
 @Composable
 private fun ScheduleOccurrence.intervalText(): String {
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     val endTime = item.endTime
     return when {
         item.isAllDay -> {

@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -35,8 +34,8 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.ui.SemanticsTags
-import com.br.androideventscheduler.core.ui.format.ResourcesStringProvider
 import com.br.androideventscheduler.core.ui.format.label
+import com.br.androideventscheduler.core.ui.format.rememberResourcesStringProvider
 
 /**
  * Conteúdo da gaveta lateral da Home: um filtro (caixa de seleção) por calendário e o atalho para as
@@ -51,6 +50,7 @@ internal fun CalendarDrawerSheet(
     modifier: Modifier = Modifier,
 ) {
     val drawerDescription = stringResource(R.string.home_drawer_description)
+    val strings = rememberResourcesStringProvider()
     ModalDrawerSheet(modifier = modifier.testTag(SemanticsTags.HOME_DRAWER_SHEET).semantics { contentDescription = drawerDescription }) {
         Text(
             text = stringResource(R.string.home_drawer_calendars_title),
@@ -60,7 +60,7 @@ internal fun CalendarDrawerSheet(
         CalendarSource.entries.forEach { source ->
             CalendarFilterRow(
                 source = source,
-                label = source.label(personalAccountLabel, ResourcesStringProvider(LocalContext.current.resources)),
+                label = source.label(personalAccountLabel, strings),
                 checked = source in enabledSources,
                 onCheckedChange = { onToggle(source) },
             )
