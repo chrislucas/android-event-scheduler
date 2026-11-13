@@ -20,12 +20,12 @@ internal sealed interface BackupUiEffect {
     data object LaunchOpenDocument : BackupUiEffect
 
     data class ShowMessage(
-        @StringRes val messageRes: Int,
+        @param:StringRes val messageRes: Int,
     ) : BackupUiEffect
 
     /** Mensagem com contagem (`plurals`): o texto muda conforme [quantity]. */
     data class ShowQuantityMessage(
-        @PluralsRes val messageRes: Int,
+        @param:PluralsRes val messageRes: Int,
         val quantity: Int,
     ) : BackupUiEffect
 

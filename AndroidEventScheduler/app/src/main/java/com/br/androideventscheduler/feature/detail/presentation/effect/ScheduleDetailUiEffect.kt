@@ -10,7 +10,7 @@ internal sealed interface ScheduleDetailUiEffect {
     ) : ScheduleDetailUiEffect
 
     data class ShowMessage(
-        @StringRes val messageRes: Int,
+        @param:StringRes val messageRes: Int,
     ) : ScheduleDetailUiEffect
 
     /** Snackbar "Cópia criada" com a ação "Abrir", que dispara `OnOpenCopyClicked(copyId)`. */

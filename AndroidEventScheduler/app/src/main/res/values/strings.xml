@@ -102,7 +102,6 @@
     <string name="upsert_chip_in_3_days">Daqui a 3 dias</string>
     <string name="upsert_chip_in_1_week">Daqui a 1 semana</string>
     <string name="upsert_chip_in_1_hour">Daqui a 1 hora</string>
-    <string name="upsert_quick_chips_description">Atalhos rápidos</string>
     <string name="upsert_reminder_label">Alerta</string>
     <string name="upsert_calendar_label">Calendário</string>
     <string name="upsert_location_label">Local</string>
@@ -171,7 +170,6 @@
     <string name="home_interval_multi_day">%1$s → %2$s</string>
     <string name="home_item_interval_and_calendar">%1$s · %2$s</string>
     <string name="home_quick_add">Adicionar agendamento</string>
-    <string name="home_month_picker_title">Escolher mês e ano</string>
     <string name="home_picker_previous_year">Ano anterior</string>
     <string name="home_picker_next_year">Próximo ano</string>
     <string name="home_picker_year">%1$d</string>

@@ -20,6 +20,6 @@ internal sealed class FullScreenAlarmUiState {
         val snoozeOptions: List<Int> = UserSettings.ALLOWED_SNOOZE_MINUTES,
         val selectedSnoozeMinutes: Int = UserSettings.DEFAULT_SNOOZE_MINUTES,
         val isProcessing: Boolean = false,
-        @StringRes val errorMessageRes: Int? = null,
+        @param:StringRes val errorMessageRes: Int? = null,
     ) : FullScreenAlarmUiState()
 }

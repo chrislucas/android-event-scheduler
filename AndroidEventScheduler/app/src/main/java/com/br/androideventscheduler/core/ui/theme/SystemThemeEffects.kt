@@ -2,7 +2,6 @@ package com.br.androideventscheduler.core.ui.theme
 
 import android.content.Context
 import android.content.ContextWrapper
-import android.graphics.drawable.ColorDrawable
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +18,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toDrawable
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import android.graphics.Color as AndroidColor
 
@@ -42,7 +42,7 @@ fun SystemThemeEffects(darkTheme: Boolean) {
                 SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
             }
         activity.enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
-        activity.window.setBackgroundDrawable(ColorDrawable(windowBackground))
+        activity.window.setBackgroundDrawable(windowBackground.toDrawable())
         onDispose { }
     }
 }
