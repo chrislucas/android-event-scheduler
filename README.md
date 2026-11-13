@@ -33,7 +33,7 @@ Aplicativo Android **100% offline** para organizar a rotina pessoal com **Evento
 - **Agenda do dia** com os compromissos do dia selecionado, adesivo (emoji) por dia e adição rápida; **toque duplo num dia** abre a criação de evento ou lembrete naquela data.
 - **Eventos e Lembretes**: título, dia inteiro, início e fim, local, notas, cor e emoji, com seletores de data e hora inline e atalhos rápidos ("Amanhã", "Daqui a 1 hora"…).
 - **Recorrência**: não repetir, diariamente ou semanalmente (dias à escolha) com limite opcional de ocorrências.
-- **Alertas**: antecedência configurável; Lembretes geram notificação e Eventos podem abrir **alarme em tela cheia** com **Adiar** (5/10/15 min) e **Dispensar**.
+- **Alertas**: antecedência configurável (sem alerta, 5, 10, 15 ou 30 minutos ou 1 hora antes); Lembretes geram notificação e Eventos podem abrir **alarme em tela cheia** com **Adiar** (5/10/15 min) e **Dispensar**.
 - **Restauração de alarmes** após reiniciar o aparelho, atualizar o app ou mudar fuso/hora.
 - **Gaveta lateral** para ligar/desligar a visibilidade dos calendários (conta pessoal, Family, Meus lembretes).
 - **Detalhes** com Duplicar, Editar, Compartilhar (share sheet nativo) e Excluir (com confirmação).
