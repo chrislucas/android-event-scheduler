@@ -23,9 +23,27 @@ fun <T> CollectEffects(
     onEffect: suspend (T) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    /*
+     * Por que rememberUpdatedState:
+     * `onEffect` costuma ser uma lambda criada na recomposição, capturando valores do chamador
+     * (navController, snackbarHostState, strings, callbacks...). A cada recomposição chega uma
+     * instância nova. O LaunchedEffect abaixo, porém, roda uma vez só por combinação de chaves,
+     * e uma lambda capturada diretamente dentro dele ficaria congelada na versão da primeira
+     * composição — efeitos posteriores chamariam um callback desatualizado (stale closure).
+     *
+     * A alternativa óbvia — usar `onEffect` como chave do LaunchedEffect — é pior: como a lambda
+     * muda a cada recomposição, a coleta seria cancelada e reiniciada o tempo todo, e um efeito
+     * poderia ser consumido do Channel justamente no meio de um reinício e se perder.
+     *
+     * rememberUpdatedState resolve os dois problemas: guarda a lambda num State que é atualizado
+     * a cada recomposição sem reiniciar o efeito. A coleta continua estável (chaves só `effects`
+     * e `lifecycleOwner`) e, ao receber um efeito, lê `currentOnEffect.value`, que é sempre a
+     * versão mais recente do callback.
+     */
     val currentOnEffect = rememberUpdatedState(onEffect)
     LaunchedEffect(effects, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // Lê `.value` no momento da entrega (não antes), para pegar o callback mais recente.
             effects.collect { currentOnEffect.value(it) }
         }
     }
