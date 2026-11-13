@@ -266,8 +266,9 @@ composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
 o **Compose**. Ele não espera threads reais: DataStore e Room no `io`. A `MainActivity` não compõe nada até ler o
 tema do DataStore (spec 19), e a Home e o Detalhe esperam o Room. Na máquina rápida a leitura termina antes da
 asserção; no runner do CI, às vezes não. O resultado foi uma falha intermitente
-(`splash_logo is not displayed`) em `main` e nos PRs #31, #33 e #34. A causa e a reprodução estão no PR que criou
-esta regra e no `SlowThemeReadStartupRobolectricTest`.
+(`splash_logo is not displayed`) em `main` e nos PRs #31, #33 e #34. Diagnóstico completo, reprodução e lições em
+[`docs/decisoes/teste-splash-instavel-e-threads-reais.md`](../../docs/decisoes/teste-splash-instavel-e-threads-reais.md);
+regressão no `SlowThemeReadStartupRobolectricTest`.
 
 Regras complementares:
 
