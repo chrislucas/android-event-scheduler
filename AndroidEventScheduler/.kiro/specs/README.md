@@ -64,7 +64,7 @@ core/        ui · designsystem · navigation · common · di · testing · data
              alarm (AlarmScheduler, receivers, notificações, casos de uso de alarme) ·
              preferences (UserSettings compartilhado)
 feature/     splash · home · upsert · detail · search · settings · alarm (tela cheia)
-app/         (pacote raiz) AppNavHost, KoinInitializer, Application — único lugar que conhece todas as features
+app/         (pacote raiz) AppNavHost, KoinInitializer — único lugar que conhece todas as features
 ```
 
 `AppNavHost` fica fora de `core` de propósito: `core` não pode importar `feature`. Cada feature expõe `navigation/<Feature>Entry.kt` com seu `entry<Rota>{}`.
