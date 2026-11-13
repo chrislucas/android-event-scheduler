@@ -53,7 +53,7 @@ class DisplayLabelTest {
         val labels = ReminderOffset.entries.map { it.toDisplayLabel(resources) }
 
         assertEquals(
-            listOf("Sem alerta", "10 minutos antes", "15 minutos antes", "30 minutos antes", "1 hora antes"),
+            listOf("Sem alerta", "5 minutos antes", "10 minutos antes", "15 minutos antes", "30 minutos antes", "1 hora antes"),
             labels,
         )
     }

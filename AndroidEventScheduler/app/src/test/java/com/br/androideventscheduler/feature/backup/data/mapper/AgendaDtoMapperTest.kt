@@ -95,7 +95,7 @@ class AgendaDtoMapperTest {
         assertNull(map(dto(type = "MEETING")))
         assertNull(map(dto(type = "event")))
         assertNull(map(dto(calendarSource = "work_calendar")))
-        assertNull(map(dto(reminderOffset = "FIVE_MINUTES")))
+        assertNull(map(dto(reminderOffset = "TWO_MINUTES")))
         assertNull(map(dto(recurrence = RecurrenceDto(type = "MONTHLY"))))
         assertNull(map(dto(recurrence = RecurrenceDto(type = "WEEKLY", daysOfWeek = listOf("FUNDAY")))))
     }
