@@ -746,4 +746,47 @@ class UpsertScheduleViewModelTest {
         }
 
     // endregion
+
+    // region alerta 5 minutos antes (spec 20)
+
+    @Test
+    fun `given five minute reminder selected when saving then the use case receives the five minute offset`() =
+        runTest(mainRule.dispatcher) {
+            stubSaveSuccess()
+            val viewModel = loadedCreation()
+            viewModel.onEvent(UpsertScheduleUiEvent.OnTitleChanged("Tomar remédio"))
+
+            viewModel.onEvent(UpsertScheduleUiEvent.OnReminderOffsetSelected(ReminderOffset.FIVE_MINUTES))
+            viewModel.onEvent(UpsertScheduleUiEvent.OnSaveClicked)
+            advanceUntilIdle()
+
+            assertEquals(ReminderOffset.FIVE_MINUTES, viewModel.content().reminderOffset)
+            val savedItem = slot<ScheduleItem>()
+            coVerify(exactly = 1) { saveScheduleUseCase(capture(savedItem)) }
+            assertEquals(ReminderOffset.FIVE_MINUTES, savedItem.captured.reminderOffset)
+        }
+
+    @Test
+    fun `given item stored with five minute reminder when editing then the form shows the five minute offset`() =
+        runTest(mainRule.dispatcher) {
+            coEvery { scheduleRepository.getById("item-1") } returns
+                scheduleItem(id = "item-1").copy(reminderOffset = ReminderOffset.FIVE_MINUTES)
+
+            val viewModel = createViewModel(scheduleId = "item-1")
+            advanceUntilIdle()
+
+            assertEquals(ReminderOffset.FIVE_MINUTES, viewModel.content().reminderOffset)
+        }
+
+    @Test
+    fun `given settings default of five minutes when creating then the form starts with the five minute offset`() =
+        runTest(mainRule.dispatcher) {
+            settingsRepository.save(UserSettings(defaultReminderOffset = ReminderOffset.FIVE_MINUTES))
+
+            val viewModel = loadedCreation()
+
+            assertEquals(ReminderOffset.FIVE_MINUTES, viewModel.content().reminderOffset)
+        }
+
+    // endregion
 }

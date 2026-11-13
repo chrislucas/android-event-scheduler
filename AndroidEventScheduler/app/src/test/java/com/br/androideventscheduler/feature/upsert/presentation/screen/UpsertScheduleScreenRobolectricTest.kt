@@ -29,6 +29,7 @@ import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.EventColorOption
+import com.br.androideventscheduler.core.schedule.domain.model.ReminderOffset
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.schedule.domain.model.StickerEmoji
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
@@ -51,7 +52,9 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowAlarmManager
 import org.robolectric.shadows.ShadowDialog
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 import java.util.TimeZone
 
 /**
@@ -495,4 +498,49 @@ class UpsertScheduleScreenRobolectricTest {
         SemanticsMatcher("content description contains '$text'") { node ->
             node.config.getOrNull(SemanticsProperties.ContentDescription)?.any { it.contains(text) } == true
         }
+
+    // region alerta 5 minutos antes (spec 20)
+
+    @Test
+    fun `given the reminder row when expanded then five minutes is offered between no alert and ten minutes`() {
+        showScreen()
+        click(SemanticsTags.UPSERT_REMINDER_ROW)
+
+        val fiveMinutesLabel = context.resources.getQuantityString(R.plurals.reminder_minutes_before, 5, 5)
+        composeRule
+            .onNodeWithTag(SemanticsTags.UPSERT_REMINDER_OPTION_PREFIX + ReminderOffset.FIVE_MINUTES.name)
+            .assert(hasText(fiveMinutesLabel))
+        val optionTops =
+            listOf(ReminderOffset.NONE, ReminderOffset.FIVE_MINUTES, ReminderOffset.TEN_MINUTES).map { offset ->
+                composeRule
+                    .onNodeWithTag(SemanticsTags.UPSERT_REMINDER_OPTION_PREFIX + offset.name)
+                    .fetchSemanticsNode()
+                    .positionInRoot.y
+            }
+        assertTrue("options out of order: $optionTops", optionTops[0] < optionTops[1] && optionTops[1] < optionTops[2])
+    }
+
+    @Test
+    fun `given five minutes chosen when saving then the item stores it and the alarm rings five minutes before the start`() {
+        showScreen()
+        typeTitle("Tomar remédio")
+        click(SemanticsTags.UPSERT_REMINDER_ROW)
+        click(SemanticsTags.UPSERT_REMINDER_OPTION_PREFIX + ReminderOffset.FIVE_MINUTES.name)
+
+        click(SemanticsTags.UPSERT_SAVE_BUTTON)
+        waitUntilWithMainLooper { backCalls > 0 }
+
+        val stored = runBlocking { repository.getAll() }.single()
+        assertEquals(ReminderOffset.FIVE_MINUTES, stored.reminderOffset)
+        val expectedTrigger =
+            LocalDateTime
+                .of(stored.startDate, stored.startTime)
+                .atZone(ZoneId.systemDefault())
+                .minusMinutes(5)
+                .toInstant()
+                .toEpochMilli()
+        assertEquals(expectedTrigger, shadowOf(alarmManager).scheduledAlarms.single().triggerAtMs)
+    }
+
+    // endregion
 }

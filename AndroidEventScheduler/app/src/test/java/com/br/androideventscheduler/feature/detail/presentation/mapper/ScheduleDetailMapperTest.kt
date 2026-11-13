@@ -140,6 +140,13 @@ class ScheduleDetailMapperTest {
     }
 
     @Test
+    fun `given five minute reminder when mapping then the label reads five minutes before`() {
+        val ui = mapper.map(scheduleItem().copy(reminderOffset = ReminderOffset.FIVE_MINUTES), accountEmail)
+
+        assertEquals("5 minutos antes", ui.reminderText)
+    }
+
+    @Test
     fun `given recurrence patterns when mapping then labels follow the display format`() {
         val patterns =
             listOf(
