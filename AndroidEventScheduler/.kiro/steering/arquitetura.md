@@ -244,6 +244,50 @@ Equivalentes ao Turbine: `flow.first()`, `flow.take(n).toList()`, `launch { flow
 
 Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources = true`), asserções por `testTag` e semântica. Todo teste Robolectric roda com `TestRememberMeApplication` (via `robolectric.properties`), que inicia o Koin pelo mesmo `KoinInitializer` de produção (o Robolectric não executa `ContentProvider`s) e, a partir do segundo teste, **troca o `Context` e recarrega os módulos** (`unloadKoinModules`/`loadKoinModules`), para que `single`s como DataStore e Room apontem para os arquivos do teste atual. Não use `stopKoin()` entre testes com Activity: não é confiável no Robolectric. Testes que precisem de grafo próprio usam `koinApplication { }` isolado. **`Flow` do Room**: a invalidação acontece numa thread do Room, fora do agendador de teste — colete em `backgroundScope.launch(Dispatchers.Default)` enviando para um `Channel` e use `receive()` (não dependa de tempo virtual nem de `first()` após escrever). **Testes de integração de tela com ViewModel real** (dispatcher `main`): trabalho que termina numa thread de I/O retoma na main via `Handler.post`, que o Robolectric (modo PAUSED) só executa quando o looper é drenado — dentro do `waitUntil`, chame `shadowOf(Looper.getMainLooper()).idle()`. Room: banco em memória sob Robolectric. Receivers/AlarmManager/notificações: shadows do Robolectric.
 
+#### 5.2.1 Testes com Activity real: esperar, nunca asserir de imediato
+
+Vale para todo teste Robolectric que abre uma Activity de verdade: `createAndroidComposeRule<MainActivity>()`,
+`ActivityScenario.launch(...)`, `FullScreenAlarmActivity`.
+
+**Regra:** a **primeira** verificação de qualquer coisa que dependa de dado (tela inicial, item da lista, tema) é
+feita com `composeRule.waitUntilWithMainLooper { composeRule.hasNode(TAG) }`. Use os helpers de
+`core/testing/ComposeWaits.kt`. Só depois vêm `assertIsDisplayed()`, `assertExists()` e cliques.
+
+```kotlin
+// Errado: passa na máquina local e falha no CI lento
+composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
+
+// Certo
+composeRule.waitUntilWithMainLooper { composeRule.hasNode(SemanticsTags.SPLASH_LOGO) }
+composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
+```
+
+**Por quê.** O `waitForIdle()` do Compose, chamado implicitamente por toda asserção, só sincroniza a **main thread** e
+o **Compose**. Ele não espera threads reais: DataStore e Room no `io`. A `MainActivity` não compõe nada até ler o
+tema do DataStore (spec 19), e a Home e o Detalhe esperam o Room. Na máquina rápida a leitura termina antes da
+asserção; no runner do CI, às vezes não. O resultado foi uma falha intermitente
+(`splash_logo is not displayed`) em `main` e nos PRs #31, #33 e #34. Diagnóstico completo, reprodução e lições em
+[`docs/decisoes/teste-splash-instavel-e-threads-reais.md`](../../docs/decisoes/teste-splash-instavel-e-threads-reais.md);
+regressão no `SlowThemeReadStartupRobolectricTest`.
+
+Regras complementares:
+
+1. **Tempo virtual explícito.** Para passar por um `delay` do app (Splash, *debounce*) num teste com Activity, avance
+   o relógio com `shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(CONSTANTE_DO_APP))` e depois espere a
+   tela seguinte com `waitUntilWithMainLooper`. Não conte com o relógio andando sozinho: no Robolectric 4.17, cada
+   quadro pedido ao `Choreographer` avança o relógio virtual em 15 ms, e quantos quadros são pedidos depende do
+   escalonamento real das threads.
+2. **Use a constante do app**, não um número copiado (`SplashViewModel.SPLASH_DELAY_MILLIS`), para o teste não ficar
+   para trás quando o valor mudar.
+3. **`waitUntil` sem drenar o looper não basta.** O resultado de uma thread de I/O volta para a main por
+   `Handler.post`, que o Robolectric em modo PAUSED só executa quando o looper é drenado. `waitUntilWithMainLooper`
+   já faz isso a cada volta.
+4. **Prazo de espera com folga** (`ACTIVITY_WAIT_MILLIS = 10 s`). É tempo real: o CI é bem mais lento que a máquina
+   local, e a espera termina assim que a condição fica verdadeira.
+5. **Ao investigar uma falha intermitente**, reproduza-a de forma determinística antes de corrigir. Simule a thread
+   lenta com um fake que bloqueia o `io` (como o `SlowThemePreferenceRepository`) ou rode o teste sob carga de CPU.
+   "Passou ao rodar de novo" não é diagnóstico.
+
 ### 5.3 Preview para todo componente visual (obrigatório)
 
 **Todo componente visual — qualquer função `@Composable` que emita UI (tela, conteúdo, componente, linha, diálogo, barra) — tem uma função `@Preview`.** É requisito de pronto: código com `@Composable` visual sem preview não é aceito no PR.
@@ -314,3 +358,4 @@ Telas e componentes: Compose UI Test + Robolectric (`isIncludeAndroidResources =
 - [ ] Nenhum texto literal na UI: fixo via `strings.xml`, com variável via resource formatado (`%1$s`) ou `plurals` (5.5); tags e semântica de acessibilidade presentes (5.4).
 - [ ] Nenhuma permissão nova sem entrada em `docs/permissoes.md`, comentário no manifest e atualização do `RequestedPermissionsGuardRobolectricTest` (5.6).
 - [ ] Testes de UseCases, repositórios, ViewModels e mappers presentes; `given/when/then` em inglês, sem Turbine; módulo Koin novo coberto pelo `KoinModulesVerificationTest`.
+- [ ] Testes com Activity real esperam com `waitUntilWithMainLooper` antes da primeira asserção e avançam `delay`s do app com `idleFor(CONSTANTE)` (§5.2.1).

@@ -1,18 +1,24 @@
 package com.br.androideventscheduler.feature.splash
 
+import android.os.Looper
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import com.br.androideventscheduler.MainActivity
 import com.br.androideventscheduler.R
+import com.br.androideventscheduler.core.testing.hasNode
+import com.br.androideventscheduler.core.testing.waitUntilWithMainLooper
 import com.br.androideventscheduler.core.ui.SemanticsTags
+import com.br.androideventscheduler.feature.splash.presentation.viewmodel.SplashViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SplashNavigationRobolectricTest {
@@ -21,11 +27,14 @@ class SplashNavigationRobolectricTest {
 
     @Test
     fun `given app launched when splash delay elapses then home replaces splash and back leaves the app`() {
+        // A Splash só é composta depois que o tema é lido do DataStore (thread real de I/O): esperar, não asserir direto.
+        composeRule.waitUntilWithMainLooper { composeRule.hasNode(SemanticsTags.SPLASH_LOGO) }
         composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
 
-        composeRule.waitUntil(timeoutMillis = NAVIGATION_TIMEOUT_MILLIS) {
-            composeRule.onAllNodesWithTag(SemanticsTags.HOME_CALENDAR_GRID).fetchSemanticsNodes().isNotEmpty()
-        }
+        // O tempo da Splash é avançado no relógio virtual, de forma explícita, em vez de depender de quantos quadros
+        // o Robolectric desenha (cada quadro avança o relógio virtual em 15 ms).
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(SplashViewModel.SPLASH_DELAY_MILLIS))
+        composeRule.waitUntilWithMainLooper { composeRule.hasNode(SemanticsTags.HOME_CALENDAR_GRID) }
         composeRule.onNodeWithTag(SemanticsTags.HOME_CALENDAR_GRID).assertIsDisplayed()
         assertEquals(0, composeRule.onAllNodesWithTag(SemanticsTags.SPLASH_LOGO).fetchSemanticsNodes().size)
 
@@ -52,9 +61,5 @@ class SplashNavigationRobolectricTest {
         splashAttributes.recycle()
 
         assertEquals(activity.getColor(R.color.background_dark), splashBackground)
-    }
-
-    private companion object {
-        const val NAVIGATION_TIMEOUT_MILLIS = 5_000L
     }
 }
