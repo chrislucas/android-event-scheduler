@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -73,6 +74,8 @@ internal fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val resources = LocalResources.current
+    val savedMessage = stringResource(R.string.settings_saved)
 
     CollectEffects(viewModel.uiEffect) { effect ->
         when (effect) {
@@ -85,11 +88,11 @@ internal fun SettingsScreen(
             }
 
             SettingsUiEffect.ShowSavedConfirmation -> {
-                Toast.makeText(context, context.getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, savedMessage, Toast.LENGTH_SHORT).show()
             }
 
             is SettingsUiEffect.ShowError -> {
-                snackbarHostState.showSnackbar(context.getString(effect.messageRes))
+                snackbarHostState.showSnackbar(resources.getString(effect.messageRes))
             }
         }
     }
@@ -194,7 +197,7 @@ private fun SettingsForm(
         )
 
         SettingsSectionTitle(text = stringResource(R.string.settings_reminder_section))
-        val resources = LocalContext.current.resources
+        val resources = LocalResources.current
         SettingsRadioGroup(
             options = ReminderOffset.entries,
             selectedOption = draft.defaultReminderOffset,

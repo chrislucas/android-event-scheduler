@@ -94,6 +94,10 @@ jobs:
       - name: Compilar (sem publicar artefato)
         run: ./gradlew :app:assembleDebug --stacktrace
 
+      # Reprova os erros simples de arquitetura.md §5.7 (ex.: context.getString em Composable, recurso sem uso).
+      - name: Android Lint
+        run: ./gradlew :app:lintDebug --stacktrace
+
       - name: Publicar relatórios de teste
         if: always()
         uses: actions/upload-artifact@v4
@@ -102,5 +106,6 @@ jobs:
           path: |
             AndroidEventScheduler/**/build/reports/tests/**
             AndroidEventScheduler/**/build/test-results/**/*.xml
+            AndroidEventScheduler/app/build/reports/lint-results-debug.*
           if-no-files-found: ignore
           retention-days: 7

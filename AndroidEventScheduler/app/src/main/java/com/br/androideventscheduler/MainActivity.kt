@@ -83,17 +83,17 @@ class MainActivity : ComponentActivity() {
     }
 
     /** Toque na notificação traz o id do agendamento; aberturas pelo histórico de recentes repetiriam um id antigo. */
-    private fun registerDeepLink(intent: Intent?) {
-        val launchedFromHistory = intent?.flags?.and(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
-        if (!launchedFromHistory) deepLinkState.set(intent?.getStringExtra(AlarmIntents.EXTRA_SCHEDULE_ID))
+    private fun registerDeepLink(intent: Intent) {
+        val launchedFromHistory = (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+        if (!launchedFromHistory) deepLinkState.set(intent.getStringExtra(AlarmIntents.EXTRA_SCHEDULE_ID))
     }
 
     /**
      * Arquivo de agenda recebido por `VIEW`/`SEND` (spec 17). O intent é de origem não confiável: só a URI validada por
      * [incomingAgendaFileUri] é guardada; reaberturas pelo histórico de recentes não repetem o arquivo antigo.
      */
-    private fun registerIncomingFile(intent: Intent?) {
-        val launchedFromHistory = intent?.flags?.and(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
-        if (!launchedFromHistory) incomingFileState.set(intent?.incomingAgendaFileUri())
+    private fun registerIncomingFile(intent: Intent) {
+        val launchedFromHistory = (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0
+        if (!launchedFromHistory) incomingFileState.set(intent.incomingAgendaFileUri())
     }
 }

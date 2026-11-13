@@ -13,6 +13,6 @@ internal sealed interface SettingsUiEffect {
 
     /** Erro exibido na própria tela (Snackbar). */
     data class ShowError(
-        @StringRes val messageRes: Int,
+        @param:StringRes val messageRes: Int,
     ) : SettingsUiEffect
 }

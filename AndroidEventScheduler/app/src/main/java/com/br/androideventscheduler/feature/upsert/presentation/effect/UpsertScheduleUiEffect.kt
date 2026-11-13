@@ -6,6 +6,6 @@ internal sealed interface UpsertScheduleUiEffect {
     data object NavigateBack : UpsertScheduleUiEffect
 
     data class ShowMessage(
-        @StringRes val messageRes: Int,
+        @param:StringRes val messageRes: Int,
     ) : UpsertScheduleUiEffect
 }

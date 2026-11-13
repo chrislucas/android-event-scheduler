@@ -38,7 +38,7 @@ class ScheduleAlarmReceiver :
             try {
                 handleAlarm(scheduleId, requestedMode)
             } finally {
-                pendingResult?.finish()
+                pendingResult.finish()
             }
         }
     }

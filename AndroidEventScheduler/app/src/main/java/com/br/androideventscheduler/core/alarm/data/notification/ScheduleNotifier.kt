@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.br.androideventscheduler.MainActivity
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.alarm.data.AlarmIntents
@@ -120,7 +121,7 @@ internal class ScheduleNotifier(
     private fun openDetailPendingIntent(scheduleId: String): PendingIntent {
         val intent =
             Intent(context, MainActivity::class.java)
-                .setData(Uri.parse("${AlarmIntents.ALARM_URI_SCHEME}://schedule/${Uri.encode(scheduleId)}"))
+                .setData("${AlarmIntents.ALARM_URI_SCHEME}://schedule/${Uri.encode(scheduleId)}".toUri())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra(AlarmIntents.EXTRA_SCHEDULE_ID, scheduleId)
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)

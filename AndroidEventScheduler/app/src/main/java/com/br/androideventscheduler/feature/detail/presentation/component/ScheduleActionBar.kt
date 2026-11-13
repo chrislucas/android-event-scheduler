@@ -43,12 +43,12 @@ private const val DISABLED_ALPHA = 0.38f
  * (por padrão, o próprio [label]).
  */
 internal data class ScheduleAction(
-    @StringRes val label: Int,
-    @DrawableRes val icon: Int,
+    @param:StringRes val label: Int,
+    @param:DrawableRes val icon: Int,
     val tag: String,
     val onClick: () -> Unit,
     val enabled: Boolean = true,
-    @StringRes val description: Int = label,
+    @param:StringRes val description: Int = label,
     /** Ação destrutiva (ex.: Excluir): ícone e rótulo na cor de erro. */
     val isDestructive: Boolean = false,
 )

@@ -19,7 +19,7 @@ internal sealed class BackupUiState {
         val preview: ImportPreview? = null,
         val strategy: ImportStrategy = ImportStrategy.REPLACE_EXISTING,
         val isImporting: Boolean = false,
-        @StringRes val importErrorRes: Int? = null,
+        @param:StringRes val importErrorRes: Int? = null,
     ) : BackupUiState() {
         val isBusy: Boolean get() = isExporting || isReadingImport || isImporting
 

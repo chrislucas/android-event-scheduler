@@ -38,6 +38,18 @@ android {
     buildFeatures {
         compose = true
     }
+    lint {
+        // Erros simples que já escaparam para o código (arquitetura.md §5.7): reprovam o `lintDebug`, que roda na CI.
+        error +=
+            setOf(
+                "LocalContextGetResourceValueCall", // context.getString(...) em Composable: use stringResource/LocalResources
+                "LocalContextResourcesRead", // LocalContext.current.resources: use LocalResources.current
+                "UnusedResources",
+                "RedundantLabel",
+                "UseKtx",
+                "InlinedApi",
+            )
+    }
     testOptions {
         unitTests {
             // Robolectric precisa dos recursos/manifest para renderizar Compose e resolver strings.

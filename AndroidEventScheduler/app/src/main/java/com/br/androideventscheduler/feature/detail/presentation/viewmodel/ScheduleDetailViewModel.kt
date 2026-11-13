@@ -149,7 +149,7 @@ internal class ScheduleDetailViewModel(
                             ScheduleDetailUiState.Content(
                                 schedule = mapper.map(item, email),
                                 isDeleteDialogVisible = savedStateHandle[KEY_DELETE_DIALOG_VISIBLE] ?: false,
-                                isProcessingAction = previous?.isProcessingAction ?: false,
+                                isProcessingAction = previous?.isProcessingAction == true,
                             )
                     } else {
                         if (!hasLoadedOnce) {

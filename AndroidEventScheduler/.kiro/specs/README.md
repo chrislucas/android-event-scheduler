@@ -84,7 +84,7 @@ UseCases previstos: `SaveScheduleUseCase` (07), `ScheduleNextAlarmUseCase` (04),
 ## Convenções comuns (valem para TODAS as specs; não repetidas nas tasks)
 
 - **Steering obrigatório** (já adaptado a este projeto): `.kiro/steering/arquitetura.md` e `fluxo-de-trabalho.md`.
-- **Verificação**: `./gradlew testDebugUnitTest :app:assembleDebug` `ktlintCheck detekt` → **BUILD SUCCESSFUL**. `build-logic`, `config/detekt`, `.editorconfig` e a CI já existem (gerados por `docs/project-foundation/bootstrap-foundation.sh`).
+- **Verificação**: `./gradlew testDebugUnitTest :app:assembleDebug :app:lintDebug` `ktlintCheck detekt` → **BUILD SUCCESSFUL**. `build-logic`, `config/detekt`, `.editorconfig` e a CI já existem (gerados por `docs/project-foundation/bootstrap-foundation.sh`).
 - **Testes**: JUnit4 + MockK + `kotlinx-coroutines-test` + Robolectric/Compose UI Test; **sem Turbine**; nomes ``fun `given … when … then …`()`` em inglês; `MainDispatcherRule` do `core.testing`. Cada spec lista os testes mínimos.
 - **Presentation**: sem ViewModel base nem `setState`/`sendEffect`. `UiState` = `sealed class` (`Loading`/`Content`/…) em `StateFlow`; `UiEvent` = `sealed interface`; `UiEffect` one-shot = `sealed interface` em `Channel(BUFFERED).receiveAsFlow()`. Dispatcher injetado, conteúdo `@Composable` stateless `(state, onEvent)`.
 - **Previews**: todo `@Composable` tem `@Preview` privada no mesmo arquivo, dentro de `AndroidEventSchedulerTheme`, um por estado relevante; telas usam o conteúdo stateless.
@@ -93,7 +93,7 @@ UseCases previstos: `SaveScheduleUseCase` (07), `ScheduleNextAlarmUseCase` (04),
 - **Datas**: `java.time` (`LocalDate`, `LocalTime`, `ZoneId`); relógio e fuso **injetados** (`Clock`) para testes determinísticos.
 - **Git**: uma spec → uma branch `feat/<nome-da-spec>` a partir de `main`, commits por camada (conventional commits pt-BR) → **UM PR** aberto só depois de todos os critérios de aceite marcados (autorizado; ver `steering/fluxo-de-trabalho.md` §0).
 - **Critérios de aceite comuns (valem para toda spec, somados à seção `## Critérios de aceite` do `tasks.md`)**. A lista completa e canônica, com o modelo de corpo de PR, está em [`criterios-de-aceite.md`](./criterios-de-aceite.md). O resumo abaixo é o mínimo:
-  - [ ] `./gradlew ktlintCheck detekt testDebugUnitTest :app:assembleDebug` → BUILD SUCCESSFUL.
+  - [ ] `./gradlew ktlintCheck detekt testDebugUnitTest :app:assembleDebug :app:lintDebug` → BUILD SUCCESSFUL.
   - [ ] Todas as tasks `[x]` e todos os critérios específicos `[x]`, cada um verificado.
   - [ ] Todo `@Composable` visual novo tem `@Preview` (obrigatório, `arquitetura.md` §5.3).
   - [ ] Nenhum texto literal na UI (§5.5); tags/semântica de acessibilidade presentes; nenhum import entre features.

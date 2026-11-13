@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,6 +68,9 @@ internal fun BackupScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
+    val shareNoAppMessage = stringResource(R.string.backup_share_no_app)
+    val pickerUnavailableMessage = stringResource(R.string.backup_picker_unavailable)
     val createDocumentLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(BACKUP_MIME_TYPE)) { uri ->
             viewModel.onEvent(BackupUiEvent.OnSaveDocumentCreated(uri?.toString()))
@@ -81,7 +85,7 @@ internal fun BackupScreen(
             is BackupUiEffect.ShareFile -> {
                 launchExternalUi {
                     if (!launchShareFileChooser(context, effect.uri, effect.subject, effect.body)) {
-                        Toast.makeText(context, context.getString(R.string.backup_share_no_app), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, shareNoAppMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -93,7 +97,7 @@ internal fun BackupScreen(
                     } catch (_: ActivityNotFoundException) {
                         // Sem seletor no aparelho: libera o botão e avisa.
                         viewModel.onEvent(BackupUiEvent.OnSaveDocumentCreated(null))
-                        Toast.makeText(context, context.getString(R.string.backup_picker_unavailable), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, pickerUnavailableMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -105,17 +109,17 @@ internal fun BackupScreen(
                         openDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE, "*/*"))
                     } catch (_: ActivityNotFoundException) {
                         viewModel.onEvent(BackupUiEvent.OnImportFileChosen(null))
-                        Toast.makeText(context, context.getString(R.string.backup_picker_unavailable), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, pickerUnavailableMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
 
             is BackupUiEffect.ShowMessage -> {
-                Toast.makeText(context, context.getString(effect.messageRes), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, resources.getString(effect.messageRes), Toast.LENGTH_SHORT).show()
             }
 
             is BackupUiEffect.ShowQuantityMessage -> {
-                val text = context.resources.getQuantityString(effect.messageRes, effect.quantity, effect.quantity)
+                val text = resources.getQuantityString(effect.messageRes, effect.quantity, effect.quantity)
                 Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
             }
 

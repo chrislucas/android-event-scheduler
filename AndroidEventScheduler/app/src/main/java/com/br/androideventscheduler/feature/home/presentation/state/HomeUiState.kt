@@ -28,6 +28,6 @@ sealed class HomeUiState {
     ) : HomeUiState()
 
     data class Error(
-        @StringRes val messageRes: Int,
+        @param:StringRes val messageRes: Int,
     ) : HomeUiState()
 }

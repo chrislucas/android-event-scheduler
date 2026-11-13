@@ -25,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -82,6 +83,7 @@ internal fun UpsertScheduleScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val resources = LocalResources.current
 
     CollectEffects(viewModel.uiEffect) { effect ->
         when (effect) {
@@ -90,7 +92,7 @@ internal fun UpsertScheduleScreen(
             }
 
             is UpsertScheduleUiEffect.ShowMessage -> {
-                val message = context.getString(effect.messageRes)
+                val message = resources.getString(effect.messageRes)
                 if (uiState is UpsertScheduleUiState.Content) {
                     coroutineScope.launch { snackbarHostState.showSnackbar(message) }
                 } else {
@@ -195,7 +197,7 @@ private fun UpsertForm(
             onQuickDate = { onEvent(UpsertScheduleUiEvent.OnQuickDateChipClicked(it)) },
             onQuickTime = { onEvent(UpsertScheduleUiEvent.OnQuickTimeChipClicked(it)) },
         )
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().imePadding(),
