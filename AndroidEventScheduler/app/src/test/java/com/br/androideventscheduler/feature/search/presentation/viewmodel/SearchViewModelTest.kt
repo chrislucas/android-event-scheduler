@@ -1,8 +1,7 @@
 package com.br.androideventscheduler.feature.search.presentation.viewmodel
 
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
-import androidx.test.core.app.ApplicationProvider
+import com.br.androideventscheduler.core.common.testing.FakeStringProvider
 import com.br.androideventscheduler.core.preferences.domain.UserSettings
 import com.br.androideventscheduler.core.preferences.testing.FakeUserSettingsRepository
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
@@ -29,19 +28,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import java.io.IOException
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(RobolectricTestRunner::class)
-@Config(qualifiers = "pt-rBR")
 class SearchViewModelTest {
     @get:Rule
     val mainRule = MainDispatcherRule()
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val scheduleRepository = FakeScheduleRepository()
     private val userSettingsRepository = FakeUserSettingsRepository(UserSettings(activeAccountEmail = "bia@exemplo.com"))
     private val meeting = scheduleItem(id = "meeting", title = "Reunião")
@@ -51,7 +44,7 @@ class SearchViewModelTest {
         SearchViewModel(
             scheduleRepository = scheduleRepository,
             userSettingsRepository = userSettingsRepository,
-            mapper = SearchResultMapper(context.resources),
+            mapper = SearchResultMapper(FakeStringProvider()),
             savedStateHandle = savedStateHandle,
             dispatcher = mainRule.dispatcher,
         )

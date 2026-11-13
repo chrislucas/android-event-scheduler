@@ -3,7 +3,6 @@ package com.br.androideventscheduler.app
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
-import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.br.androideventscheduler.feature.backup.di.backupModule
 import org.junit.Assert.assertTrue
@@ -25,8 +24,6 @@ class KoinModulesVerificationTest {
             Context::class,
             AlarmManager::class,
             NotificationManager::class,
-            // Resources: entregue por androidContext() (mapper da pesquisa).
-            Resources::class,
         )
 
     // Tipos fornecidos em runtime (rota/`parametersOf` e Koin ao criar ViewModels), não por um módulo.

@@ -2,6 +2,7 @@ package com.br.androideventscheduler.feature.search.presentation.mapper
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.br.androideventscheduler.core.common.AndroidStringProvider
 import com.br.androideventscheduler.core.schedule.domain.model.CalendarSource
 import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
@@ -20,8 +21,7 @@ import java.time.LocalTime
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "pt-rBR")
 class SearchResultMapperTest {
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val mapper = SearchResultMapper(context.resources)
+    private val mapper = SearchResultMapper(AndroidStringProvider(ApplicationProvider.getApplicationContext<Context>()))
     private val accountEmail = "bia@exemplo.com"
 
     private fun mapOne(item: ScheduleItem) = mapper.map(listOf(item), accountEmail).single()
