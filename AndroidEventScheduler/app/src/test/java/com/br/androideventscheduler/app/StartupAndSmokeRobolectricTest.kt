@@ -13,6 +13,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.br.androideventscheduler.MainActivity
 import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.di.DispatcherNames
+import com.br.androideventscheduler.core.testing.hasNode
+import com.br.androideventscheduler.core.testing.waitUntilWithMainLooper
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,8 @@ class StartupAndSmokeRobolectricTest {
 
     @Test
     fun `given app launched when main activity starts then splash is the first screen`() {
+        // A Splash só é composta depois que o tema é lido do DataStore (thread real de I/O): esperar, não asserir direto.
+        composeRule.waitUntilWithMainLooper { composeRule.hasNode(SemanticsTags.SPLASH_LOGO) }
         composeRule.onNodeWithTag(SemanticsTags.SPLASH_LOGO).assertIsDisplayed()
         val title = composeRule.activity.getString(R.string.splash_title)
         composeRule.onNodeWithText(title).assertIsDisplayed()
