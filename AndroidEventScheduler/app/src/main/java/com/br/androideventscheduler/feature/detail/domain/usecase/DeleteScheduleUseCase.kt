@@ -15,7 +15,7 @@ class DeleteScheduleUseCase(
     suspend operator fun invoke(scheduleId: String): Result<Unit> =
         runCatching {
             scheduleRepository.delete(scheduleId)
+            // Falha no cancelamento não desfaz a exclusão (ver KDoc): o resultado é descartado de propósito.
             runCatching { alarmScheduler.cancel(scheduleId) }
-            Unit
         }
 }
