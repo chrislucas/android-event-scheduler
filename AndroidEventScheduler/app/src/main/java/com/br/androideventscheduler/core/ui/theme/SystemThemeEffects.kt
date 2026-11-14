@@ -16,9 +16,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toDrawable
+import com.br.androideventscheduler.R
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import android.graphics.Color as AndroidColor
 
@@ -61,9 +63,9 @@ private fun SystemThemeEffectsPreview() {
     AndroidEventSchedulerTheme(darkTheme = isSystemInDarkTheme()) {
         Surface(color = MaterialTheme.colorScheme.background) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "Fundo e texto do tema", color = MaterialTheme.colorScheme.onBackground)
-                Text(text = "Texto secundário", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(text = "Acento", color = MaterialTheme.colorScheme.primary)
+                Text(text = stringResource(R.string.theme_preview_background_text), color = MaterialTheme.colorScheme.onBackground)
+                Text(text = stringResource(R.string.theme_preview_secondary_text), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = stringResource(R.string.theme_preview_accent_text), color = MaterialTheme.colorScheme.primary)
             }
         }
     }
