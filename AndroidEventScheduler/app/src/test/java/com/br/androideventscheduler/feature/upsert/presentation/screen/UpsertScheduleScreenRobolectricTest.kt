@@ -34,6 +34,7 @@ import com.br.androideventscheduler.core.schedule.domain.model.ScheduleType
 import com.br.androideventscheduler.core.schedule.domain.model.StickerEmoji
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
+import com.br.androideventscheduler.core.testing.pressBackOnLatestDialog
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.core.ui.format.toShortDateLabel
 import com.br.androideventscheduler.core.ui.format.toTimeLabel
@@ -50,7 +51,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowAlarmManager
-import org.robolectric.shadows.ShadowDialog
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -481,7 +481,7 @@ class UpsertScheduleScreenRobolectricTest {
         showScreen()
         click(SemanticsTags.UPSERT_COLOR_BUTTON)
 
-        composeRule.runOnUiThread { checkNotNull(ShadowDialog.getLatestDialog()).onBackPressed() }
+        composeRule.runOnUiThread { pressBackOnLatestDialog() }
         composeRule.waitForIdle()
 
         assertEquals(0, tagCount(SemanticsTags.COLOR_PICKER_DIALOG))

@@ -14,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.EventColorOption
+import com.br.androideventscheduler.core.testing.pressBackOnLatestDialog
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -22,7 +23,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "pt-rBR-w411dp-h891dp")
@@ -97,7 +97,7 @@ class ColorPickerDialogRobolectricTest {
     fun `given the dialog when dismissed without choosing then nothing is selected`() {
         show()
 
-        composeRule.runOnUiThread { checkNotNull(ShadowDialog.getLatestDialog()).onBackPressed() }
+        composeRule.runOnUiThread { pressBackOnLatestDialog() }
         composeRule.waitForIdle()
 
         assertTrue(selections.isEmpty())

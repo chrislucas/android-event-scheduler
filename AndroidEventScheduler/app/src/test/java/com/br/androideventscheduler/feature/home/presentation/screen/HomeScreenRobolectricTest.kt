@@ -38,6 +38,7 @@ import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
 import com.br.androideventscheduler.core.schedule.domain.model.StickerEmoji
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import com.br.androideventscheduler.core.testing.FakeClock
+import com.br.androideventscheduler.core.testing.pressBackOnLatestDialog
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.home.domain.calendar.MonthGridBuilder
 import com.br.androideventscheduler.feature.home.presentation.component.previewContent
@@ -53,7 +54,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowDialog
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -428,7 +428,7 @@ class HomeScreenRobolectricTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(SemanticsTags.STICKER_OPTION_PREFIX + StickerEmoji.PARTY.name).assertIsSelected()
-        composeRule.runOnUiThread { checkNotNull(ShadowDialog.getLatestDialog()).onBackPressed() }
+        composeRule.runOnUiThread { pressBackOnLatestDialog() }
         composeRule.waitForIdle()
 
         assertEquals(HomeUiEvent.OnDayStickerPickerDismissed, events.last())

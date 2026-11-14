@@ -1,7 +1,7 @@
 # 21 — Zero avisos e dependências em dia — Tarefas
 
-- [ ] 1. Refazer o inventário: compilar do zero (`--rerun-tasks`) e listar os `w:`; rodar `:app:lintDebug` e listar os avisos. Comparar com `requirements.md` e anotar diferenças no PR.
-- [ ] 2. `Dialog.onBackPressed()` → helper `pressBackOnLatestDialog()` (`core.testing`) nos 5 testes (R1.1).
+- [x] 1. Refazer o inventário: compilar do zero (`--rerun-tasks`) e listar os `w:`; rodar `:app:lintDebug` e listar os avisos. Comparar com `requirements.md` e anotar diferenças no PR.
+- [x] 2. `Dialog.onBackPressed()` → helper `pressBackOnLatestDialog()` (`core.testing`) nos 5 testes (R1.1).
 - [ ] 3. Shadows do `AlarmManager`/`PendingIntent` → acessores não deprecados; `operation` isolado num helper se não houver substituto (R1.2, R1.4).
 - [ ] 4. `BaseCursor`/`setCursor` → `ContentProvider` de teste no `AgendaBackupRepositoryImplTest` (R1.3).
 - [ ] 5. Preview do `SystemThemeEffects` com strings de `strings.xml` (R3) e `tools:targetApi` + comentário no manifest (R4).
