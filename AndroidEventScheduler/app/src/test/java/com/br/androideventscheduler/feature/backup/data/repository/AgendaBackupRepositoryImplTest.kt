@@ -1,6 +1,10 @@
 package com.br.androideventscheduler.feature.backup.data.repository
 
+import android.content.ContentProvider
+import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
+import android.database.MatrixCursor
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.room.Room
@@ -30,9 +34,9 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.fakes.BaseCursor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -234,8 +238,10 @@ class AgendaBackupRepositoryImplTest {
     @Test
     fun `given a provider that declares a size above the limit when reading then it is refused before opening the stream`() =
         runTest {
-            val uri = contentUri("declared-huge.json")
-            shadowOf(context.contentResolver).setCursor(uri, SizeCursor(size = 6L * 1024 * 1024))
+            val uri = Uri.parse("content://$DECLARED_SIZE_AUTHORITY/attachments/declared-huge.json")
+            Robolectric
+                .setupContentProvider(DeclaredSizeProvider::class.java, DECLARED_SIZE_AUTHORITY)
+                .declaredSize = 6L * 1024 * 1024
             val source = EndlessInputStream(totalBytes = 10)
             shadowOf(context.contentResolver).registerInputStream(uri, source)
 
@@ -317,18 +323,45 @@ class AgendaBackupRepositoryImplTest {
         }
     }
 
-    /** Cursor mínimo que informa só `OpenableColumns.SIZE`. */
-    private class SizeCursor(
-        private val size: Long,
-    ) : BaseCursor() {
-        override fun getColumnIndex(columnName: String?): Int = if (columnName == OpenableColumns.SIZE) 0 else -1
+    /**
+     * Provedor de teste que só responde à consulta de `OpenableColumns.SIZE` com [declaredSize]. O stream continua
+     * vindo do `registerInputStream`, que o `ShadowContentResolver` consulta antes do provedor.
+     */
+    class DeclaredSizeProvider : ContentProvider() {
+        var declaredSize: Long = 0L
 
-        override fun moveToFirst(): Boolean = true
+        override fun onCreate(): Boolean = true
 
-        override fun isNull(columnIndex: Int): Boolean = false
+        override fun query(
+            uri: Uri,
+            projection: Array<out String>?,
+            selection: String?,
+            selectionArgs: Array<out String>?,
+            sortOrder: String?,
+        ): Cursor = MatrixCursor(arrayOf(OpenableColumns.SIZE)).apply { addRow(arrayOf<Any>(declaredSize)) }
 
-        override fun getLong(columnIndex: Int): Long = size
+        override fun getType(uri: Uri): String? = null
 
-        override fun close() = Unit
+        override fun insert(
+            uri: Uri,
+            values: ContentValues?,
+        ): Uri? = null
+
+        override fun delete(
+            uri: Uri,
+            selection: String?,
+            selectionArgs: Array<out String>?,
+        ): Int = 0
+
+        override fun update(
+            uri: Uri,
+            values: ContentValues?,
+            selection: String?,
+            selectionArgs: Array<out String>?,
+        ): Int = 0
+    }
+
+    private companion object {
+        const val DECLARED_SIZE_AUTHORITY = "com.example.declaredsize.provider"
     }
 }
