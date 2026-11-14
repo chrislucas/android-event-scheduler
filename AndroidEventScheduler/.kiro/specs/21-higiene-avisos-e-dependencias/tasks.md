@@ -4,7 +4,7 @@
 - [x] 2. `Dialog.onBackPressed()` → helper `pressBackOnLatestDialog()` (`core.testing`) nos 5 testes (R1.1).
 - [x] 3. Shadows do `AlarmManager`/`PendingIntent` → acessores não deprecados; `operation` isolado num helper se não houver substituto (R1.2, R1.4).
 - [x] 4. `BaseCursor`/`setCursor` → `ContentProvider` de teste no `AgendaBackupRepositoryImplTest` (R1.3).
-- [ ] 5. Preview do `SystemThemeEffects` com strings de `strings.xml` (R3) e `tools:targetApi` + comentário no manifest (R4).
+- [x] 5. Preview do `SystemThemeEffects` com strings de `strings.xml` (R3) e `tools:targetApi` + comentário no manifest (R4).
 - [ ] 6. Atualizar dependências, um grupo por commit, na ordem do `design.md` D3; corrigir as depreciações novas no mesmo commit do grupo que as trouxe (R2.1–R2.3).
 - [ ] 7. `.github/dependabot.yml` (R2.4).
 - [ ] 8. Travas: `allWarningsAsErrors` e Lint com `warningsAsErrors` + regras de versão desligadas; teste manual da trava (R5.1, R5.2).
