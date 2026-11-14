@@ -3,6 +3,8 @@
 # o mesmo commit passaria hoje e falharia amanhã. As versões novas chegam por estes PRs semanais.
 # O PR do Dependabot segue o fluxo normal (.kiro/steering/fluxo-de-trabalho.md §4): CI verde e
 # depreciação nova corrigida no próprio PR antes do merge.
+# Documentação completa (o problema, esta configuração e o que fazer com os PRs):
+# AndroidEventScheduler/docs/decisoes/dependabot-atualizacao-de-dependencias.md
 version: 2
 updates:
   # Catálogo gradle/libs.versions.toml (usado também pelo build-logic) e o Gradle wrapper.
@@ -11,6 +13,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
+      time: "07:00"
       timezone: America/Sao_Paulo
     commit-message:
       prefix: "chore(deps)"
@@ -35,6 +38,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
+      time: "07:00"
       timezone: America/Sao_Paulo
     commit-message:
       prefix: "ci(deps)"
