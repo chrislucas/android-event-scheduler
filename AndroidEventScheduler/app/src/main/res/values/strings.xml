@@ -33,6 +33,10 @@
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
     <string name="settings_theme_save_error">Não foi possível salvar o tema. Tente novamente.</string>
+    <!-- Preview do SystemThemeEffects (spec 19): só a preview usa -->
+    <string name="theme_preview_background_text">Fundo e texto do tema</string>
+    <string name="theme_preview_secondary_text">Texto secundário</string>
+    <string name="theme_preview_accent_text">Acento</string>
     <string name="settings_account_section">Conta</string>
     <string name="settings_account_email_label">E-mail da conta ativa</string>
     <string name="settings_account_email_description">Campo de e-mail da conta ativa</string>

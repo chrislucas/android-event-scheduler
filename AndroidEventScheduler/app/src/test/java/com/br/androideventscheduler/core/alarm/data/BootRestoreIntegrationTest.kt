@@ -20,6 +20,7 @@ import com.br.androideventscheduler.core.schedule.domain.model.ScheduleItem
 import com.br.androideventscheduler.core.schedule.domain.recurrence.RecurrenceEngine
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import com.br.androideventscheduler.core.testing.FakeClock
+import com.br.androideventscheduler.core.testing.pendingOperation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -127,7 +128,7 @@ class BootRestoreIntegrationTest {
 
     private fun pendingAlarmsByScheduleId(): Map<String, Long> =
         shadowOf(alarmManager).scheduledAlarms.associate { alarm ->
-            shadowOf(alarm.operation).savedIntent.data!!.lastPathSegment!! to alarm.triggerAtMs
+            shadowOf(alarm.pendingOperation()).savedIntent.data!!.lastPathSegment!! to alarm.triggerAtMs
         }
 
     @Test

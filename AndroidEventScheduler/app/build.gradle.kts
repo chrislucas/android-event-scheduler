@@ -49,6 +49,16 @@ android {
                 "UseKtx",
                 "InlinedApi",
             )
+        // Nenhum aviso do Lint (arquitetura.md §5.7; spec 21, R5.2).
+        warningsAsErrors = true
+        // Versão nova disponível não reprova o build: depende da rede e da data (o mesmo commit passaria hoje e
+        // falharia amanhã). As atualizações chegam pelo Dependabot (.github/dependabot.yml).
+        disable +=
+            setOf(
+                "NewerVersionAvailable",
+                "GradleDependency",
+                "AndroidGradlePluginVersion",
+            )
     }
     testOptions {
         unitTests {

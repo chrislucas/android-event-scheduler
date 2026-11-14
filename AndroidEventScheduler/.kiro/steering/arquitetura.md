@@ -345,8 +345,9 @@ Erros pequenos já escaparam para a `main` e foram corrigidos em lote. **Não re
 - **Preferir as extensões KTX** *(lint: `UseKtx`)*: `"…".toUri()` em vez de `Uri.parse`, `color.toDrawable()` em vez de `ColorDrawable(color)`, etc.
 - **API nova protegida também na assinatura** *(lint: `InlinedApi`)*: função que só é chamada atrás de `if (SDK_INT >= X)` recebe `@RequiresApi(X)`.
 - **Manifest sem atributo redundante** *(lint: `RedundantLabel`)*: `android:label` da Activity igual ao da `application` não é repetido.
-- **Anotação de recurso em propriedade de construtor com alvo explícito**: `@param:StringRes val messageRes: Int` (sem o `param:` o Kotlin 2.2 avisa que o alvo vai mudar).
-- **Nenhum aviso novo do compilador em `main`.** Rode o build e leia os `w:`; aviso novo é corrigido no mesmo PR.
+- **Anotação de recurso em propriedade de construtor com alvo explícito**: `@param:StringRes val messageRes: Int` (sem o `param:` o Kotlin avisa que o alvo vai mudar, e o aviso reprova o build).
+- **Nenhum aviso do compilador nem do Lint, nem nos testes** *(build: `allWarningsAsErrors` e Lint `warningsAsErrors`)*. O compilador Kotlin trata aviso como erro em toda compilação (produção e testes; convention plugin `androideventscheduler.code.quality`) e o `:app:lintDebug` reprova qualquer aviso. Aviso é corrigido na causa: troque a API deprecada pelo substituto indicado, remova o `Unit`/`!!`/cast redundante. Não desligue a trava nem a regra do Lint para "passar". As únicas regras do Lint desligadas são as de versão nova disponível (`NewerVersionAvailable`, `GradleDependency`, `AndroidGradlePluginVersion`): dependem da rede e da data, e as atualizações vêm do Dependabot (`fluxo-de-trabalho.md` §4).
+- **`@Suppress("DEPRECATION")` só num helper isolado e justificado**: quando a API deprecada **não tem substituto** na versão em uso, o acesso fica numa única função (em `core.testing` para testes), com o `@Suppress` restrito a ela e um comentário dizendo o motivo e quando remover; o motivo também vai para o PR. Exemplo: `ScheduledAlarm.pendingOperation()` (o Robolectric 4.18 deprecou o campo `operation` sem criar getter). Proibido `@Suppress("DEPRECATION")` em classe, arquivo ou teste inteiro.
 
 ## 6. Mapeamento spec → pacotes
 

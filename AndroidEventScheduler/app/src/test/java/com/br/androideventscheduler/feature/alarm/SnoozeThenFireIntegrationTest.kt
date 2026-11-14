@@ -28,6 +28,7 @@ import com.br.androideventscheduler.core.schedule.domain.recurrence.RecurrenceEn
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
 import com.br.androideventscheduler.core.testing.FakeClock
+import com.br.androideventscheduler.core.testing.pendingOperation
 import com.br.androideventscheduler.feature.alarm.presentation.screen.FullScreenAlarmActivity
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -128,7 +129,7 @@ class SnoozeThenFireIntegrationTest {
     /** Dispara o `PendingIntent` do alarme pendente, como o `AlarmManager` faria no horário. */
     private fun fireScheduledAlarm() {
         val alarm = scheduledAlarms().single()
-        val firedIntent: Intent = shadowOf(alarm.operation).savedIntent
+        val firedIntent: Intent = shadowOf(alarm.pendingOperation()).savedIntent
         context.sendBroadcast(firedIntent)
         shadowOf(Looper.getMainLooper()).idle()
     }
@@ -199,7 +200,7 @@ class SnoozeThenFireIntegrationTest {
         snooze(5).getOrThrow()
         assertEquals(
             AlertPresentationMode.NOTIFICATION_ONLY.name,
-            shadowOf(scheduledAlarms().single().operation).savedIntent.getStringExtra(AlarmIntents.EXTRA_PRESENTATION_MODE),
+            shadowOf(scheduledAlarms().single().pendingOperation()).savedIntent.getStringExtra(AlarmIntents.EXTRA_PRESENTATION_MODE),
         )
 
         clock.advanceBy(Duration.ofMinutes(5))

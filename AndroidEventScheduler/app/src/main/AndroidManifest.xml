@@ -69,7 +69,9 @@
             android:exported="false" />
 
         <!-- Tela cheia (spec 14): alerta de evento sobre a tela de bloqueio, aberto pelo fullScreenIntent da notificação.
-             Sem <data>: o PendingIntent da spec 04 só envia ação + extra. showWhenLocked/turnScreenOn dispensam permissão. -->
+             Sem <data>: o PendingIntent da spec 04 só envia ação + extra. showWhenLocked/turnScreenOn dispensam permissão e
+             só existem a partir do API 27 (tools:targetApi): abaixo dele, a FullScreenAlarmActivity aplica os flags de janela
+             FLAG_SHOW_WHEN_LOCKED/FLAG_TURN_SCREEN_ON no código. -->
         <activity
             android:name=".feature.alarm.presentation.screen.FullScreenAlarmActivity"
             android:excludeFromRecents="true"
@@ -78,7 +80,8 @@
             android:showWhenLocked="true"
             android:taskAffinity=""
             android:theme="@style/Theme.AndroidEventScheduler"
-            android:turnScreenOn="true">
+            android:turnScreenOn="true"
+            tools:targetApi="27">
             <intent-filter>
                 <action android:name="com.br.androideventscheduler.action.SHOW_FULL_SCREEN_ALARM" />
 

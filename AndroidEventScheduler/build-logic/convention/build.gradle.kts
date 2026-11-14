@@ -20,6 +20,8 @@ dependencies {
     // via pluginManager.apply(...).
     implementation(libs.detekt.gradlePlugin)
     implementation(libs.ktlint.gradlePlugin)
+    // Só a API (KotlinCompilationTask): o KGP real vem do projeto, pelos plugins do Kotlin/AGP.
+    compileOnly(libs.kotlin.gradlePluginApi)
 }
 
 gradlePlugin {

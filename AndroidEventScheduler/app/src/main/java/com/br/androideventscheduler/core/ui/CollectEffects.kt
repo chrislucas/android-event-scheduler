@@ -39,6 +39,23 @@ fun <T> CollectEffects(
      * a cada recomposição sem reiniciar o efeito. A coleta continua estável (chaves só `effects`
      * e `lifecycleOwner`) e, ao receber um efeito, lê `currentOnEffect.value`, que é sempre a
      * versão mais recente do callback.
+     *
+     * Por que `lifecycleOwner` é chave (e não vai para um rememberUpdatedState como o callback):
+     * o corpo do efeito usa o owner para *montar* a coleta, e não só para chamá-lo depois:
+     * `repeatOnLifecycle` passa a observar o `Lifecycle` daquele owner específico. Se o
+     * `LocalLifecycleOwner` mudar (outro provedor acima na árvore, como a entry de navegação, um
+     * diálogo ou um `CompositionLocalProvider`), um efeito que não reinicia continua preso ao owner
+     * antigo. Daí saem dois erros:
+     *  - o owner antigo é destruído: `repeatOnLifecycle` retorna e a coleta para de vez, então
+     *    nenhum efeito é mais entregue;
+     *  - o owner antigo segue STARTED enquanto o novo está parado: os efeitos são entregues com a
+     *    tela invisível e saem do Channel em vez de esperar no buffer.
+     * Não dá para "trocar o owner" no meio de um `repeatOnLifecycle` em andamento; a coleta tem de
+     * recomeçar no `Lifecycle` novo, e é isso que a chave faz. O custo do reinício é desprezível,
+     * porque o owner quase nunca muda. A regra geral: valor que, ao mudar, exige **refazer** o
+     * trabalho do efeito é chave; valor que só precisa estar **atualizado** quando for lido é
+     * rememberUpdatedState. `effects` é chave pelo mesmo motivo: um Flow novo exige coletar o
+     * novo, não o antigo.
      */
     val currentOnEffect = rememberUpdatedState(onEffect)
     LaunchedEffect(effects, lifecycleOwner) {

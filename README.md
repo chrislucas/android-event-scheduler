@@ -196,6 +196,7 @@ O app pede só o necessário para lembrar no horário certo — notificações, 
 - [`docs/decisoes/commits-compilaveis-e-git-bisect.md`](AndroidEventScheduler/docs/decisoes/commits-compilaveis-e-git-bisect.md) — regra "todo commit compila": o caso do PR #16, como verificar cada commit antes do PR e como usar o `git bisect` no projeto.
 - [`docs/decisoes/persistencia-do-tema-datastore-vs-sharedpreferences.md`](AndroidEventScheduler/docs/decisoes/persistencia-do-tema-datastore-vs-sharedpreferences.md) — onde guardar a escolha de tema: Preferences DataStore × SharedPreferences (e por que não Proto DataStore, Room ou `UiModeManager`), com vantagens, desvantagens e a recomendação.
 - [`docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md`](AndroidEventScheduler/docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md) — por que a grade usa um detector de toque duplo próprio: `combinedClickable`/`detectTapGestures` atrasam o toque simples em 300 ms (medido), a solução com `pointerInput` passivo e o que ela trata a mais (deslize, dia de mês vizinho, TalkBack).
+- [`docs/decisoes/dependabot-atualizacao-de-dependencias.md`](AndroidEventScheduler/docs/decisoes/dependabot-atualizacao-de-dependencias.md) — por que as versões novas chegam por PRs semanais do Dependabot e não por erro do Lint (build que muda com a data), a configuração do `.github/dependabot.yml` opção por opção, o ciclo do PR com as travas `allWarningsAsErrors`/`warningsAsErrors` e o que ele não cobre.
 
 ## Qualidade de código e CI
 

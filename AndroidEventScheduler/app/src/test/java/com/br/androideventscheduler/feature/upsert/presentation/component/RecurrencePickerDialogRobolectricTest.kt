@@ -14,7 +14,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -25,6 +25,7 @@ import com.br.androideventscheduler.core.designsystem.AndroidEventSchedulerTheme
 import com.br.androideventscheduler.core.schedule.domain.model.RecurrencePattern
 import com.br.androideventscheduler.core.schedule.domain.repository.ScheduleRepository
 import com.br.androideventscheduler.core.schedule.testing.scheduleItem
+import com.br.androideventscheduler.core.testing.pressBackOnLatestDialog
 import com.br.androideventscheduler.core.ui.SemanticsTags
 import com.br.androideventscheduler.feature.upsert.presentation.screen.UpsertScheduleScreen
 import kotlinx.coroutines.runBlocking
@@ -37,7 +38,6 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowDialog
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -299,7 +299,7 @@ class RecurrencePickerDialogRobolectricTest {
         click(SemanticsTags.RECURRENCE_OPTION_DAILY)
 
         // O diálogo do Compose é um ComponentDialog: o botão voltar chega ao dispatcher dele, não ao da Activity.
-        composeRule.runOnUiThread { checkNotNull(ShadowDialog.getLatestDialog()).onBackPressed() }
+        composeRule.runOnUiThread { pressBackOnLatestDialog() }
         composeRule.waitForIdle()
 
         assertEquals(0, tagCount(SemanticsTags.RECURRENCE_DIALOG))

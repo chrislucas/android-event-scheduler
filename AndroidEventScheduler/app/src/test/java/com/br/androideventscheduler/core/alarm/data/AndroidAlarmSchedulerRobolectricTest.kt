@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.br.androideventscheduler.core.alarm.domain.model.AlarmRequest
 import com.br.androideventscheduler.core.alarm.domain.model.AlertPresentationMode
+import com.br.androideventscheduler.core.testing.pendingOperation
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
@@ -45,21 +46,21 @@ class AndroidAlarmSchedulerRobolectricTest {
         scheduler.schedule(request(triggerAtEpochMillis = 5_000L))
 
         val alarm = pendingAlarm()
-        assertEquals(AlarmManager.RTC_WAKEUP, alarm.type)
+        assertEquals(AlarmManager.RTC_WAKEUP, alarm.getType())
         assertEquals(5_000L, alarm.triggerAtMs)
-        assertTrue(alarm.allowWhileIdle)
+        assertTrue(alarm.isAllowWhileIdle())
     }
 
     @Test
     fun `given alarm pending intent when inspecting it then it targets the receiver with item uri and mode extra`() {
         scheduler.schedule(request(scheduleId = "abc", mode = AlertPresentationMode.NOTIFICATION_ONLY))
 
-        val pendingIntent = shadowOf(pendingAlarm().operation)
+        val pendingIntent = shadowOf(pendingAlarm().pendingOperation())
         val savedIntent = pendingIntent.savedIntent
         assertEquals("rememberme://alarm/abc", savedIntent.data.toString())
         assertEquals(ScheduleAlarmReceiver::class.java.name, savedIntent.component?.className)
         assertEquals("NOTIFICATION_ONLY", savedIntent.getStringExtra(AlarmIntents.EXTRA_PRESENTATION_MODE))
-        assertTrue(pendingIntent.isBroadcastIntent)
+        assertTrue(pendingIntent.isBroadcast)
         assertTrue(pendingIntent.flags and android.app.PendingIntent.FLAG_IMMUTABLE != 0)
     }
 
