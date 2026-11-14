@@ -97,7 +97,7 @@ class ScheduleNotifierRobolectricTest {
         val savedIntent = shadowOf(contentIntent).savedIntent
         assertEquals(MainActivity::class.java.name, savedIntent.component?.className)
         assertEquals("abc", savedIntent.getStringExtra(AlarmIntents.EXTRA_SCHEDULE_ID))
-        assertEquals(true, shadowOf(contentIntent).isActivityIntent)
+        assertEquals(true, shadowOf(contentIntent).isActivity)
         assertEquals(true, postedNotification("abc")?.flags?.and(Notification.FLAG_AUTO_CANCEL) != 0)
     }
 
