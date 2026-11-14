@@ -27,6 +27,7 @@
 | 19 | `18-toque-duplo-criar-agendamento` | 05 (grade), 07 (rota `UpsertSchedule(initialDateEpochDay)`); 06 e 09 por conflito no `HomeViewModel` | Funcionalidade nova pedida após a onda G. Pequena e só na Home; não depende da 16 (pode ser executada antes dela ou em paralelo, em outra worktree). Reaproveita o efeito `NavigateToUpsert` da adição rápida |
 | 20 | `19-tema-claro-escuro` | 00 (tema), 02 (SplashScreen), 03 (Configurações, DataStore único), 14 (`FullScreenAlarmActivity`) | Funcionalidade nova. Mexe na raiz do app (`MainActivity`) e em Configurações, os mesmos arquivos da 16: fazer **antes** de a 16 ir para a `main` e rebasear a `integracao/16-autenticacao-dispositivo` depois, ou depois da 16 se ela entrar primeiro. Nunca as duas em paralelo |
 | 21 | `20-alerta-cinco-minutos` | 01 (`ReminderOffset`), 03 (padrão em Configurações), 04 (alarme), 07 (formulário), 10 (rótulo no detalhe), 17 (arquivo de agenda) | Funcionalidade nova. Só acrescenta um valor ao catálogo `ReminderOffset`; o formulário, Configurações, o alarme e o backup já trabalham com `entries`/`minutes`. Não conflita com nenhuma corrente (nenhum ViewModel muda), então pode rodar a qualquer momento |
+| 22 | `21-higiene-avisos-e-dependencias` | PR #37 (regra §5.7 e `lintDebug` na CI, já mergeado) | Manutenção, sem funcionalidade: zera os avisos de depreciação dos testes, atualiza as dependências, cria o Dependabot e liga `allWarningsAsErrors`. Toca `libs.versions.toml`, o wrapper e muitos testes: rodar **sem outra spec aberta** (ou rebasear as abertas logo depois), porque uma atualização de Kotlin/Compose/Robolectric pode quebrar o que está em andamento |
 
 **Critérios usados, em ordem de peso:** (1) dependência dura de código; (2) risco técnico (alarmes cedo, para descobrir problemas de plataforma antes de empilhar UI); (3) feedback vertical rápido (criar → listar → abrir → editar antes dos "extras"); (4) conflito de arquivos (specs que editam o mesmo ViewModel ficam em sequência).
 
@@ -53,6 +54,8 @@
                   └─────────────► 13               (exige 01+03)
 ```
 Novas specs: `17` depende de 01, 03, 04 e 10; `16` depende de 00 e 03 e integra 04, 12, 14 e 17; `18` depende de 05 e 07 (e vem depois de 06/09 na corrente Home); `19` depende de 00, 02, 03 e 14 e entra na corrente Configurações/app shell; `20` depende de 01, 03, 04, 07, 10 e 17 e não entra em corrente (só muda o catálogo `ReminderOffset` e testes).
+
+`21` (higiene) não depende de feature nenhuma; é transversal (build, dependências e testes de todas as correntes) e por isso roda sozinha.
 
 Três **correntes de arquivos** (cada uma edita sempre o mesmo ViewModel/tela → sequenciais dentro da corrente, independentes entre si):
 
@@ -166,6 +169,7 @@ Com mais de um executor, em **ondas**; dentro de cada onda as specs tocam pacote
 | I | 18 ✅ | 05, 06, 07 e 09 mergeadas (já estão). Independe da 16: pode rodar em paralelo com ela, em outra worktree; o conflito previsto é só de agregação (`strings.xml`, `SemanticsTags`) e no `AppNavHost` (a 16 envolve o host com o gate; a 18 só altera o lambda `onNavigateToUpsert`) |
 | J | 19 ✅ | 00, 02, 03 e 14 mergeadas (já estão). Sequencial com a 16 (mesma corrente); pode rodar em paralelo com specs de outras correntes |
 | K | 20 | 01, 03, 04, 07, 10 e 17 mergeadas (já estão). Sem corrente: pode rodar em paralelo com qualquer spec; conflito só se outra spec mexer no catálogo `ReminderOffset` |
+| L | 21 | PR #37 mergeado (já está). **Sozinha**: atualiza Kotlin/Compose/Robolectric e mexe em testes de todas as correntes; specs abertas durante ela precisam rebasear e podem ganhar depreciações novas para corrigir |
 
 **Nunca em paralelo:** specs da mesma corrente (§2) — conflito **não-trivial** (mesmo ViewModel/barra de ações). Em cada onda, rebase mantendo as linhas de agregação de ambos os lados.
 A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback vertical, as ondas priorizam profundidade do grafo.
@@ -181,6 +185,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 10 | concentra `StringProvider` e a fundação do detalhe | não paralelizar 11/12 |
 | 16 | transversal; diálogo do sistema só verificável em aparelho; API < 30 usa caminho diferente | executar por último; marco M6 em duas versões do Android |
 | 17 | arquivo não confiável; integração com apps de e-mail | validação completa antes de gravar; marco M5 |
+| 21 | Kotlin 2.4 pode não ser aceito pelo detekt 2.0 alpha, pelo KSP ou pelo Room; `ScheduledAlarm.operation` sem substituto no Robolectric | um grupo de dependências por commit; ficar na versão compatível mais recente e registrar; acesso deprecado isolado num helper (R1.4) |
 
 ## 7. Regras de uso
 
@@ -213,6 +218,7 @@ A ordem linear da §1 e as ondas são compatíveis; a linear prioriza feedback v
 | 18 | **concluída e mergeada** | 2026-11-09 | `feat/18-toque-duplo-criar-agendamento` / PR [#26](https://github.com/chrislucas/android-event-scheduler/pull/26) | detector chaveado pela **posição** da célula (0..41) com a data do 1º toque, porque o 1º toque num dia de mês vizinho redesenha a grade (não previsto no design); `reset()` na troca de mês por deslize; `pointerInput` passivo recebeu o soltar como previsto; atraso das APIs prontas medido no Robolectric (`clickable` 0 ms × `combinedClickable`/`detectTapGestures` 300 ms), ver [`docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md`](../../docs/decisoes/toque-duplo-sem-atrasar-o-toque-simples.md); guarda do `AppNavHost` cobre toque duplo e adição rápida (o `onEdit` do detalhe não passa por ela). Gesto real e TalkBack não verificados em aparelho |
 | 19 | **concluída e mergeada** | 2026-11-09 | `feat/19-tema-claro-escuro` / PR [#31](https://github.com/chrislucas/android-event-scheduler/pull/31) | linha atualizada na spec 20 (o PR #31 não a atualizou); desvios no corpo do PR #31 |
 | 20 | **concluída** (PR aberto) | 2026-11-13 | `feat/20-alerta-cinco-minutos` / PR [#34](https://github.com/chrislucas/android-event-scheduler/pull/34) | sem desvio de produção: só o valor `FIVE_MINUTES` no enum; formulário, Configurações, alarme, Room, DataStore e backup já usavam `entries`/`minutes`/`name`. O `AgendaDtoMapperTest` usava `"FIVE_MINUTES"` como exemplo de nome desconhecido (trocado por `"TWO_MINUTES"`). Ordem das opções na tela testada por `positionInRoot` (o `boundsInRoot` vem recortado fora da área visível). `docs/testes-pos-boot-adb.md` mandava usar "Sem antecedência", opção inexistente que não agendaria alarme: corrigido para "5 minutos antes". `SplashNavigationRobolectricTest` falhou 1 vez em 3 execuções locais (instável, anterior à spec). Notificação real não verificada em aparelho |
+| 21 | pendente | | | |
 
 ### Como manter este documento
 
@@ -226,6 +232,7 @@ Ao **final de cada spec** (parte do relatório final e do PR):
 
 | Data | Mudança | Motivo |
 |---|---|---|
+| 2026-11-13 | Nova spec **21 (zero avisos e dependências em dia)**, posição 22 da §1 e onda L (sozinha). Fecha o que o PR #37 deixou de fora: depreciações nos testes, dependências desatualizadas, texto fixo em preview e `UnusedAttribute`; liga `allWarningsAsErrors` e cria o Dependabot | O PR #37 corrigiu os erros simples de produção e deixou esses itens registrados como fora do escopo |
 | 2026-11-13 | Nova spec **20 (alerta 5 minutos antes)**, posição 21 da §1 e onda K. Só acrescenta `FIVE_MINUTES` ao `ReminderOffset`; sem corrente de arquivos. Status da 19 corrigido em §8 (mergeada no PR #31) | Pedido de nova funcionalidade |
 | 2026-11-09 | Nova spec **19 (tema claro e escuro persistente)**, posição 20 da §1 e onda J; entra na corrente Configurações/app shell (conflita com a 16 em `MainActivity` e Configurações). Decisão de persistência em `docs/decisoes/persistencia-do-tema-datastore-vs-sharedpreferences.md`: Preferences DataStore único, repositório próprio, Splash segura até ler o tema | Pedido de nova funcionalidade |
 | 2026-11-09 | Spec 18 concluída (#26). Qualquer gesto novo na `MonthGridSection` deve considerar que o 1º toque pode trocar o mês e redesenhar a grade; manter o detector por posição. Resta a **16**, na branch intermediária `integracao/16-autenticacao-dispositivo` (PR #24), cujo PR final para a `main` fica com o Christopher | Desvio descoberto pelo teste de tela da 18; a 16 foi separada da `main` a pedido |
