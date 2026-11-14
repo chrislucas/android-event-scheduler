@@ -1,7 +1,7 @@
 package com.br.androideventscheduler.app
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.navigation3.runtime.NavKey
 import com.br.androideventscheduler.core.navigation.AgendaBackup
 import com.br.androideventscheduler.core.navigation.Home
