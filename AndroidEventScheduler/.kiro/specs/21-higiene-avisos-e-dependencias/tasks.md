@@ -6,7 +6,7 @@
 - [x] 4. `BaseCursor`/`setCursor` → `ContentProvider` de teste no `AgendaBackupRepositoryImplTest` (R1.3).
 - [x] 5. Preview do `SystemThemeEffects` com strings de `strings.xml` (R3) e `tools:targetApi` + comentário no manifest (R4).
 - [x] 6. Atualizar dependências, um grupo por commit, na ordem do `design.md` D3; corrigir as depreciações novas no mesmo commit do grupo que as trouxe (R2.1–R2.3).
-- [ ] 7. `.github/dependabot.yml` (R2.4).
+- [x] 7. `.github/dependabot.yml` (R2.4).
 - [ ] 8. Travas: `allWarningsAsErrors` e Lint com `warningsAsErrors` + regras de versão desligadas; teste manual da trava (R5.1, R5.2).
 - [ ] 9. Steering: `arquitetura.md` §5.7 e `fluxo-de-trabalho.md` (R5.3).
 - [ ] 10. Verificação final conforme [`criterios-de-aceite.md`](../criterios-de-aceite.md), incluindo a checagem por commit.

@@ -1,0 +1,44 @@
+# Atualização contínua das dependências (spec 21, R2.4). O Lint não reprova o build por versão nova
+# (NewerVersionAvailable/GradleDependency/AndroidGradlePluginVersion desligadas em app/build.gradle.kts):
+# o mesmo commit passaria hoje e falharia amanhã. As versões novas chegam por estes PRs semanais.
+# O PR do Dependabot segue o fluxo normal (.kiro/steering/fluxo-de-trabalho.md §4): CI verde e
+# depreciação nova corrigida no próprio PR antes do merge.
+version: 2
+updates:
+  # Catálogo gradle/libs.versions.toml (usado também pelo build-logic) e o Gradle wrapper.
+  - package-ecosystem: gradle
+    directory: /AndroidEventScheduler
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # Kotlin, KSP e kotlinx-* sobem juntos: a kotlinx-serialization nova costuma exigir o compilador novo.
+      # "org.jetbrains.kotlin*" cobre também org.jetbrains.kotlinx (o grupo que casa primeiro leva a dependência).
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+      androidx:
+        patterns:
+          - "androidx.*"
+      test:
+        patterns:
+          - "io.mockk*"
+          - "org.robolectric*"
+          - "junit*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions:
+        patterns:
+          - "*"
