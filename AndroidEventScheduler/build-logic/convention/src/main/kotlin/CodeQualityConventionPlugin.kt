@@ -7,16 +7,19 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 /**
  * Convention plugin de QUALIDADE DE CÓDIGO.
  *
- * Aplica dois verificadores de forma padronizada a qualquer módulo que o use:
+ * Aplica dois verificadores e uma trava de forma padronizada a qualquer módulo que o use:
  *  - **Detekt** (io.gitlab.arturbosch.detekt): análise estática — code smells, complexidade,
  *    potenciais bugs e más práticas de Kotlin.
  *  - **KtLint** (org.jlleitschuh.gradle.ktlint): lint de ESTILO/formatação, com `ktlintFormat`
  *    para auto-corrigir.
+ *  - **Compilador Kotlin com avisos como erros** (`allWarningsAsErrors`): qualquer `w:` novo, em produção ou
+ *    nos testes, reprova o build (arquitetura.md §5.7; spec 21).
  *
  * Por que num convention plugin, e não em cada build.gradle.kts?
  *  - Centraliza regras, versões e relatórios: todo módulo herda a mesma configuração.
@@ -67,6 +70,11 @@ class CodeQualityConventionPlugin : Plugin<Project> {
                 sarif.required.set(false)
                 markdown.required.set(false)
             }
+        }
+
+        // --- Kotlin: nenhum aviso do compilador (produção e testes) ---
+        tasks.withType<KotlinCompilationTask<*>>().configureEach {
+            compilerOptions.allWarningsAsErrors.set(true)
         }
 
         // --- KtLint ---
